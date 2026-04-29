@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="{{ 'ko' if current_lang == 'kor' else 'en' if current_lang == 'eng' else 'ja' if current_lang == 'jpn' else 'zh' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} LinkSuwon {% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/main.css') }}">
+
+    {% block extra_css %}{% endblock %}
+
+    <script type="text/javascript" 
+        src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpKeyId={{ ncp_id }}&language={{ 'ko' if current_lang == 'kor' else 'en' if current_lang == 'eng' else 'ja' if current_lang == 'jpn' else 'zh_cn' if current_lang == 'chs' else 'zh_tw' }}">
+    </script>
+    
+    <script src="{{ url_for('static', filename='script/main.js') }}" defer></script>
+    {% block scripts %}{% endblock %}
+</head>
+<body>
+    {% include 'includes/header.html' %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'includes/footer.html' %}
+</body>
+</html>
