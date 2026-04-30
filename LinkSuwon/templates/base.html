@@ -7,6 +7,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/chatbot.css') }}">
 
     {% block extra_css %}{% endblock %}
 
@@ -15,10 +16,12 @@
     </script>
     
     <script src="{{ url_for('static', filename='script/main.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='script/chatbot.js') }}" defer></script>
     {% block scripts %}{% endblock %}
 </head>
 <body>
     {% include 'includes/header.html' %}
+    {% include 'includes/chatbot.html' %}
 
     <main>
         {% block content %}{% endblock %}

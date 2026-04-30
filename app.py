@@ -93,6 +93,20 @@ def detail(content_id):
     # 데이터가 없거나 에러나면 메인 페이지로 안전하게 퇴각!
     return redirect(url_for('index', lang=lang))
 
+
+# [챗봇 기능] 다국어 챗봇 라우트 추가
+@app.route('/ask_chatbot', methods=['POST'])
+def ask_chatbot():
+    # AJAX나 폼에서 넘어온 데이터 수신
+    user_input = request.form.get('message', '')
+    lang = request.args.get('lang', 'kor')
+    
+    # api_manager에 추가한 제미나이 호출 함수 사용
+    bot_response = api_manager.ask_gemini_multilingual(user_input, lang)
+    
+    # 텍스트 그대로 반환하거나 JSON 형태로 반환
+    return bot_response
+
 if __name__ == '__main__':
     # debug True 모드로 실행하여 코드 수정 시 서버 자동 재시작 구현
     # 포트는 5001번을 사용 (맥북 에어 포트 충돌 방지)

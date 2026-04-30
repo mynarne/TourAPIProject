@@ -15,6 +15,9 @@ class TourAPIManager():
         self.api_key = unquote(raw_key) if raw_key else None
         self.base_url = 'https://apis.data.go.kr/B551011'
 
+        # gemini API 가져오기
+        self.gemini_api_key = os.getenv('GEMINI_API_KEY')
+
         # 일본어 변환기 설정
         self.kks = pykakasi.kakasi()
 
@@ -125,3 +128,59 @@ class TourAPIManager():
         except Exception as e:
             print(f"--- [DEBUG] 상세정보 예외 발생: {str(e)} ---")
             return None
+        
+
+    # 제미나이 호출 함수
+    def ask_gemini_multilingual(self, user_input: str, target_language: str) -> str:
+        # 언어 코드에 따른 시스템 지시문 정의
+        lang_map = {
+            'kor': "You must answer in Korean.",
+            'eng': "You must answer in English.",
+            'jpn': "You must answer in Japanese.",
+            'chs': "You must answer in Simplified Chinese.",
+            'cht': "You must answer in Traditional Chinese."
+        }
+        
+        system_prompt = lang_map.get(target_language, "You must answer in Korean.")
+        
+        # [해결 포인트] 라이브러리 충돌을 피하기 위해 REST API 직접 호출 방식 적용
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+        
+        headers = {
+            "Content-Type": "application/json"
+        }
+        
+        # API 키를 URL 파라미터에 포함
+        params = {
+            "key": self.gemini_api_key
+        }
+        
+        # 요청 페이로드 구성
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": f"{system_prompt}\n\nUser: {user_input}"}
+                    ]
+                }
+            ]
+        }
+        
+        try:
+            response = requests.post(url, headers=headers, params=params, json=payload, timeout=15)
+            
+            if response.status_code == 200:
+                res_data = response.json()
+                # 응답 텍스트 추출
+                candidates = res_data.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts:
+                        return parts[0].get("text", "답변을 생성하지 못했슈.")
+                return "답변을 생성하지 못했슈."
+            else:
+                return f"API 호출 실패 (코드: {response.status_code})"
+                
+        except Exception as e:
+            print(f"--- [DEBUG] 예외 발생: {str(e)} ---")
+            return f"에러 발생: {str(e)}"

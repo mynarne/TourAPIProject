@@ -1,0 +1,37 @@
+<div id="chatbot-container">
+    <button id="chat-toggle-btn" onclick="toggleChatbot()">
+        💬
+    </button>
+
+    <div id="chat-box" style="display: none;">
+        <div class="chat-header">
+            <span>AI LinkSuwon Chat</span>
+            <button onclick="toggleChatbot()">×</button>
+        </div>
+
+        <div id="chat-messages">
+            <div class="chat-message bot-message">
+                {% if current_lang == 'eng' %}
+                    Hello! Ask me anything about Suwon tourism!
+                {% elif current_lang == 'jpn' %}
+                    こんにちは！水原観光について何でも聞いてください！
+                {% elif current_lang == 'chs' %}
+                    您好！请问任何关于水原旅游的问题！
+                {% elif current_lang == 'cht' %}
+                    您好！請問任何關於水原旅遊的問題！
+                {% else %}
+                    안녕하세요! 수원 관광에 대해 물어보세요!
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" 
+                   placeholder="{% if current_lang == 'eng' %}Ask your question here...{% elif current_lang == 'jpn' %}質問を入力してください...{% elif current_lang == 'chs' %}在此输入您的问题...{% elif current_lang == 'cht' %}在此輸入您的問題...{% else %}여기에 질문을 입력하셔유...{% endif %}" 
+                   onkeypress="if(event.key === 'Enter') sendChatMessage()">
+            <button onclick="sendChatMessage()">
+                {% if current_lang == 'eng' %}Send{% elif current_lang == 'jpn' %}送信{% elif current_lang == 'chs' %}发送{% elif current_lang == 'cht' %}發送{% else %}전송{% endif %}
+            </button>
+        </div>
+    </div>
+</div>
