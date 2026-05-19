@@ -1,0 +1,41 @@
+/* 길찾기 카드 고유 스타일 */
+.route-card {
+    border-radius: 16px !important;
+    background-color: #ffffff;
+}
+
+/* 길찾기 제출 버튼 */
+.nav-submit-btn {
+    background-color: var(--giwa-navy) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    transition: background-color 0.2s ease;
+}
+
+.nav-submit-btn:active, .nav-submit-btn:hover {
+    background-color: var(--point-blue) !important;
+}
+
+/* 아코디언 버튼 커스텀 */
+.tips-accordion .accordion-button {
+    background-color: #ffffff !important;
+    color: var(--giwa-navy) !important;
+    font-size: 0.95rem;
+    padding: 18px;
+}
+
+.tips-accordion .accordion-button:not(.collapsed) {
+    background-color: rgba(0, 102, 204, 0.05) !important;
+    color: var(--point-blue) !important;
+    box-shadow: none !important;
+}
+
+.tips-accordion .accordion-button::after {
+    background-size: 1rem !important;
+}
+
+/* 인풋창 포커스 보정 */
+.form-select:focus, .form-control:focus {
+    border-color: var(--point-blue) !important;
+    box-shadow: 0 0 0 0.25rem rgba(0, 102, 204, 0.15) !important;
+}

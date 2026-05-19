@@ -1,0 +1,119 @@
+/* 상세 페이지 전체 컨테이너 (모바일 최우선) */
+.detail-container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 0 15px;
+}
+
+/* 상단 제목 및 이미지 영역 */
+.detail-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.detail-header h1 {
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: var(--giwa-navy);
+    margin-bottom: 15px;
+    word-break: keep-all;
+}
+
+.detail-header img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* 본문 영역 (설명 + 지도) */
+.detail-body {
+    display: flex;
+    flex-direction: column; /* 모바일에서는 위아래 배치 */
+    gap: 30px;
+}
+
+/* 화면이 768px 이상일 때 양옆으로 배치 */
+@media (min-width: 768px) {
+    .detail-body {
+        flex-direction: row;
+    }
+    .detail-header h1 {
+        font-size: 2.2rem;
+    }
+}
+
+.info-section, .map-section {
+    flex: 1;
+    min-width: 300px;
+}
+
+.section-subtitle {
+    border-bottom: 3px solid var(--giwa-navy);
+    padding-bottom: 10px;
+    color: var(--giwa-navy);
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+}
+
+.overview {
+    line-height: 1.8;
+    color: var(--text-dark);
+    font-size: 1.05rem;
+}
+
+.basic-info {
+    margin-top: 25px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #eaeaea;
+}
+
+.basic-info p {
+    margin-bottom: 10px;
+    color: var(--text-dark);
+}
+
+.basic-info p:last-child {
+    margin-bottom: 0;
+}
+
+/* 상세 페이지 내 지도 사이즈 */
+#detail-map {
+    width: 100%;
+    height: 350px;
+    border-radius: 12px;
+    border: 1px solid #eaeaea;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* 길찾기 버튼 */
+.btn-route {
+    display: block;
+    text-align: center;
+    background: #03C75A; /* 네이버 고유 색상 유지 */
+    color: #ffffff;
+    padding: 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    margin-top: 20px;
+    transition: background 0.2s;
+}
+
+.btn-route:active, .btn-route:hover {
+    background: #02a84b;
+}
+
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 40px;
+    color: var(--text-gray);
+    text-decoration: underline;
+    font-weight: 500;
+}

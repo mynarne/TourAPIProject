@@ -6,7 +6,7 @@
     {% elif current_lang == 'eng' %}
         LinkSuwon - Connect to Suwon
     {% elif current_lang == 'jpn' %}
-        LinkSuwon - 水元のすべて를 繋ぐ
+        LinkSuwon - 水元のすべてを繋ぐ
     {% elif current_lang == 'chs' %}
         LinkSuwon - 连接水原的一切
     {% elif current_lang == 'cht' %}
@@ -16,54 +16,116 @@
     {% endif %}
 {% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
 {% block scripts %}
-    {{ super() }}
-    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId={{ ncp_id }}&language={{ 'ko' if current_lang == 'kor' else 'en' if current_lang == 'eng' else 'ja' if current_lang == 'jpn' else 'zh_cn' if current_lang == 'chs' else 'zh_tw' }}"></script>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    
+    <script id="spot-data" type="application/json">
+        {{ items | tojson | safe }}
+    </script>
 {% endblock %}
 
 {% block content %}
-<section id="map-container">
-    <div id="map" style="width:100%; height:450px; border-bottom: 1px solid #ddd;"></div>
-</section>
+<div class="container d-flex flex-column justify-content-center align-items-center" style="min-height: 80vh;">
+    
+    <div class="landing-logo-wrap text-center mb-5">
+        <h1 class="landing-logo display-4 fw-bolder" style="color: var(--giwa-navy);">
+            Link<span style="color: var(--point-blue);">Suwon</span>
+        </h1>
+        <p class="text-muted fw-bold mt-2">
+            {% if current_lang == 'kor' %}수원의 모든 연결
+            {% elif current_lang == 'eng' %}Connect to Suwon
+            {% elif current_lang == 'jpn' %}水元のすべてを繋ぐ
+            {% elif current_lang == 'chs' %}连接水原的一切
+            {% elif current_lang == 'cht' %}連接水原的一切
+            {% else %}Connect to Suwon
+            {% endif %}
+        </p>
+    </div>
 
-<div class="container">
-    <h2 class="section-title" style="margin-top: 40px; font-family: 'Nanum Myeongjo', serif;">
-        {% if current_lang == 'kor' %}수원 추천 명소{% elif current_lang == 'jpn' %}水元の名所{% else %}Must-Visit in Suwon{% endif %}
-    </h2>
-
-    <div class="spot-grid">
-        {% if items %}
-            {% for item in items %}
-            <div class="spot-card">
-                <div class="spot-image">
-                    {# API 이미지 없을 때 기본 이미지 출력 #}
-                    <img src="{{ item.firstimage if item.firstimage else url_for('static', filename='images/default.jpg') }}" alt="{{ item.title }}"
-                    onerror="this.src=`{{ url_for('static', filename='images/default.png') }}`">
-                </div>
-                <div class="spot-info">
-                    <h3>{{ item.title }}</h3>
-
-                    <p class="addr" style="font-size: 0.8rem; color: #999;">
-                        {{ item.addr1 if item.addr1 else 'Address info not available' }}
-                    </p>
-
-                    {# 3. 언어별 버튼 텍스트 처리 #}
-                    <a href="{{ url_for('detail', content_id=item.contentid, lang=current_lang) }}" class="btn-detail">
-                        {% if current_lang == 'kor' %} 자세히 보기
-                        {% elif current_lang == 'jpn' %} 詳細を見る
-                        {% elif current_lang == 'chs' %} 查看详情
-                        {% elif current_lang == 'cht' %} 查看詳情
-                        {% else %} View Details
-                        {% endif %}
-                    </a>
-                </div>
+    <div class="w-100" style="max-width: 500px;">
+        <div class="row g-3">
+            
+            <div class="col-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="card h-100 text-center border-0 shadow-sm menu-card">
+                        <div class="card-body py-4">
+                            <div class="menu-icon mb-2">📸</div>
+                            <h5 class="card-title fw-bold text-dark mb-0">
+                                {% if current_lang == 'kor' %}명소 안내
+                                {% elif current_lang == 'eng' %}Attractions
+                                {% elif current_lang == 'jpn' %}名所案内
+                                {% elif current_lang == 'chs' %}景点指南
+                                {% elif current_lang == 'cht' %}景點指南
+                                {% else %}Attractions
+                                {% endif %}
+                            </h5>
+                        </div>
+                    </div>
+                </a>
             </div>
-            {% endfor %}
-        {% else %}
-            <div class="no-data">
-                <p style="text-align: center; padding: 50px 0;">데이터 로딩 실패, API 키 혹은 네트워크 확인 필요</p>
+
+            <div class="col-6">
+                <a href="{{ url_for('traffic.traffic_home', lang=current_lang) }}" class="text-decoration-none">
+                    <div class="card h-100 text-center border-0 shadow-sm menu-card">
+                        <div class="card-body py-4">
+                            <div class="menu-icon mb-2">🗺️</div>
+                            <h5 class="card-title fw-bold text-dark mb-0">
+                                {% if current_lang == 'kor' %}지도 · 길찾기
+                                {% elif current_lang == 'eng' %}Map & Directions
+                                {% elif current_lang == 'jpn' %}地図・道案内
+                                {% elif current_lang == 'chs' %}地图 · 导航
+                                {% elif current_lang == 'cht' %}地圖 · 導航
+                                {% else %}Map & Directions
+                                {% endif %}
+                            </h5>
+                        </div>
+                    </div>
+                </a>
             </div>
-        {% endif %}
+
+            <div class="col-6">
+                <a href="{{ url_for('chatbot.chat_home', lang=current_lang) }}" class="text-decoration-none">
+                    <div class="card h-100 text-center border-0 shadow-sm menu-card">
+                        <div class="card-body py-4">
+                            <div class="menu-icon mb-2">🤖</div>
+                            <h5 class="card-title fw-bold text-dark mb-0">
+                                {% if current_lang == 'kor' %}AI 여행 비서
+                                {% elif current_lang == 'eng' %}AI Guide
+                                {% elif current_lang == 'jpn' %}AI旅行秘書
+                                {% elif current_lang == 'chs' %}AI旅行助理
+                                {% elif current_lang == 'cht' %}AI旅行助理
+                                {% else %}AI Guide
+                                {% endif %}
+                            </h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-6">
+                <a href="{{ url_for('record.record_home', lang=current_lang) }}" class="text-decoration-none">
+                    <div class="card h-100 text-center border-0 shadow-sm menu-card">
+                        <div class="card-body py-4">
+                            <div class="menu-icon mb-2">📓</div>
+                            <h5 class="card-title fw-bold text-dark mb-0">
+                                {% if current_lang == 'kor' %}나만의 기록
+                                {% elif current_lang == 'eng' %}Travel Logs
+                                {% elif current_lang == 'jpn' %}旅行記録
+                                {% elif current_lang == 'chs' %}我的记录
+                                {% elif current_lang == 'cht' %}我的記錄
+                                {% else %}Travel Logs
+                                {% endif %}
+                            </h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+        </div>
     </div>
 </div>
 {% endblock %}

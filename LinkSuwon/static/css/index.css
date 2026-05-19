@@ -1,0 +1,45 @@
+/* 로고 스르륵 내려오는 애니메이션 */
+@keyframes slideDownFade {
+    0% {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.landing-logo-wrap {
+    animation: slideDownFade 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+/* 2x2 메뉴 카드 디자인 */
+.menu-card {
+    border-radius: 16px !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: #ffffff;
+    cursor: pointer;
+}
+
+.menu-card:hover, .menu-card:active {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(0, 102, 204, 0.15) !important;
+    border: 2px solid var(--point-blue) !important;
+}
+
+/* 메뉴 이모지 아이콘 크기 */
+.menu-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+/* 모바일 환경 텍스트 최적화 */
+@media (max-width: 576px) {
+    .card-title {
+        font-size: 1rem !important;
+    }
+    .menu-icon {
+        font-size: 2rem;
+    }
+}

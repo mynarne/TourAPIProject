@@ -4,62 +4,44 @@
     {{ item.title }} - 상세 정보
 {% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/detail.css') }}">
+{% endblock %}
+
 {% block scripts %}
-    {{ super() }}
+    <script src="{{ url_for('static', filename='js/detail.js') }}"></script>
     <script>
         window.onload = function() {
-            // API에서 준 좌표가 문자열일 수 있으니 숫자로 바꿔주는 게 안전
-            var mapX = parseFloat("{{ item.mapx }}");
-            var mapY = parseFloat("{{ item.mapy }}");
-
-            if (!mapX || !mapY) {
-                console.error("좌표 데이터가 없음!");
-                return;
-            }
-
-            var mapOptions = {
-                center: new naver.maps.LatLng(mapY, mapX),
-                zoom: 16,
-                mapTypeControl: true
-            };
-
-            var map = new naver.maps.Map('map', mapOptions);
-
-            // 명소 위치에 멋드러지게 마커
-            var marker = new naver.maps.Marker({
-                position: new naver.maps.LatLng(mapY, mapX),
-                map: map,
-                icon: {
-                    content: '<div style="padding:5px; background:#002b5b; color:#fff; border-radius:5px; border:1px solid #fff;">' +
-                             '{{ item.title }}' +
-                             '</div>',
-                    anchor: new naver.maps.Point(12, 12)
-                }
-            });
+            // API에서 준 좌표가 문자열일 수 있으니 숫자로 변환
+            const mapX = parseFloat("{{ item.mapx }}");
+            const mapY = parseFloat("{{ item.mapy }}");
+            const title = "{{ item.title }}";
+            
+            // 상세 페이지 전용 지도 초기화 함수 호출
+            initDetailMap(mapY, mapX, title);
         };
     </script>
 {% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 1000px; margin: 40px auto; padding: 0 20px;">
-    <!-- 상단 이미지와 제목 -->
-    <div class="detail-header" style="text-align: center; margin-bottom: 40px;">
-        <h1 style="font-family: 'Nanum Myeongjo', serif; font-size: 2.5rem; margin-bottom: 20px;">{{ item.title }}</h1>
+<div class="detail-container">
+    <div class="detail-header">
+        <h1>{{ item.title }}</h1>
         {% if item.firstimage %}
-            <img src="{{ item.firstimage }}" alt="{{ item.title }}" style="width: 100%; max-height: 500px; object-fit: cover; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+            <img src="{{ item.firstimage }}" alt="{{ item.title }}">
+        {% else %}
+            <img src="{{ url_for('static', filename='images/default.png') }}" alt="Default Image">
         {% endif %}
     </div>
 
-    <div class="detail-body" style="display: flex; flex-wrap: wrap; gap: 40px;">
-        <!-- 왼쪽: 상세 설명 -->
-        <div class="info-section" style="flex: 1; min-width: 300px;">
-            <h2 style="border-bottom: 2px solid #002b5b; padding-bottom: 10px; color: #002b5b;">소개</h2>
-            <div class="overview" style="line-height: 1.8; color: #444; font-size: 1.1rem; margin-top: 20px;">
-                {# API에서 오는 HTML 태그를 살리려면 safe 필터를 사용해야됨 #}
+    <div class="detail-body">
+        <div class="info-section">
+            <h2 class="section-subtitle">소개</h2>
+            <div class="overview">
                 {{ item.overview|safe }}
             </div>
             
-            <div class="basic-info" style="margin-top: 30px; background: #f9f9f9; padding: 20px; border-radius: 10px;">
+            <div class="basic-info">
                 <p><strong>📍 주소:</strong> {{ item.addr1 }}</p>
                 {% if item.homepage %}
                     <p><strong>🌐 홈페이지:</strong> {{ item.homepage|safe }}</p>
@@ -67,25 +49,17 @@
             </div>
         </div>
 
-        <!-- 오른쪽: 지도 및 길찾기 -->
-        <div class="map-section" style="flex: 1; min-width: 300px;">
-            <h2 style="border-bottom: 2px solid #002b5b; padding-bottom: 10px; color: #002b5b;">위치</h2>
-            <div id="map" style="width: 100%; height: 400px; margin-top: 20px; border-radius: 15px; border: 1px solid #ddd;"></div>
+        <div class="map-section">
+            <h2 class="section-subtitle">위치</h2>
+            <div id="detail-map"></div>
             
-            <!-- 길찾기 버튼 (네이버 지도로 바로 연결) -->
-            <div style="margin-top: 20px;">
-                <a href="https://map.naver.com/v5/directions/{{ item.mapx }},{{ item.mapy }},{{ item.title }}" 
-                   target="_blank" 
-                   style="display: block; text-align: center; background: #03C75A; color: #fff; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold;">
-                    네이버 지도로 길찾기
-                </a>
-            </div>
+            <a href="https://map.naver.com/v5/directions/?slng=&slat=&stext={{ '내 위치'|urlencode }}&elng={{ item.mapx }}&elat={{ item.mapy }}&etext={{ item.title|urlencode }}&menu=route" 
+               target="_blank" class="btn-route">
+                네이버 지도로 길찾기
+            </a>
         </div>
     </div>
 
-    <!-- 하단 목록 돌아가기 -->
-    <div style="text-align: center; margin-top: 50px;">
-        <a href="{{ url_for('index', lang=current_lang) }}" style="color: #666; text-decoration: underline;">목록으로 돌아가기</a>
-    </div>
+    <a href="{{ url_for('main.index', lang=current_lang) }}" class="back-link">목록으로 돌아가기</a>
 </div>
 {% endblock %}

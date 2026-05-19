@@ -1,0 +1,22 @@
+{
+  "name": "LinkSuwon - 수원의 모든 연결",
+  "short_name": "LinkSuwon",
+  "description": "외국인 관광객을 위한 수원시 맞춤형 다국어 관광 정보 및 로컬 여행 기록 서비스",
+  "start_url": "/?lang=kor",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#1a2b3c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/static/images/default.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/default.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

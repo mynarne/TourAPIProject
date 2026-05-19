@@ -64,7 +64,7 @@ class TourAPIManager():
                         # 괄호 안의 한글 이름 추출
                         ko_name = title.split('(')[-1].replace(')', '').strip() if '(' in title else title
 
-                        # 1. 발음 변환 (영문 로마자 위주)
+                        # 발음 변환 (영문 로마자 위주)
                         if lang == 'eng':
                             r = Romanizer(ko_name)
                             item['pronunciation'] = f"Pronounce: {r.romanize()}"
@@ -76,7 +76,6 @@ class TourAPIManager():
                             item['pronunciation'] = ""
 
                         # 설명 시드(Seed) 주입: API 데이터가 부실할 때 직접 채움
-                        # 행님, 여기에 주요 명소 설명을 계속 추가하시면 돼유.
                         if '방화수류정' in ko_name or 'Banghwasuryujeong' in title:
                             item['overview'] = "수원화성에서 가장 경관이 아름다운 곳으로, 연못인 용연과의 조화가 일품."
                         elif '창룡문' in ko_name or 'Changnyongmun' in title:
@@ -114,6 +113,7 @@ class TourAPIManager():
         }
 
         try:
+            # verify=False로 윈도우 보안 이슈 차단
             response = requests.get(url, params=params, timeout=10, verify=False)
             if response.status_code == 200:
                 res_data = response.json()
@@ -132,6 +132,15 @@ class TourAPIManager():
 
     # 제미나이 호출 함수
     def ask_gemini_multilingual(self, user_input: str, target_language: str) -> str:
+        
+        # 시스템 프롬프트: 챗봇의 정체성을 '수원 관광 가이드'로 강제 고정
+        system_instruction = (
+            "너는 수원시 공식 관광 가이드 AI야. "
+            "오직 수원 관광, 대중교통, 여행 팁에 관한 질문에만 답변해. "
+            "만약 사용자가 수원 관광과 관련 없는 질문(정치, 사회, 개인적인 잡담 등)을 하면, "
+            "정중하게 '수원 관광에 대해서만 도와드릴 수 있습니다'라고 해당 언어로 답변하고 대화를 종료해. "
+        )
+
         # 언어 코드에 따른 시스템 지시문 정의
         lang_map = {
             'kor': "You must answer in Korean.",
@@ -143,7 +152,7 @@ class TourAPIManager():
         
         system_prompt = lang_map.get(target_language, "You must answer in Korean.")
         
-        # [해결 포인트] 라이브러리 충돌을 피하기 위해 REST API 직접 호출 방식 적용
+        # 라이브러리 충돌을 피하기 위해 REST API 직접 호출 방식 적용
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
         
         headers = {
@@ -155,12 +164,12 @@ class TourAPIManager():
             "key": self.gemini_api_key
         }
         
-        # 요청 페이로드 구성
+        # 요청 페이로드 구성 (system_instruction 강제 주입 처리 완료)
         payload = {
             "contents": [
                 {
                     "parts": [
-                        {"text": f"{system_prompt}\n\nUser: {user_input}"}
+                        {"text": f"{system_instruction}\n\n{system_prompt}\n\nUser: {user_input}"}
                     ]
                 }
             ]

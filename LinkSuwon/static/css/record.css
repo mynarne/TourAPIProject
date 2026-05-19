@@ -1,0 +1,67 @@
+/* 타임라인 컨테이너 */
+.timeline-container {
+    position: relative;
+    padding-left: 20px;
+    margin-top: 20px;
+}
+
+/* 타임라인 왼쪽의 연결 선 */
+.timeline-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 32px;
+    height: 100%;
+    width: 2px;
+    background-color: #eaeaea;
+}
+
+/* 개별 기록 아이템 */
+.timeline-item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 25px;
+}
+
+/* 아이콘 스타일 (선 위에 위치) */
+.timeline-icon {
+    position: relative;
+    z-index: 1;
+    width: 28px;
+    height: 28px;
+    background-color: #ffffff;
+    border: 2px solid var(--point-blue);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8rem;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+/* 텍스트 내용 박스 */
+.timeline-content {
+    background-color: var(--modern-bg);
+    padding: 15px;
+    border-radius: 12px;
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+/* 후기 작성창 포커스 및 출력 보정 스타일 */
+#travel-review-input:focus {
+    border-color: var(--point-blue) !important;
+    box-shadow: 0 0 0 0.25rem rgba(0, 102, 204, 0.15) !important;
+}
+
+/* 내보내기 전용 모드 (PDF 캡처 시 레이아웃 깨짐 방지용) */
+.exporting {
+    margin: 0 !important;
+    padding: 20px !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+

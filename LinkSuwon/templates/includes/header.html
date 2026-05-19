@@ -1,12 +1,26 @@
-<header>
-    <div class="container">
-        <h1 class="logo" onclick="location.href='/'">Link<span>Suwon</span></h1>
-        <nav class="lang-selector">
-            <a href="/?lang=kor" class="{{ 'active' if current_lang == 'kor' }}">KOR</a>
-            <a href="/?lang=eng" class="{{ 'active' if current_lang == 'eng' }}">ENG</a>
-            <a href="/?lang=jpn" class="{{ 'active' if current_lang == 'jpn' }}">JPN</a>
-            <a href="/?lang=chs" class="{{ 'active' if current_lang == 'chs' }}">简</a>
-            <a href="/?lang=cht" class="{{ 'active' if current_lang == 'cht' }}">繁</a>
-        </nav>
+<header class="py-3 bg-white border-bottom shadow-sm sticky-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <h1 class="logo m-0" onclick="location.href='/?lang={{ current_lang }}'">
+            Link<span>Suwon</span>
+        </h1>
+        
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle btn-sm fw-bold text-uppercase" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if current_lang == 'kor' %}KOR
+                {% elif current_lang == 'eng' %}ENG
+                {% elif current_lang == 'jpn' %}JPN
+                {% elif current_lang == 'chs' %}简
+                {% elif current_lang == 'cht' %}繁
+                {% else %}KOR
+                {% endif %}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="langDropdown">
+                <li><a class="dropdown-item {% if current_lang == 'kor' %}active{% endif %}" href="{{ request.path }}?lang=kor">KOR</a></li>
+                <li><a class="dropdown-item {% if current_lang == 'eng' %}active{% endif %}" href="{{ request.path }}?lang=eng">ENG</a></li>
+                <li><a class="dropdown-item {% if current_lang == 'jpn' %}active{% endif %}" href="{{ request.path }}?lang=jpn">JPN</a></li>
+                <li><a class="dropdown-item {% if current_lang == 'chs' %}active{% endif %}" href="{{ request.path }}?lang=chs">简体中文 (简)</a></li>
+                <li><a class="dropdown-item {% if current_lang == 'cht' %}active{% endif %}" href="{{ request.path }}?lang=cht">繁體中文 (繁)</a></li>
+            </ul>
+        </div>
     </div>
 </header>
