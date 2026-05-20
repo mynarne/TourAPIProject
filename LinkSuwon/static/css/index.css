@@ -1,4 +1,14 @@
-/* 로고 스르륵 내려오는 애니메이션 */
+/* 대문 전체 중앙 정렬 컨테이너 */
+.landing-main-container {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+/* 로고 페이드인 다운 애니메이션 */
 @keyframes slideDownFade {
     0% {
         opacity: 0;
@@ -12,12 +22,28 @@
 
 .landing-logo-wrap {
     animation: slideDownFade 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    text-align: center;
+    margin-bottom: 3rem;
 }
 
-/* 2x2 메뉴 카드 디자인 */
+.logo-navy-text {
+    color: var(--giwa-navy);
+}
+
+.logo-blue-text {
+    color: var(--point-blue);
+}
+
+/* 2x2 메뉴 배치 상자 중앙 고정 */
+.menu-grid-wrapper-box {
+    max-width: 500px;
+    width: 100%;
+}
+
+/* 메뉴 카드 호버 인터랙션 */
 .menu-card {
     border-radius: 16px !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
     background-color: #ffffff;
     cursor: pointer;
 }
@@ -28,13 +54,12 @@
     border: 2px solid var(--point-blue) !important;
 }
 
-/* 메뉴 이모지 아이콘 크기 */
 .menu-icon {
     font-size: 2.5rem;
     line-height: 1;
 }
 
-/* 모바일 환경 텍스트 최적화 */
+/* 모바일 환경 대응 폰트 축소 정의 */
 @media (max-width: 576px) {
     .card-title {
         font-size: 1rem !important;

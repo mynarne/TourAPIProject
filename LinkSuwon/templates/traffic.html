@@ -19,19 +19,19 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4" style="max-width: 600px;">
+<div class="container py-4 traffic-layout-container">
     
     <div class="mb-3">
-        <a href="{{ url_for('main.index', lang=current_lang) }}" class="text-decoration-none text-secondary fw-bold" style="font-size: 1.1rem;">
+        <a href="{{ url_for('main.index', lang=current_lang) }}" class="text-decoration-none text-secondary fw-bold traffic-back-btn">
             ← {% if current_lang == 'kor' %}뒤로 가기{% elif current_lang == 'jpn' %}戻る{% else %}Back{% endif %}
         </a>
     </div>
 
-    <div id="traffic-map" class="shadow-sm border" style="width: 100%; height: 250px; border-radius: 12px; margin-bottom: 20px;"></div>
+    <div id="traffic-map" class="shadow-sm border traffic-map-canvas-box"></div>
 
     <div class="card border-0 shadow-sm mb-4 route-card">
         <div class="card-body p-4">
-            <h4 class="fw-bold mb-3 text-center" style="color: var(--giwa-navy);">
+            <h4 class="fw-bold mb-3 text-center traffic-navy-theme-text">
                 {% if current_lang == 'kor' %}🗺️ 스마트 길찾기
                 {% elif current_lang == 'eng' %}🗺️ Smart Directions
                 {% elif current_lang == 'jpn' %}🗺️ スマート道案内
@@ -49,46 +49,103 @@
 
             <div class="mb-4">
                 <label class="form-label fw-bold text-secondary small">
-                    {% if current_lang == 'kor' %}도착지 선택{% elif current_lang == 'eng' %}Select Destination{% elif current_lang == 'jpn' %}目的地 선택{% else %}选择目的地{% endif %}
+                    {% if current_lang == 'kor' %}도착지 선택{% elif current_lang == 'eng' %}Select Destination{% elif current_lang == 'jpn' %}目的地を選択{% else %}选择目的地{% endif %}
                 </label>
                 <select id="end-point-select" class="form-select fw-bold border-secondary">
                     <option data-name="수원역" data-lat="37.2664" data-lng="127.0002" value="suwon_station">
-                        {% if current_lang == 'kor' %}수원역 (지하철·KTX){% else %}Suwon Station{% endif %}
+                        {% if current_lang == 'kor' %}수원역 (지하철·KTX){% elif current_lang == 'jpn' %}水原駅 (地下鉄・KTX){% else %}Suwon Station{% endif %}
                     </option>
                     <option data-name="화성행궁" data-lat="37.2823" data-lng="127.0141" value="haenggung">
-                        {% if current_lang == 'kor' %}화성행궁 (행리단길){% else %}Hwaseong Haenggung{% endif %}
+                        {% if current_lang == 'kor' %}화성행궁 (행리단길){% elif current_lang == 'jpn' %}華城行宮 (ヘンリダンギル){% else %}Hwaseong Haenggung{% endif %}
                     </option>
                     <option data-name="스타필드 수원" data-lat="37.2858" data-lng="126.9897" value="starfield">
-                        {% if current_lang == 'kor' %}스타필드 수원{% else %}Starfield Suwon{% endif %}
+                        {% if current_lang == 'kor' %}스타필드 수원{% elif current_lang == 'jpn' %}スターフィールド水原{% else %}Starfield Suwon{% endif %}
                     </option>
                     <option data-name="광교호수공원" data-lat="37.2818" data-lng="127.0658" value="gwanggyo">
-                        {% if current_lang == 'kor' %}광교호수공원{% else %}Gwanggyo Lake Park{% endif %}
+                        {% if current_lang == 'kor' %}광교호수공원{% elif current_lang == 'jpn' %}光教湖水公園{% else %}Gwanggyo Lake Park{% endif %}
+                    </option>
+                    <option data-name="방화수류정" data-lat="37.2874" data-lng="127.0187" value="banghwasuryu">
+                        {% if current_lang == 'kor' %}방화수류정 (용연){% elif current_lang == 'jpn' %}訪花随柳亭 (ヨニョン){% else %}Banghwasuryujeong Pavilion{% endif %}
+                    </option>
+                    <option data-name="연무대" data-lat="37.2872" data-lng="127.0234" value="yeonmudae">
+                        {% if current_lang == 'kor' %}연무대 (국궁 체험 및 플라잉 수원){% elif current_lang == 'jpn' %}錬武台 (国弓体験・フライング水原){% else %}Yeonmudae (Archery Experience){% endif %}
+                    </option>
+                    <option data-name="팔달문 시장" data-lat="37.2778" data-lng="127.0175" value="paldal_market">
+                        {% if current_lang == 'kor' %}팔달문 시장 (수원 통닭거리){% elif current_lang == 'jpn' %}八達門市場 (水原チキン通り){% else %}Paldalmun Market & Chicken Street{% endif %}
+                    </option>
+                    <option data-name="효원공원 월화원" data-lat="37.2618" data-lng="127.0319" value="wolhwawon">
+                        {% if current_lang == 'kor' %}효원공원 월화원 (중국식 전통 정원){% elif current_lang == 'jpn' %}孝園公園 粤華苑 (中国伝統庭園){% else %}Wolhwawon (Traditional Chinese Garden){% endif %}
                     </option>
                 </select>
             </div>
 
             <div class="d-flex gap-2">
                 <button onclick="startNaverNavigation()" class="btn btn-primary flex-grow-1 fw-bold py-3 nav-submit-btn">
-                    {% if current_lang == 'kor' %}대중교통 길찾기{% else %}Transit Routes{% endif %}
+                    {% if current_lang == 'kor' %}대중교통 길찾기{% elif current_lang == 'jpn' %}公共交通ルート{% else %}Transit Routes{% endif %}
                 </button>
-                
                 <button onclick="openNaverMapApp()" class="btn btn-outline-secondary fw-bold py-3 px-4">
-                    {% if current_lang == 'kor' %}지도 열기{% else %}Open Map{% endif %}
+                    {% if current_lang == 'kor' %}지도 열기{% elif current_lang == 'jpn' %}地図表示{% else %}Open Map{% endif %}
                 </button>
+            </div>
+
+            <div class="mt-3 p-3 bg-light rounded border text-secondary traffic-guide-font-box">
+                ℹ️ <strong>{% if current_lang == 'kor' %}지도 열기란?{% elif current_lang == 'jpn' %}地図表示とは？{% else %}What is 'Open Map'?{% endif %}</strong><br>
+                {% if current_lang == 'kor' %}
+                    목적지를 지정하지 않고 현재 나의 위치 정보만을 지도로 크게 보고 싶거나, 주변 정류장, 식당 등의 명소를 자유롭게 탐색하고 싶을 때 유용하게 활용할 수 있습니다.
+                {% elif current_lang == 'jpn' %}
+                    目的地を指定せず、現在地のみ를 地図で大きく確認したい場合や、周辺のバス停留所、食堂などの名所を自由に探索したい時に便利に活用できます。
+                {% elif current_lang == 'chs' %}
+                    在不指定目的地的情况下，如果您只想在大地图上查看当前位置，或者自由探索周边的公交車站、餐厅等景点，这是一个非常实用的功能。
+                {% elif current_lang == 'cht' %}
+                    在不指定目的地的情況下，如果您只想在大地圖上查看當前位置，或者自由探索周邊的公車站、餐廳等景點，這是一個非常實用的功能 Blunt。
+                {% else %}
+                    Use this to open a clean map centered on your current location without setting a destination. Ideal for exploring nearby bus stops, restaurants, and convenience stores at your own pace.
+                {% endif %}
             </div>
         </div>
     </div>
 
-    <h5 class="fw-bold mb-3 px-1" style="color: var(--giwa-navy);">
+    <div class="card border-0 shadow-sm mb-4 text-white kiosk-dashboard-card-panel">
+        <div class="card-body p-4 text-center">
+            <h5 class="fw-bold mb-2 kiosk-text-white-force">
+                {% if current_lang == 'kor' %}💳 외국인 전용 교통카드 발급처 찾기
+                {% elif current_lang == 'eng' %}💳 Travel Card Kiosk Finder
+                {% elif current_lang == 'jpn' %}💳 外国人専用交通カード発券機検索
+                {% elif current_lang == 'chs' %}💳 外国人专用交通卡自助发卡机查询
+                {% else %}💳 外國人專用交通卡自助發卡機查詢
+                {% endif %}
+            </h5>
+            <p class="small mb-3 kiosk-desc-white-force">
+                {% if current_lang == 'kor' %}단말기 위치와 실물 디자인을 바로 확인해 보세요!
+                {% elif current_lang == 'eng' %}Find kiosk locations and check what they look like!
+                {% elif current_lang == 'jpn' %}発券機の位置と実物のデザインを今すぐ確認してみましょう！
+                {% else %}随时查询发卡机具体位置与实物外观设计！{% endif %}
+            </p>
+            <div class="row g-2">
+                <div class="col-6">
+                    <button onclick="openKioskLocationModal()" class="btn btn-light w-100 fw-bold py-2 btn-kiosk-action">
+                        📍 {% if current_lang == 'kor' %}발급기 위치 안내{% elif current_lang == 'jpn' %}発券機位置{% else %}Locations{% endif %}
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button onclick="openKioskVisualModal()" class="btn btn-warning w-100 fw-bold py-2 text-dark btn-kiosk-action">
+                        🎨 {% if current_lang == 'kor' %}단말기 실물 보기{% elif current_lang == 'jpn' %}実物デザイン{% else %}Kiosk Designs{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h5 class="fw-bold mb-3 px-1 traffic-navy-theme-text">
         {% if current_lang == 'kor' %}💡 외국인 여행자 핵심 팁{% else %}💡 Traveler Tips{% endif %}
     </h5>
 
     <div class="accordion shadow-sm tips-accordion" id="trafficTipsAccordion">
         
-        <div class="accordion-item border-0 mb-2" style="border-radius: 12px; overflow: hidden;">
+        <div class="accordion-item border-0 mb-2 traffic-style-radius-wrapper">
             <h2 class="accordion-header" id="headingOne">
                 <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    💳 {% if current_lang == 'kor' %}여행자 카드 발급 및 사용 (WOWPASS){% else %}WOWPASS Card Guide{% endif %}
+                    💳 {% if current_lang == 'kor' %}여행자 카드 발급 및 사용 (WOWPASS){% elif current_lang == 'jpn' %}旅行者カード発給・使用方法 (WOWPASS){% else %}WOWPASS Card Guide{% endif %}
                 </button>
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#trafficTipsAccordion">
@@ -96,6 +153,9 @@
                     {% if current_lang == 'kor' %}
                         <strong>[발급 방법]</strong> 수원역(1호선) 내부에 위치한 주황색 무인 키오스크에서 여권을 스캔하고, 환전 없이 <strong>본국 지폐(달러, 엔화, 위안화 등 15개국 통화 지원)</strong>를 그대로 기계에 넣으면 한국 원화(KRW)로 충전된 카드가 즉시 발급됩니다.<br>
                         <strong>[사용 방법]</strong> 대중교통(버스, 지하철) 단말기에 태그하여 사용하고, 편의점 및 모든 신용카드 가맹점에서 결제할 수 있습니다.
+                    {% elif current_lang == 'jpn' %}
+                        <strong>【発給方法】</strong> 水原駅(1号線)の内部にあるオレンジ色の無人キオスクでパスポートをスキャンし、両替なしで<strong>自国の紙幣(ドル、円、人民元など15カ国の通貨に対応)</strong>をそのまま機械に投入すると、韓国ウォン(KRW)がチャージされたカードが即座に発給されます。<br>
+                        <strong>【使用方法】</strong> 公共交通機関(バス、地下鉄)の端末にタッチして使用し、コンビニや全てのクレジットカード加盟店で決済が可能です。
                     {% else %}
                         <strong>[How to Issue]</strong> Scan your passport at the orange kiosk inside Suwon Station (Line 1). You do not need to exchange money—simply insert your <strong>home country's currency cash (supports 15 currencies including USD, JPY, EUR, CNY)</strong> into the machine to get a card loaded with Korean Won (KRW) immediately.<br>
                         <strong>[How to Use]</strong> Tag it on bus/subway terminals and use it like a regular credit card at convenience stores and restaurants.
@@ -104,14 +164,10 @@
             </div>
         </div>
 
-        <div class="accordion-item border-0 mb-2" style="border-radius: 12px; overflow: hidden;">
+        <div class="accordion-item border-0 mb-2 traffic-style-radius-wrapper">
             <h2 class="accordion-header" id="headingTwo">
                 <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                    🎫 {% if current_lang == 'kor' %}지하철 일회용 교통카드 발급 방법
-                       {% elif current_lang == 'eng' %}How to Issue a Single-use Subway Ticket
-                       {% elif current_lang == 'jpn' %}使い捨て交通カードの発行方法
-                       {% else %}地铁单程交通卡发售方法
-                       {% endif %}
+                    🎫 {% if current_lang == 'kor' %}지하철 일회용 교통카드 발급 방법{% elif current_lang == 'jpn' %}地下鉄1回用交通カード発給方法{% else %}Single-use Subway Ticket Guide{% endif %}
                 </button>
             </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#trafficTipsAccordion">
@@ -122,54 +178,46 @@
                         3. '일회용 교통카드' 버튼을 누르고 목적지(예: 수원역 등)를 검색하여 선택합니다.<br>
                         4. 인원수를 선택한 후, 운임과 <strong>보증금 500원</strong>을 한국 원화(KRW) 현금으로 투입합니다.<br>
                         5. 도착역에서 하차 후, 개찰구 앞 <strong>'보증금 환급기'</strong>에 카드를 넣으면 500원을 돌려받습니다!
-                    {% elif current_lang == 'eng' %}
+                    {% elif current_lang == 'jpn' %}
+                        1. 地下鉄の駅構内にある<strong>「1回用発売・交通カードチャージ機」</strong>へ移動します。<br>
+                        2. 画面下部にある目的の言語(ENG, JPN, CHN)ボタンを押します。<br>
+                        3.「1回用交通カード」ボタンを押し、目的地(例：水原駅など)を検索して選択します。<br>
+                        4. 人数を選択した後、運賃と<strong>保証金500ウォン</strong>を韓国ウォン(KRW) Cashで投入します。<br>
+                        5. 到착駅で下車した後、改札口の前にある<strong>「保証金払い戻し機」</strong>にカードを入れると500ウォンが返金されます！
+                    {% else %}
                         1. Go to the <strong>'Ticket Vending and Card Reload Device'</strong> inside the subway station.<br>
                         2. Select your language (ENG, JPN, CHN) at the bottom of the screen.<br>
                         3. Tap 'Single-use Traffic Card' and search for your destination station.<br>
                         4. Select the number of passengers and insert cash (KRW only) including a <strong>500 KRW deposit</strong>.<br>
                         5. After arriving, insert the card into the <strong>'Deposit Refund Device'</strong> near the gates to get your 500 KRW back!
-                    {% elif current_lang == 'jpn' %}
-                        1. 駅構内にある<strong>「1回用発売・交通カードチャージ機」</strong>へ向かいます。<br>
-                        2. 画面下部でお好みの言語（ENG, JPN, CHN）を選択します。<br>
-                        3.「1回用交通カード」を押し、目的地を検索して選択します。<br>
-                        4. 人数を選択し、運賃と<strong>保証金500ウォン</strong>を韓国ウォン（KRW）の現金で投入します。<br>
-                        5. 到着駅で下車後、改札口近くの<strong>「保証金払い戻し機」</strong>にカードを入れると500ウォンが返金されます！
-                    {% else %}
-                        1. 前往地铁站内的<strong>“单程票发售/交通卡充值机”</strong>。<br>
-                        2. 点击屏幕下方的对应语言（ENG、JPN、CHN）按钮。<br>
-                        3. 点击“单程交通卡”并搜索选择您的目的地车站。<br>
-                        4. 选择人数后，投入车资和<strong>500韩元押金</strong>（仅限韩币KRW现金）。<br>
-                        5. 到达目的地出站后，将卡投入站内的<strong>“押金退还机”</strong>即可取回500韩元押金！
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        <div class="accordion-item border-0 mb-2" style="border-radius: 12px; overflow: hidden;">
+        <div class="accordion-item border-0 mb-2 traffic-style-radius-wrapper">
             <h2 class="accordion-header" id="headingTaxi">
                 <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTaxi" aria-expanded="false" aria-controls="collapseTaxi">
-                    🚕 {% if current_lang == 'kor' %}택시 앱 호출 (Kakao T){% else %}Call a Taxi (Kakao T){% endif %}
+                    🚕 {% if current_lang == 'kor' %}택시 앱 호출 (Kakao T & Uber){% elif current_lang == 'jpn' %}タクシーアプリ呼出 (Kakao T & Uber){% else %}Call a Taxi (Kakao T & Uber){% endif %}
                 </button>
             </h2>
             <div id="collapseTaxi" class="accordion-collapse collapse" aria-labelledby="headingTaxi" data-bs-parent="#trafficTipsAccordion">
                 <div class="accordion-body bg-white small lh-lg text-secondary">
                     {% if current_lang == 'kor' %}
-                        길거리에서 택시를 잡기 어렵다면 <strong>Kakao T (카카오택시)</strong> 앱을 사용하세요! 앱 내에서 언어를 영어/일본어로 변경할 수 있으며, 해외에서 사용 중인 신용카드를 등록해 자동 결제가 가능합니다. 목적지를 앱에서 핀으로 지정하기 때문에 기사님과 목적지 소통에 대한 언어 장벽이 없어 안전합니다.
+                        길거리에서 택시를 잡기 어렵다면 대한민국 전역에서 통용되는 <strong>Kakao T (카카오택시)</strong>나 글로벌 연동이 제공되는 <strong>Uber (우버 / UT)</strong> 앱을 사용하세요! 앱 내에서 언어를 영어/일본어로 손쉽게 변경할 수 있으며, 해외에서 사용 중인 신용카드를 등록해 자동 결제가 가능합니다. 목적지를 앱에서 지도 핀으로 지정하기 때문에 기사님과 번거로운 대화 소통 없이 안전하고 매끄럽게 가실 수 있슈.
+                    {% elif current_lang == 'jpn' %}
+                        路上でタクシーを捕まえるのが難しい場合は、韓国全域で広く使われている <strong>Kakao T</strong> や、グローバル連携が可能な <strong>Uber (ウーバー)</strong> アプリを使用してください！アプリ内で言語を英語や日本語に簡単に変更でき、海外で利用中のクレジットカードを登録して自動決済が可能です。目的地をアプリ上でマップピンで指定するため、運転手との言語の壁を心配することなく安全に移動できます。
                     {% else %}
-                        Download the <strong>Kakao T</strong> app! You can set the app language to English or Japanese and register your overseas credit card for auto-pay. Simply pin your destination on the map—no need to speak Korean to the driver. It's the safest and easiest way to grab a taxi!
+                        If it's difficult to hail a taxi on the street, use the <strong>Kakao T</strong> app, which is widely popular across Korea, or the globally linked <strong>Uber</strong> app! You can easily set the app language to English or Japanese and register your overseas credit card for seamless automatic payment. Since you select your destination via a map pin in the app, it removes any language barriers with the driver for a safe ride.
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        <div class="accordion-item border-0 mb-2" style="border-radius: 12px; overflow: hidden;">
+        <div class="accordion-item border-0 mb-2 traffic-style-radius-wrapper">
             <h2 class="accordion-header" id="headingThree">
                 <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                    📢 {% if current_lang == 'kor' %}버스 및 지하철 안내방송 가이드
-                       {% elif current_lang == 'eng' %}Bus & Subway Audio Guide
-                       {% elif current_lang == 'jpn' %}バス・地下鉄のアナウンサガイド
-                       {% else %}公交与地铁广播提示
-                       {% endif %}
+                    📢 {% if current_lang == 'kor' %}버스 및 지하철 안내방송 가이드{% elif current_lang == 'jpn' %}バス・地下鉄案内放送ガイド{% else %}Bus & Subway Audio Guide{% endif %}
                 </button>
             </h2>
             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#trafficTipsAccordion">
@@ -177,16 +225,136 @@
                     {% if current_lang == 'kor' %}
                         • 대한민국의 버스와 지하철은 주요 명소나 환승역의 경우 <strong>한국어 -> 영어 -> 일본어 -> 중국어</strong> 순으로 안내방송이 송출됩니다.<br>
                         • 버스는 이번 정류장 명칭 직후 <strong>"다음 정류장은 ~입니다(Next stop is ~)"</strong>라는 안내가 연달아 나오므로 혼동하지 않도록 유의하세요!
-                    {% elif current_lang == 'eng' %}
+                    {% elif current_lang == 'jpn' %}
+                        • 韓国のバスと地下鉄は、主要な名所や乗換駅の場合、<strong>韓国語 -> 英語 -> 日本語 -> 中国語</strong>の順で車内案内放送が流れます。<br>
+                        • バスの車内放送では、今回の停留所の案内の直後に<strong>「次の停留所は〜です」</strong>と続けて放送が流れるため、降りるタイミングを間違えないようご注意ください！
+                    {% else %}
                         • Buses and subways in Korea broadcast stop announcements in order of <strong>Korean -> English -> Japanese -> Chinese</strong> for major attractions and transfer stations.<br>
                         • On buses, the announcement for the next stop follows immediately after the current stop announcement, so please listen carefully!
-                    {% elif current_lang == 'jpn' %}
-                        • 韓国のバスと地下鉄は、主要な名所や乗換駅の場合、<strong>韓国語 -> 英語 -> 日本語 -> 中国語</strong>の順で案内放送が流れます。<br>
-                        • バスの車内放送では、今回の停留所の案内の直後に<strong>「次の停留所は〜です」</strong>と続けて流れるため、降りるタイミングにご注意ください！
-                    {% else %}
-                        • 韩国的公交和地铁在到达主要景点及换乘站后, 会依次播放<strong>韩语 -> 英语 -> 日语 -> 中文</strong>的广播。<br>
-                        • 公交车在播报本站后, 会紧接着播报<strong>“下一站是~”</strong>，请注意区分，以免提早下车！
                     {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="kiosk-location-modal" class="kiosk-custom-modal">
+    <div class="kiosk-modal-content">
+        <div class="modal-header-bar">
+            <h5>
+                {% if current_lang == 'kor' %}📍 카드 발급기 설치 위치 안내
+                {% elif current_lang == 'eng' %}📍 Kiosk Installation Locations
+                {% elif current_lang == 'jpn' %}📍 カード発券機設置場所案内
+                {% elif current_lang == 'chs' %}📍 自助发卡机安装位置指引
+                {% else %}📍 自助發卡機安裝位置指引{% endif %}
+            </h5>
+            <button onclick="closeKioskModal('kiosk-location-modal')" class="close-kiosk-btn">&times;</button>
+        </div>
+        <div class="modal-body-scroll">
+            <div class="kiosk-loc-item">
+                <span class="badge bg-danger">Incheon Airport T1</span>
+                <p>
+                    {% if current_lang == 'kor' %}
+                        📍 <strong>지하 1층 공항철도 개찰구 옆:</strong> 직통열차 게이트 부근 주황색 단말기.<br>
+                        📍 <strong>1층 입국장 대합실 내부:</strong> 2번 및 11번 게이트 근처 트래블센터 안쪽.
+                    {% elif current_lang == 'eng' %}
+                        📍 <strong>B1 Airport Railroad Gate:</strong> Orange kiosk located near the Express Train entry gate.<br>
+                        📍 <strong>1F Arrival Concourse:</strong> Inside the Travel Center near Exit Gates 2 and 11.
+                    {% elif current_lang == 'jpn' %}
+                        📍 <strong>地下1階 空港鉄道改札口の横:</strong> 直通列車ゲート付近にあるオレンジ色の発券機です。<br>
+                        📍 <strong>1階 到着ロビー内:</strong> 2番および11番ゲート付近のトラベルセンター内部にあります。
+                    {% else %}
+                        📍 <strong>地下1层 机场铁路改票口旁:</strong> 直达列车闸口附近的橙色终端机。<br>
+                        📍 <strong>1层 入境大厅会合处:</strong> 2号及11号门附近的旅游服务中心内部。{% endif %}
+                </p>
+            </div>
+            
+            <div class="kiosk-loc-item">
+                <span class="badge bg-danger">Incheon Airport T2</span>
+                <p>
+                    {% if current_lang == 'kor' %}📍 <strong>지하 1층 공항철도 교통센터:</strong> 철도 매표소 및 개찰구 바로 우측 진입로.
+                    {% elif current_lang == 'eng' %}📍 <strong>B1 Airport Railroad Transit Center:</strong> Orange kiosk right next to the train ticket windows and gates.
+                    {% elif current_lang == 'jpn' %}📍 <strong>地下1階 空港鉄道交通センター:</strong> 鉄道切符売り場および改札口のすぐ右側にある通路にあります。
+                    {% else %}📍 <strong>地下1层 机场铁路交通中心:</strong> 铁路售票处及闸机右侧通道。{% endif %}
+                </p>
+            </div>
+
+            <div class="kiosk-loc-item">
+                <span class="badge bg-primary">Seoul Station</span>
+                <p>
+                    {% if current_lang == 'kor' %}
+                        📍 <strong>지하 2층 공항철도 도심공항 터미널:</strong> 고객안내센터 게이트 정면.<br>
+                        📍 <strong>2층 서울역 대합실 중앙:</strong> 종합안내소 공항철도 진입 계단 부근 트래블스토어 옆.
+                    {% elif current_lang == 'eng' %}
+                        📍 <strong>B2 Airport Railroad Express Zone:</strong> Located directly in front of the Service Center Desk.<br>
+                        📍 <strong>2F Main Train Station Concourse:</strong> Next to the Central Information Counter and Travel Store.
+                    {% elif current_lang == 'jpn' %}
+                        📍 <strong>地下2階 空港鉄道エリア:</strong> 都心空港ターミナルのサービスセンターゲート正面にあります。<br>
+                        📍 <strong>2階 ソウル駅待合室中央:</strong> 総合案内所や空港鉄道への進入階段付近にあるトラベルストアの横です。
+                    {% else %}
+                        📍 <strong>地下2层 机场铁路直达乘车区:</strong> 旅客服务中心大门正前方。<br>
+                        📍 <strong>2层 火车站大厅中央:</strong> 综合信息台以及旅游商店隔壁。{% endif %}
+                </p>
+            </div>
+
+            <div class="kiosk-loc-item">
+                <span class="badge bg-success">Cheongju Airport</span>
+                <p>
+                    {% if current_lang == 'kor' %}📍 <strong>1층 국제선 여객청사 내부:</strong> 신한은행 환전 카운터 및 1번 게이트 우측 통로 부근.
+                    {% elif current_lang == 'eng' %}📍 <strong>1F International Terminal:</strong> Located near the Shinhan Bank currency booth and Gate 1.
+                    {% elif current_lang == 'jpn' %}📍 <strong>1階 国際線旅客ターミナル内部:</strong> 両替カウンターおよび1番ゲート右側の通路付近にあります。
+                    {% else %}📍 <strong>1层 国际线航站楼内部:</strong> 新韩银行换钱柜台及1号门右侧通道附近。{% endif %}
+                </p>
+            </div>
+
+            <div class="kiosk-loc-item">
+                <span class="badge bg-dark">Suwon Station</span>
+                <p>
+                    {% if current_lang == 'kor' %}📍 <strong>지하 1층 전철 대합실 통로:</strong> 1호선 개찰구 외부 대합실, 4번 출구 방향 전철 고객센터 정면 위치.
+                    {% elif current_lang == 'eng' %}📍 <strong>B1 Subway Station Concourse:</strong> Outside Line 1 ticketing gates, facing the Transit Customer Office near Exit 4.
+                    {% elif current_lang == 'jpn' %}📍 <strong>地下1階 電車待合室通路:</strong> 1号線改札の外にある待合室、4番出口方面にある顧客案内窓口の正面にあります。
+                    {% else %}📍 <strong>地下1层 地铁站大厅通道:</strong> 1号线闸机外部，4号出口方向的地铁客服中心正前方。{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="kiosk-visual-modal" class="kiosk-custom-modal">
+    <div class="kiosk-modal-content">
+        <div class="modal-header-bar">
+            <h5>
+                {% if current_lang == 'kor' %}🎨 무인 단말기 실물 디자인
+                {% else %}🎨 Kiosk Designs{% endif %}
+            </h5>
+            <button onclick="closeKioskModal('kiosk-visual-modal')" class="close-kiosk-btn">&times;</button>
+        </div>
+        <div class="modal-body-scroll text-center">
+            <p class="small text-muted mb-3">Look for these colorful machines at gateways!</p>
+            <div class="row g-3 justify-content-center">
+                <div class="col-6">
+                    <div class="kiosk-mockup wowpass-mock">
+                        <div class="kiosk-top-header">WOWPASS</div>
+                        <div class="kiosk-screen">
+                            <div class="screen-text">Insert Cash</div>
+                        </div>
+                        <div class="kiosk-slot passport-slot">Passport</div>
+                        <div class="kiosk-slot cash-slot">💵 Cash</div>
+                        <div class="kiosk-slot card-dispenser">💳 CARD</div>
+                        <span class="kiosk-label">Orange Kiosk</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="kiosk-mockup namane-mock">
+                        <div class="kiosk-top-header-pink">NAMANE</div>
+                        <div class="kiosk-screen">
+                            <div class="screen-text">Design Card</div>
+                        </div>
+                        <div class="kiosk-slot qr-slot">QR Code</div>
+                        <div class="kiosk-slot cash-slot">💵 Cash</div>
+                        <div class="kiosk-slot card-dispenser">💳 CARD</div>
+                        <span class="kiosk-label">Pink Kiosk</span>
+                    </div>
                 </div>
             </div>
         </div>

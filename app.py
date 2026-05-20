@@ -17,11 +17,12 @@ def create_app():
     app.config['NCP_CLIENT_ID'] = NCP_CLIENT_ID
 
     # 블루프린트 등록 (라우트 분리)
-    from LinkSuwon.views import main_views, chatbot_views, traffic_views, record_views
+    from LinkSuwon.views import main_views, chatbot_views, traffic_views, record_views, spot_views
     app.register_blueprint(main_views.bp)
     app.register_blueprint(chatbot_views.bp)
     app.register_blueprint(traffic_views.bp)
     app.register_blueprint(record_views.bp)
+    app.register_blueprint(spot_views.bp)
 
     return app
 

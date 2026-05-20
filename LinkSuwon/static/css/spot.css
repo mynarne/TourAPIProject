@@ -1,0 +1,184 @@
+.spot-main-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+.spot-content-card-box {
+    border-radius: 16px;
+}
+
+.spot-navy-theme-text {
+    color: var(--giwa-navy);
+}
+
+.spot-back-home-btn {
+    border-radius: 8px;
+}
+
+/* 지도 및 안내창 결합 그리드 컴포넌트 */
+.spot-map-details-split-box {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .spot-map-details-split-box {
+        flex-direction: row;
+        height: 380px;
+    }
+}
+
+/* [안정 수리 완료] 지도가 회색/흰색 찌꺼기로 깨지지 않도록 절대적인 레이아웃 높이 보장 */
+.spot-map-canvas-frame {
+    width: 100% !important;
+    height: 300px !important;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 768px) {
+    .spot-map-canvas-frame {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    /* 정보 서랍 개방 시 지도의 가로 길이를 안전하게 축소하는 반응형 격리 스타일 */
+    .spot-map-canvas-frame.split-mode {
+        width: calc(100% - 320px) !important;
+    }
+}
+
+/* 비동기 확장 상세 인라인 가이드 패널 서랍장 */
+.spot-inline-detail-drawer {
+    display: none;
+    background: #ffffff;
+    padding: 16px;
+    flex-direction: column;
+    width: 100%;
+}
+
+.spot-inline-detail-drawer.active {
+    display: flex;
+    border-top: 1px solid #dee2e6;
+}
+
+@media (min-width: 768px) {
+    .spot-inline-detail-drawer {
+        width: 320px;
+        height: 100%;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 10;
+        border-left: 1px solid #dee2e6;
+        border-top: none !important;
+    }
+    .spot-inline-detail-drawer.active {
+        display: flex;
+    }
+}
+
+.header-truncate {
+    max-width: 85%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.panel-close-x-btn {
+    border-radius: 6px;
+    padding: 2px 8px;
+}
+
+.panel-scroll-content {
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.text-break-custom {
+    line-height: 1.5;
+    word-break: keep-all;
+}
+
+.font-size-12 {
+    font-size: 0.82rem;
+}
+
+/* [슬라이더 부활] 전체 명소 터치 연동형 가로 캐러셀 래퍼 */
+.spot-horizontal-carousel-wrapper {
+    display: flex;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 10px 5px 20px 5px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.spot-horizontal-carousel-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+
+.spot-horizontal-carousel-wrapper::-webkit-scrollbar-thumb {
+    background-color: rgba(26, 43, 60, 0.2);
+    border-radius: 4px;
+}
+
+.spot-carousel-item-card {
+    flex: 0 0 170px;
+    scroll-snap-align: start;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #eef0f2;
+}
+
+.spot-carousel-item-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+}
+
+.spot-carousel-image-top {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+}
+
+.spot-carousel-body-p3 {
+    padding: 10px;
+    text-align: center;
+}
+
+.btn-xs-custom {
+    font-size: 0.75rem !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    margin-top: 4px;
+    background-color: var(--giwa-navy);
+    color: #ffffff;
+    border: none;
+    display: inline-block;
+    width: 100%;
+}
+
+.horiz-scroll-hint-indicator {
+    animation: pulseHint 2s infinite;
+}
+
+@keyframes pulseHint {
+    50% { opacity: 0.4; }
+}
+
+.spot-user-gps-marker {
+    width: 18px;
+    height: 18px;
+    background: rgba(0, 102, 204, 0.9);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}

@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    {{ item.title }} - 상세 정보
+    {% if current_lang == 'kor' %}{{ item.title }} - 상세 정보
+    {% elif current_lang == 'eng' %}{{ item.title }} - Details
+    {% elif current_lang == 'jpn' %}{{ item.title }} - 詳細情報
+    {% elif current_lang == 'chs' %}{{ item.title }} - 详细信息
+    {% elif current_lang == 'cht' %}{{ item.title }} - 詳細資訊
+    {% else %}{{ item.title }} - Details
+    {% endif %}
 {% endblock %}
 
 {% block extra_css %}
@@ -12,12 +18,12 @@
     <script src="{{ url_for('static', filename='js/detail.js') }}"></script>
     <script>
         window.onload = function() {
-            // API에서 준 좌표가 문자열일 수 있으니 숫자로 변환
+            // API에서 제공하는 위경도 좌표가 문자열 포맷일 수 있으므로 정밀 연산을 위해 부동소수점 변환
             const mapX = parseFloat("{{ item.mapx }}");
             const mapY = parseFloat("{{ item.mapy }}");
             const title = "{{ item.title }}";
             
-            // 상세 페이지 전용 지도 초기화 함수 호출
+            // 상세 페이지 전용 지도 및 실시간 GPS 추적기 초기화 함수 실행
             initDetailMap(mapY, mapX, title);
         };
     </script>
@@ -36,30 +42,65 @@
 
     <div class="detail-body">
         <div class="info-section">
-            <h2 class="section-subtitle">소개</h2>
+            <h2 class="section-subtitle">
+                {% if current_lang == 'kor' %}소개
+                {% elif current_lang == 'eng' %}Introduction
+                {% elif current_lang == 'jpn' %}紹介
+                {% elif current_lang == 'chs' %}介绍
+                {% elif current_lang == 'cht' %}介紹
+                {% else %}Introduction{% endif %}
+            </h2>
             <div class="overview">
                 {{ item.overview|safe }}
             </div>
             
             <div class="basic-info">
-                <p><strong>📍 주소:</strong> {{ item.addr1 }}</p>
+                <p><strong>📍 {% if current_lang == 'kor' %}주소
+                                {% elif current_lang == 'eng' %}Address
+                                {% elif current_lang == 'jpn' %}住所
+                                {% elif current_lang == 'chs' %}地址
+                                {% elif current_lang == 'cht' %}地址
+                                {% else %}Address{% endif %}:</strong> {{ item.addr1 }}</p>
                 {% if item.homepage %}
-                    <p><strong>🌐 홈페이지:</strong> {{ item.homepage|safe }}</p>
+                    <p><strong>🌐 {% if current_lang == 'kor' %}홈페이지
+                                    {% elif current_lang == 'eng' %}Homepage
+                                    {% elif current_lang == 'jpn' %}ホームページ
+                                    {% elif current_lang == 'chs' %}官网
+                                    {% elif current_lang == 'cht' %}官網
+                                    {% else %}Homepage{% endif %}:</strong> {{ item.homepage|safe }}</p>
                 {% endif %}
             </div>
         </div>
 
         <div class="map-section">
-            <h2 class="section-subtitle">위치</h2>
+            <h2 class="section-subtitle">
+                {% if current_lang == 'kor' %}위치
+                {% elif current_lang == 'eng' %}Location
+                {% elif current_lang == 'jpn' %}位置
+                {% elif current_lang == 'chs' %}位置
+                {% elif current_lang == 'cht' %}位置
+                {% else %}Location{% endif %}
+            </h2>
             <div id="detail-map"></div>
             
-            <a href="https://map.naver.com/v5/directions/?slng=&slat=&stext={{ '내 위치'|urlencode }}&elng={{ item.mapx }}&elat={{ item.mapy }}&etext={{ item.title|urlencode }}&menu=route" 
-               target="_blank" class="btn-route">
-                네이버 지도로 길찾기
-            </a>
+            <button onclick="startDetailNavigation()" class="btn-route w-100 border-0">
+                {% if current_lang == 'kor' %}네이버 지도로 길찾기
+                {% elif current_lang == 'eng' %}Get Directions on Naver Map
+                {% elif current_lang == 'jpn' %}ナビゲ이션を開始
+                {% elif current_lang == 'chs' %}使用地图导航
+                {% elif current_lang == 'cht' %}使用地圖導航
+                {% else %}Get Directions on Naver Map{% endif %}
+            </button>
         </div>
     </div>
 
-    <a href="{{ url_for('main.index', lang=current_lang) }}" class="back-link">목록으로 돌아가기</a>
+    <a href="{{ url_for('main.index', lang=current_lang) }}" class="back-link">
+        {% if current_lang == 'kor' %}목록으로 돌아가기
+        {% elif current_lang == 'eng' %}Back to List
+        {% elif current_lang == 'jpn' %}一覧に戻る
+        {% elif current_lang == 'chs' %}返回列表
+        {% elif current_lang == 'cht' %}返回列表
+        {% else %}Back to List{% endif %}
+    </a>
 </div>
 {% endblock %}

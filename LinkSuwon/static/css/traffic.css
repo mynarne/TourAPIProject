@@ -39,3 +39,231 @@
     border-color: var(--point-blue) !important;
     box-shadow: 0 0 0 0.25rem rgba(0, 102, 204, 0.15) !important;
 }
+
+/* ==================== 교통 컨테이너 및 지도 크기 보조 클래스화 ==================== */
+.traffic-layout-container {
+    max-width: 600px;
+}
+
+.traffic-back-btn {
+    font-size: 1.1rem;
+}
+
+.traffic-map-canvas-box {
+    width: 100%;
+    height: 250px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.traffic-navy-theme-text {
+    color: var(--giwa-navy);
+}
+
+.traffic-guide-font-box {
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+/* ==================== [가독성 완벽 패치] 교통카드 키오스크 검색 카드 전용 클래스 ==================== */
+.kiosk-dashboard-card-panel {
+    background: linear-gradient(135deg, #1a2b3c, #004080) !important;
+    border-radius: 16px !important;
+}
+
+/* 주위 요소 간섭 없이 무조건 맑은 흰색 가독성을 보장하는 강제 마감 */
+.kiosk-text-white-force {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.kiosk-desc-white-force {
+    color: #ffffff !important;
+    opacity: 0.85 !important;
+}
+
+/* ==================== 무인 단말기 매칭 슬라이드 모달 CSS ==================== */
+.kiosk-custom-modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    align-items: flex-end; /* 하단에서 슥 올라오는 시각 효과를 위해 정렬 */
+    justify-content: center;
+    transition: opacity 0.3s ease;
+}
+
+.kiosk-modal-content {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 600px;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 -5px 25px rgba(0,0,0,0.15);
+    animation: slideUp 0.3s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+/* 모달 헤더 바 */
+.modal-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f1f3f5;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+}
+
+.modal-header-bar h5 {
+    font-weight: 800;
+    color: #1a2b3c;
+    margin: 0;
+}
+
+.close-kiosk-btn {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: #868e96;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* 모달 본문 스크롤 영역 */
+.modal-body-scroll {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* 위치 안내 리스트 */
+.kiosk-loc-item {
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-left: 4px solid #1a2b3c;
+}
+
+.kiosk-loc-item .badge {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    padding: 6px 10px;
+}
+
+.kiosk-loc-item p {
+    font-size: 0.9rem;
+    color: #495057;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* ==================== 단말기 기기 디자인 CSS 모형 (CSS Mockups) ==================== */
+.kiosk-mockup {
+    background: #e9ecef;
+    border-radius: 16px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    position: relative;
+    height: 300px;
+    border: 3px solid #343a40;
+}
+
+/* 주황색 WOWPASS 테마 */
+.wowpass-mock {
+    background: #ff6600; /* 오렌지색 기기 */
+}
+
+/* 분홍색/파랑색 NAMANE 테마 */
+.namane-mock {
+    background: #4a90e2; /* 파랑 기기 베이스 */
+}
+
+.kiosk-top-header {
+    width: 100%;
+    background: #343a40;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.75rem;
+    text-align: center;
+    padding: 4px 0;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.kiosk-top-header-pink {
+    width: 100%;
+    background: #ff3399;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.75rem;
+    text-align: center;
+    padding: 4px 0;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.kiosk-screen {
+    width: 100%;
+    height: 90px;
+    background: #111;
+    border: 3px solid #666;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.screen-text {
+    color: #00ff00;
+    font-family: monospace;
+    font-size: 0.8rem;
+    font-weight: bold;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0.5; }
+}
+
+.kiosk-slot {
+    width: 85%;
+    background: #343a40;
+    color: #fff;
+    font-size: 0.65rem;
+    text-align: center;
+    padding: 6px 0;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    border-bottom: 2px solid #fff;
+}
+
+.kiosk-label {
+    display: block;
+    margin-top: auto;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.traffic-style-radius-wrapper {
+    border-radius: 12px;
+    overflow: hidden;
+}

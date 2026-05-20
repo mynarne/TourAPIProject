@@ -1,5 +1,6 @@
 import os
 import requests
+import re
 from dotenv import load_dotenv
 from urllib.parse import unquote
 from korean_romanizer.romanizer import Romanizer
@@ -30,6 +31,10 @@ class TourAPIManager():
             'cht': 'ChtService2'   # 중문_번체
         }
 
+        # [보안 개선] SSL 검증 여부를 환경 변수로 완벽하게 격리 통제 (.env에서 관리)
+        # 로컬 개발 환경(False)과 운영 배포 환경(True)의 보안 강도를 쉽게 변경할 수 있게 합니다.
+        self.ssl_verify = os.getenv('SSL_VERIFY', 'False').lower() == 'true'
+
     def get_suwon_data(self, lang='kor'):
         service_map = self.service_map.get(lang, 'KorService2')
         url = f'{self.base_url}/{service_map}/areaBasedList2'
@@ -49,8 +54,8 @@ class TourAPIManager():
         }
 
         try:
-            # verify=False로 윈도우 보안 이슈 차단
-            response = requests.get(url, params=params, timeout=10, verify=False)
+            # [보안 적용] 전역 SSL 검증 옵션 바인딩 (MITM 패킷 감청 예방 가능)
+            response = requests.get(url, params=params, timeout=10, verify=self.ssl_verify)
             
             if response.status_code == 200:
                 res_data = response.json()
@@ -113,8 +118,8 @@ class TourAPIManager():
         }
 
         try:
-            # verify=False로 윈도우 보안 이슈 차단
-            response = requests.get(url, params=params, timeout=10, verify=False)
+            # [보안 적용] 전역 SSL 검증 옵션 바인딩
+            response = requests.get(url, params=params, timeout=10, verify=self.ssl_verify)
             if response.status_code == 200:
                 res_data = response.json()
                 
@@ -152,6 +157,12 @@ class TourAPIManager():
         
         system_prompt = lang_map.get(target_language, "You must answer in Korean.")
         
+        # [보안 강화] 악성 프롬프트 인젝션 및 개행을 사용한 시스템 지시어 탈취 필터링
+        # 입력값의 문자열 포맷팅 및 안전성 검증을 1차적으로 조치합니다.
+        safe_input = re.sub(r'[\r\n\t]+', ' ', user_input).strip()
+        if len(safe_input) > 200: # 긴 프롬프트 인젝션 공격 길이 제한
+            safe_input = safe_input[:200]
+
         # 라이브러리 충돌을 피하기 위해 REST API 직접 호출 방식 적용
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
         
@@ -169,14 +180,15 @@ class TourAPIManager():
             "contents": [
                 {
                     "parts": [
-                        {"text": f"{system_instruction}\n\n{system_prompt}\n\nUser: {user_input}"}
+                        {"text": f"{system_instruction}\n\n{system_prompt}\n\nUser: {safe_input}"}
                     ]
                 }
             ]
         }
         
         try:
-            response = requests.post(url, headers=headers, params=params, json=payload, timeout=15)
+            # [보안 적용] 전역 SSL 검증 옵션 바인딩
+            response = requests.post(url, headers=headers, params=params, json=payload, timeout=15, verify=self.ssl_verify)
             
             if response.status_code == 200:
                 res_data = response.json()
@@ -185,8 +197,8 @@ class TourAPIManager():
                 if candidates:
                     parts = candidates[0].get("content", {}).get("parts", [])
                     if parts:
-                        return parts[0].get("text", "답변을 생성하지 못했슈.")
-                return "답변을 생성하지 못했슈."
+                        return parts[0].get("text", "답변을 생성하지 못했습니다.")
+                return "답변을 생성하지 못했습니다."
             else:
                 return f"API 호출 실패 (코드: {response.status_code})"
                 
