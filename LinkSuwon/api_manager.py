@@ -211,8 +211,8 @@ class TourAPIManager():
         if len(safe_input) > 200:
             safe_input = safe_input[:200]
 
-        # REST API 직접 호출
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash:generateContent"
+        # REST API 직접 호출 — gemini-2.0-flash (유효한 모델명)
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
         headers = {
             "Content-Type": "application/json"
         }
@@ -220,15 +220,24 @@ class TourAPIManager():
             "key": self.gemini_api_key
         }
         
+        full_system = f"{system_instruction}\n{system_prompt}"
+        
         payload = {
+            "systemInstruction": {
+                "parts": [{"text": full_system}]
+            },
             "contents": [
                 {
-                    "parts": [
-                        {"text": f"{system_instruction}\n\n{system_prompt}\n\nUser: {safe_input}"}
-                    ]
+                    "role": "user",
+                    "parts": [{"text": safe_input}]
                 }
-            ]
+            ],
+            "generationConfig": {
+                "temperature": 0.7,
+                "maxOutputTokens": 512
+            }
         }
+
         
         try:
             # [보안 적용] 전역 SSL 검증 옵션 바인딩
@@ -243,8 +252,17 @@ class TourAPIManager():
                         return parts[0].get("text", "답변을 생성하지 못했습니다.")
                 return "답변을 생성하지 못했습니다."
             else:
-                return f"API 호출 실패 (코드: {response.status_code})"
+                print(f"--- [DEBUG] Gemini API 오류 {response.status_code}: {response.text} ---")
+                lang_err = {
+                    'kor': "죄송합니다. AI 응답에 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+                    'eng': "Sorry, a temporary error occurred. Please try again shortly.",
+                    'jpn': "申し訳ありません。一時的なエラーが発生しました。しばらくしてから再試行してください。",
+                    'chs': "抱歉，发生了临时错误。请稍后再试。",
+                    'cht': "抱歉，發生了臨時錯誤。請稍後再試。"
+                }
+                return lang_err.get(target_language, lang_err['eng'])
                 
         except Exception as e:
             print(f"--- [DEBUG] 예외 발생: {str(e)} ---")
-            return f"에러 발생: {str(e)}"
+            return f"에러 발생: {str(e)}"
+
