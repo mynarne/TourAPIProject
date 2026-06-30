@@ -1,106 +1,186 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    {% if current_lang == 'kor' %}{{ item.title }} - 상세 정보
-    {% elif current_lang == 'eng' %}{{ item.title }} - Details
-    {% elif current_lang == 'jpn' %}{{ item.title }} - 詳細情報
-    {% elif current_lang == 'chs' %}{{ item.title }} - 详细信息
-    {% elif current_lang == 'cht' %}{{ item.title }} - 詳細資訊
-    {% else %}{{ item.title }} - Details
-    {% endif %}
+    {{ item.title }} - {{ _('menu_attractions') }}
 {% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/detail.css') }}">
+<style>
+    body {
+        padding-top: 0px !important; /* 상세페이지는 풀 헤더 이미지를 위해 상단 패딩 제거 */
+    }
+    header.fixed {
+        display: none !important; /* 상세페이지 전용 백버튼을 위해 공통 헤더 숨김 */
+    }
+    nav.fixed {
+        display: none !important; /* 상세페이지 집중을 위해 하단바 숨김 */
+    }
+</style>
 {% endblock %}
 
 {% block scripts %}
     <script src="{{ url_for('static', filename='js/detail.js') }}"></script>
     <script>
         window.onload = function() {
-            // API에서 제공하는 위경도 좌표가 문자열 포맷일 수 있으므로 정밀 연산을 위해 부동소수점 변환
             const mapX = parseFloat("{{ item.mapx }}");
             const mapY = parseFloat("{{ item.mapy }}");
             const title = "{{ item.title }}";
             
-            // 상세 페이지 전용 지도 및 실시간 GPS 추적기 초기화 함수 실행
             initDetailMap(mapY, mapX, title);
+            checkFavoriteStatus();
         };
+
+        function checkFavoriteStatus() {
+            const contentid = "{{ item.contentid }}";
+            const favBtn = document.getElementById('detail-fav-btn');
+            if (!favBtn) return;
+            
+            if (isPlaceSaved(contentid)) {
+                favBtn.innerHTML = `<span class="material-symbols-outlined text-secondary filled-icon">bookmark</span> Saved`;
+                favBtn.classList.add('bg-yellow-100');
+            } else {
+                favBtn.innerHTML = `<span class="material-symbols-outlined">bookmark_add</span> Save`;
+                favBtn.classList.remove('bg-yellow-100');
+            }
+        }
+
+        function toggleDetailFavorite() {
+            const contentid = "{{ item.contentid }}";
+            const title = "{{ item.title }}";
+            const firstimage = "{{ item.firstimage }}";
+            const addr1 = "{{ item.addr1 }}";
+            
+            if (isPlaceSaved(contentid)) {
+                removePlace(contentid);
+            } else {
+                savePlace({ contentid, title, firstimage, addr1 });
+            }
+            checkFavoriteStatus();
+        }
+
+        function saveDetailVisitLog() {
+            const contentid = "{{ item.contentid }}";
+            const title = "{{ item.title }}";
+            const visitDate = document.getElementById('detail-log-date').value;
+            const memo = document.getElementById('detail-log-memo').value;
+            
+            const success = addVisitRecord({
+                contentid,
+                title,
+                visit_date: visitDate,
+                memo,
+                lang: "{{ current_lang }}"
+            });
+            
+            if (success) {
+                alert("{{ _('timeline_title') }}에 추가되었습니다!");
+                document.getElementById('detail-log-collapse').classList.add('hidden');
+            } else {
+                alert("Failed to save log.");
+            }
+        }
+
+        function toggleLogForm() {
+            const form = document.getElementById('detail-log-collapse');
+            form.classList.toggle('hidden');
+            if (!form.classList.contains('hidden')) {
+                document.getElementById('detail-log-date').value = new Date().toISOString().split('T')[0];
+            }
+        }
     </script>
 {% endblock %}
 
 {% block content %}
-<div class="detail-container">
-    <div class="detail-header">
-        <h1>{{ item.title }}</h1>
-        {% if item.firstimage %}
-            <img src="{{ item.firstimage }}" alt="{{ item.title }}">
-        {% else %}
-            <img src="{{ url_for('static', filename='images/default.png') }}" alt="Default Image">
-        {% endif %}
-    </div>
-
-    <div class="detail-body">
-        <div class="info-section">
-            <h2 class="section-subtitle">
-                {% if current_lang == 'kor' %}소개
-                {% elif current_lang == 'eng' %}Introduction
-                {% elif current_lang == 'jpn' %}紹介
-                {% elif current_lang == 'chs' %}介绍
-                {% elif current_lang == 'cht' %}介紹
-                {% else %}Introduction{% endif %}
-            </h2>
-            <div class="overview">
-                {{ item.overview|safe }}
-            </div>
-            
-            <div class="basic-info">
-                <p><strong>📍 {% if current_lang == 'kor' %}주소
-                                {% elif current_lang == 'eng' %}Address
-                                {% elif current_lang == 'jpn' %}住所
-                                {% elif current_lang == 'chs' %}地址
-                                {% elif current_lang == 'cht' %}地址
-                                {% else %}Address{% endif %}:</strong> {{ item.addr1 }}</p>
-                {% if item.homepage %}
-                    <p><strong>🌐 {% if current_lang == 'kor' %}홈페이지
-                                    {% elif current_lang == 'eng' %}Homepage
-                                    {% elif current_lang == 'jpn' %}ホームページ
-                                    {% elif current_lang == 'chs' %}官网
-                                    {% elif current_lang == 'cht' %}官網
-                                    {% else %}Homepage{% endif %}:</strong> {{ item.homepage|safe }}</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="map-section">
-            <h2 class="section-subtitle">
-                {% if current_lang == 'kor' %}위치
-                {% elif current_lang == 'eng' %}Location
-                {% elif current_lang == 'jpn' %}位置
-                {% elif current_lang == 'chs' %}位置
-                {% elif current_lang == 'cht' %}位置
-                {% else %}Location{% endif %}
-            </h2>
-            <div id="detail-map"></div>
-            
-            <button onclick="startDetailNavigation()" class="btn-route w-100 border-0">
-                {% if current_lang == 'kor' %}네이버 지도로 길찾기
-                {% elif current_lang == 'eng' %}Get Directions on Naver Map
-                {% elif current_lang == 'jpn' %}ナビゲ이션を開始
-                {% elif current_lang == 'chs' %}使用地图导航
-                {% elif current_lang == 'cht' %}使用地圖導航
-                {% else %}Get Directions on Naver Map{% endif %}
-            </button>
-        </div>
-    </div>
-
-    <a href="{{ url_for('main.index', lang=current_lang) }}" class="back-link">
-        {% if current_lang == 'kor' %}목록으로 돌아가기
-        {% elif current_lang == 'eng' %}Back to List
-        {% elif current_lang == 'jpn' %}一覧に戻る
-        {% elif current_lang == 'chs' %}返回列表
-        {% elif current_lang == 'cht' %}返回列表
-        {% else %}Back to List{% endif %}
+<!-- Hero Image Section -->
+<div class="relative w-full h-[350px] md:h-[400px]">
+    {% if item.firstimage %}
+        <img class="absolute inset-0 w-full h-full object-cover" src="{{ item.firstimage }}" alt="{{ item.title }}">
+    {% else %}
+        <img class="absolute inset-0 w-full h-full object-cover" src="{{ url_for('static', filename='images/default.png') }}" alt="Default Image">
+    {% endif %}
+    <!-- Top Gradient -->
+    <div class="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-primary/40 to-transparent pointer-events-none"></div>
+    
+    <!-- Back Button Overlay -->
+    <a href="{{ url_for('spot.spot_home', lang=current_lang) }}" class="absolute top-6 left-6 z-10 w-11 h-11 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center shadow-md border border-outline-variant/20 active:scale-95 transition-transform text-decoration-none text-primary">
+        <span class="material-symbols-outlined">arrow_back</span>
     </a>
 </div>
+
+<!-- Main Content Area -->
+<main class="relative z-20 -mt-8 bg-background rounded-t-[24px] px-container-margin pt-6 pb-24 flex flex-col gap-6 max-w-[650px] mx-auto md:px-8 md:rounded-t-[32px]">
+    
+    <!-- Header Info -->
+    <section class="flex flex-col gap-2">
+        <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <span class="px-3 py-1 bg-secondary-fixed text-on-secondary-fixed font-bold text-xs rounded-full">Suwon</span>
+            <span class="px-3 py-1 bg-surface-container-high text-on-surface-variant font-bold text-xs rounded-full">Tourist Attraction</span>
+        </div>
+        <h1 class="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight">
+            {{ item.title }}
+        </h1>
+        
+        <div class="flex flex-col gap-2 mt-2">
+            <div class="flex items-start gap-2 text-on-surface-variant text-sm">
+                <span class="material-symbols-outlined text-[20px] text-primary shrink-0 mt-0.5">location_on</span>
+                <span>{{ item.addr1 }}</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Action Buttons Grid -->
+    <section class="grid grid-cols-2 gap-3">
+        <!-- Ask AI (Primary) -->
+        <a href="/chat?lang={{ current_lang }}&spot={{ item.title | urlencode }}" class="col-span-2 min-h-[48px] bg-primary text-on-primary font-bold text-sm rounded-2xl flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all text-decoration-none">
+            <span class="material-symbols-outlined">smart_toy</span>
+            {{ _('btn_ask_ai') }}
+        </a>
+        <!-- Naver Map (Secondary) -->
+        <button onclick="startDetailNavigation()" class="min-h-[48px] bg-transparent border-[1.5px] border-primary text-primary font-bold text-sm rounded-2xl flex items-center justify-center gap-2 active:bg-primary/5 transition-colors">
+            <span class="material-symbols-outlined">map</span>
+            {{ _('btn_transit') }}
+        </button>
+        <!-- Save to List (Secondary) -->
+        <button id="detail-fav-btn" onclick="toggleDetailFavorite()" class="min-h-[48px] bg-transparent border-[1.5px] border-primary text-primary font-bold text-sm rounded-2xl flex items-center justify-center gap-2 active:bg-primary/5 transition-colors">
+            <span class="material-symbols-outlined">bookmark_add</span>
+            Save
+        </button>
+        <!-- Add Travel Record -->
+        <button onclick="toggleLogForm()" class="col-span-2 min-h-[44px] text-secondary font-bold text-sm flex items-center justify-center gap-2 mt-2 active:opacity-70 transition-opacity border-0 bg-transparent">
+            <span class="material-symbols-outlined">edit_calendar</span>
+            {{ _('btn_add_record') }}
+        </button>
+    </section>
+
+    <!-- 방문 기록 입력창 (기본 숨김) -->
+    <section id="detail-log-collapse" class="hidden border border-outline-variant/20 rounded-2xl p-4 bg-white shadow-sm">
+        <label class="block text-xs font-bold text-primary mb-1">📅 Visit Date</label>
+        <input type="date" id="detail-log-date" class="w-full bg-background border border-outline-variant/30 rounded-xl px-3 py-2 text-xs outline-none mb-3">
+        
+        <label class="block text-xs font-bold text-primary mb-1">✍️ Review Memo</label>
+        <textarea id="detail-log-memo" rows="3" class="w-full bg-background border border-outline-variant/30 rounded-xl px-3 py-2 text-xs outline-none resize-none mb-4" placeholder="{{ _('placeholder_review') }}"></textarea>
+        
+        <button onclick="saveDetailVisitLog()" class="w-full bg-success text-white font-bold text-xs py-2.5 rounded-xl border-0">Save Log</button>
+    </section>
+
+    <!-- Description Card -->
+    <section class="bg-surface-container-lowest rounded-2xl p-5 shadow-sm border border-outline-variant/30 relative overflow-hidden">
+        <div class="absolute inset-x-0 top-0 h-[1px] bg-outline-variant/20"></div>
+        <h2 class="font-headline text-lg font-bold text-on-surface mb-3">About</h2>
+        <p class="font-body text-sm text-on-surface-variant leading-relaxed text-break-custom">
+            {{ item.overview|safe }}
+        </p>
+    </section>
+
+    <!-- Map Card -->
+    <section class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/30 flex flex-col gap-3 relative">
+        <div class="absolute inset-x-0 top-0 h-[1px] bg-outline-variant/20"></div>
+        <div class="flex justify-between items-center">
+            <h2 class="font-headline text-lg font-bold text-on-surface">Location</h2>
+        </div>
+        <!-- Map Container -->
+        <div id="detail-map" class="w-full h-44 rounded-xl overflow-hidden bg-surface-variant relative border border-outline-variant/20"></div>
+    </section>
+
+</main>
 {% endblock %}

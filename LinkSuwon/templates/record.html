@@ -1,17 +1,27 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    {% if current_lang == 'kor' %}LinkSuwon - 나만의 기록
-    {% elif current_lang == 'eng' %}LinkSuwon - My Travel Log
-    {% elif current_lang == 'jpn' %}LinkSuwon - 私の旅行記録
-    {% elif current_lang == 'chs' %}LinkSuwon - 我的旅行记录
-    {% elif current_lang == 'cht' %}LinkSuwon - 我的旅行記錄
-    {% else %}LinkSuwon - My Travel Log
-    {% endif %}
+    {{ _('brand_title') }} - {{ _('menu_records') }}
 {% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/record.css') }}">
+<style>
+    .shadow-ambient-md {
+        box-shadow: 0 4px 12px rgba(18, 48, 74, 0.06);
+    }
+    .card-inner-stroke {
+        box-shadow: inset 0 0 0 1px #E5E7EB;
+    }
+    .timeline-line::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 19px;
+        width: 2px;
+        background: linear-gradient(to bottom, transparent, rgba(195, 199, 206, 0.4) 15%, rgba(195, 199, 206, 0.4) 85%, transparent);
+    }
+</style>
 {% endblock %}
 
 {% block scripts %}
@@ -21,137 +31,50 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-4" style="max-width: 700px;">
+<div class="container py-6 max-w-[700px] mx-auto pb-24 md:pb-12">
     
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <a href="{{ url_for('main.index', lang=current_lang) }}" class="text-decoration-none text-secondary fw-bold" style="font-size: 1.1rem;">
-            ← {% if current_lang == 'kor' %}뒤로 가기
-              {% elif current_lang == 'eng' %}Back
-              {% elif current_lang == 'jpn' %}戻る
-              {% elif current_lang == 'chs' %}返回
-              {% elif current_lang == 'cht' %}返回
-              {% else %}Back{% endif %}
+            ← {{ _('btn_back') }}
         </a>
-        <span id="user-uuid-display" class="badge bg-light text-secondary border">ID: Loading...</span>
+        <span id="user-uuid-display" class="badge bg-light text-secondary border px-3 py-2" style="border-radius: 20px;">ID: Loading...</span>
     </div>
 
-    <div id="log-export-area" class="card border-0 shadow-sm mb-4 p-4 bg-white" style="border-radius: 16px;">
-        <h3 class="fw-bolder mb-1" style="color: var(--giwa-navy);">
-            {% if current_lang == 'kor' %}📔 나의 수원 여행 기록
-            {% elif current_lang == 'eng' %}📔 My Suwon Travel Log
-            {% elif current_lang == 'jpn' %}📔 私の水原旅行記録
-            {% elif current_lang == 'chs' %}📔 我的水原旅行记录
-            {% elif current_lang == 'cht' %}📔 我的水原旅行記錄
-            {% else %}📔 My Suwon Travel Log
-            {% endif %}
-        </h3>
-        <p class="text-muted small mb-4">EveryTripLog ✕ LinkSuwon</p>
-
-        <div class="timeline-container">
-            <div class="timeline-item">
-                <div class="timeline-icon">🏨</div>
-                <div class="timeline-content">
-                    <h6 class="fw-bold mb-1">
-                        {% if current_lang == 'kor' %}노보텔 앰배서더 수원 (숙소)
-                        {% elif current_lang == 'eng' %}Novotel Ambassador Suwon (Stay)
-                        {% elif current_lang == 'jpn' %}ノボテルアンバサダー水原 (宿)
-                        {% elif current_lang == 'chs' %}水原诺富特大使酒店 (住宿)
-                        {% elif current_lang == 'cht' %}水原諾富特大使酒店 (住宿)
-                        {% else %}Novotel Ambassador Suwon (Stay){% endif %}
-                    </h6>
-                    <p class="text-muted small mb-0">
-                        {% if current_lang == 'kor' %}수원역 앞, 편안한 휴식
-                        {% elif current_lang == 'eng' %}Comfortable stay near Suwon Station
-                        {% elif current_lang == 'jpn' %}水原駅前、快適な休息
-                        {% elif current_lang == 'chs' %}水原站前，舒适的休息
-                        {% elif current_lang == 'cht' %}水原站前，舒適的休息
-                        {% else %}Comfortable stay near Suwon Station{% endif %}
-                    </p>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-icon">🏯</div>
-                <div class="timeline-content">
-                    <h6 class="fw-bold mb-1">
-                        {% if current_lang == 'kor' %}화성행궁
-                        {% elif current_lang == 'eng' %}Hwaseong Haenggung
-                        {% elif current_lang == 'jpn' %}華城行宮
-                        {% elif current_lang == 'chs' %}华城行宫
-                        {% elif current_lang == 'cht' %}華城行宮
-                        {% else %}Hwaseong Haenggung{% endif %}
-                    </h6>
-                    <p class="text-muted small mb-0">
-                        {% if current_lang == 'kor' %}아름다운 조선의 행궁 산책
-                        {% elif current_lang == 'eng' %}Beautiful Joseon Dynasty palace walk
-                        {% elif current_lang == 'jpn' %}美しい朝鮮の行宮散策
-                        {% elif current_lang == 'chs' %}美丽的朝鲜行宫散步
-                        {% elif current_lang == 'cht' %}美麗的朝鮮行宮散步
-                        {% else %}Beautiful Joseon Dynasty palace walk{% endif %}
-                    </p>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-icon">🥩</div>
-                <div class="timeline-content">
-                    <h6 class="fw-bold mb-1">
-                        {% if current_lang == 'kor' %}본수원갈비 본점
-                        {% elif current_lang == 'eng' %}Bonsuwon Galbi Main Store
-                        {% elif current_lang == 'jpn' %}本水原カルビ 本店
-                        {% elif current_lang == 'chs' %}本水原排骨 总店
-                        {% elif current_lang == 'cht' %}本水原排骨 總店
-                        {% else %}Bonsuwon Galbi Main Store{% endif %}
-                    </h6>
-                    <p class="text-muted small mb-0">
-                        {% if current_lang == 'kor' %}수원 왕갈비로 든든한 저녁 식사
-                        {% elif current_lang == 'eng' %}Hearty dinner with Suwon Wang Galbi
-                        {% elif current_lang == 'jpn' %}水原王カルビでしっかりとした夕食
-                        {% elif current_lang == 'chs' %}用水原王排骨享用丰盛的晚餐
-                        {% elif current_lang == 'cht' %}用水原王排骨享用豐盛的晚餐
-                        {% else %}Hearty dinner with Suwon Wang Galbi{% endif %}
-                    </p>
-                </div>
+    <!-- 이미지/PDF 캡처 영역 -->
+    <div id="log-export-area" class="bg-white rounded-[24px] shadow-ambient-md card-inner-stroke p-6 mb-6">
+        <div class="flex justify-between items-end mb-6 border-b border-outline-variant/10 pb-4">
+            <div>
+                <h1 class="font-headline text-2xl font-extrabold text-primary mb-1">{{ _('timeline_title') }}</h1>
+                <p class="text-xs text-outline">EveryTripLog ✕ LinkSuwon</p>
             </div>
         </div>
 
-        <div class="review-section mt-4 pt-3 border-top">
-            <label class="form-label fw-bold" style="color: var(--giwa-navy);">
-                {% if current_lang == 'kor' %}✍️ 이번 여행의 한 줄 후기
-                {% elif current_lang == 'eng' %}✍️ Travel Review Memo
-                {% elif current_lang == 'jpn' %}✍️ 旅行の感想メモ
-                {% elif current_lang == 'chs' %}✍️ 旅行随笔感言
-                {% elif current_lang == 'cht' %}✍️ 旅行隨筆感言
-                {% else %}✍️ Travel Review Memo
-                {% endif %}
+        <!-- 동적 타임라인이 그려질 구역 (수직선 타임라인 스타일) -->
+        <div id="timeline-container" class="space-y-6 relative timeline-line">
+            <!-- JS에서 동적으로 바인딩됩니다. -->
+        </div>
+
+        <!-- 전체 총평/한줄 평 남기기 (선택형 보존) -->
+        <div class="review-section mt-8 pt-4 border-t border-outline-variant/20" id="overall-review-section">
+            <label class="block text-sm font-bold text-primary mb-2">
+                ✍️ {% if current_lang == 'kor' %}이번 수원 여행의 한 줄 총평
+                {% elif current_lang == 'eng' %}Overall Trip Review
+                {% elif current_lang == 'jpn' %}今回の水原旅行の感想
+                {% else %}这次水原之行的总评{% endif %}
             </label>
-            <textarea id="travel-review-input" class="form-control border-secondary-subtle p-3" rows="3" 
-                      placeholder="{% if current_lang == 'kor' %}수원 여행의 소중한 추억을 기록해 보세요!{% elif current_lang == 'eng' %}Write down your precious memories of Suwon here!{% elif current_lang == 'jpn' %}水原旅行の大切な思い出を記録してみてください！{% elif current_lang == 'chs' %}在这里记录下您水原之旅的珍贵回忆吧！{% elif current_lang == 'cht' %}在這裡記錄下您水原之旅的珍貴回憶吧！{% else %}Write down your precious memories of Suwon here!{% endif %}" style="border-radius: 10px; resize: none;"></textarea>
+            <textarea id="travel-review-input" class="w-full bg-background border border-outline-variant/30 rounded-xl p-3 text-sm outline-none resize-none" rows="2" 
+                      placeholder="{{ _('placeholder_review') }}"></textarea>
         </div>
-
     </div>
 
-    <div class="row g-2">
-        <div class="col-6">
-            <button onclick="exportLogAsImage()" class="btn btn-outline-primary w-100 fw-bold py-3" style="border-radius: 12px;">
-                📸 {% if current_lang == 'kor' %}이미지로 저장
-                   {% elif current_lang == 'eng' %}Save as Image
-                   {% elif current_lang == 'jpn' %}画像として保存
-                   {% elif current_lang == 'chs' %}保存为图片
-                   {% elif current_lang == 'cht' %}保存為圖片
-                   {% else %}Save as Image{% endif %}
-            </button>
-        </div>
-        <div class="col-6">
-            <button onclick="exportLogAsPDF()" class="btn btn-primary w-100 fw-bold py-3" style="background-color: var(--giwa-navy); border: none; border-radius: 12px;">
-                📄 {% if current_lang == 'kor' %}PDF 내보내기
-                   {% elif current_lang == 'eng' %}Export to PDF
-                   {% elif current_lang == 'jpn' %}PDF出力
-                   {% elif current_lang == 'chs' %}导出为PDF
-                   {% elif current_lang == 'cht' %}匯出為PDF
-                   {% else %}Export to PDF{% endif %}
-            </button>
-        </div>
+    <!-- 액션 버튼 -->
+    <div class="grid grid-cols-2 gap-3 mb-6">
+        <button onclick="exportLogAsImage()" class="py-3.5 bg-transparent border-[1.5px] border-primary text-primary font-bold text-sm rounded-xl transition-colors flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-[18px]">image</span> {{ _('btn_save_img') }}
+        </button>
+        <button onclick="exportLogAsPDF()" class="py-3.5 bg-primary text-on-primary font-bold text-sm rounded-xl transition-colors flex items-center justify-center gap-1 border-0">
+            <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span> {{ _('btn_export_pdf') }}
+        </button>
     </div>
 
 </div>

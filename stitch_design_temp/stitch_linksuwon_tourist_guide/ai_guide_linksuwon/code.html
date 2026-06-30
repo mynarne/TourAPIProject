@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LinkSuwon - AI Guide</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#8d4e26",
+                    "on-surface-variant": "#43474d",
+                    "outline-variant": "#c3c7ce",
+                    "primary-fixed": "#cfe5ff",
+                    "secondary-fixed-dim": "#ffb68d",
+                    "secondary-fixed": "#ffdbc9",
+                    "tertiary-fixed": "#e7e2da",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#adc9ea",
+                    "surface": "#f7f9ff",
+                    "primary-container": "#12304a",
+                    "on-tertiary-container": "#99958e",
+                    "primary-fixed-dim": "#adc9ea",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-fixed": "#331200",
+                    "on-tertiary-fixed": "#1d1c17",
+                    "secondary-container": "#feab7b",
+                    "inverse-on-surface": "#e8f2ff",
+                    "surface-dim": "#d1dbe8",
+                    "surface-container-high": "#dfe9f7",
+                    "on-error-container": "#93000a",
+                    "inverse-surface": "#27313c",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container": "#e4effd",
+                    "surface-variant": "#d9e3f1",
+                    "on-surface": "#121d26",
+                    "primary": "#001b31",
+                    "tertiary": "#1b1a15",
+                    "on-secondary-fixed-variant": "#703711",
+                    "on-tertiary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-background": "#121d26",
+                    "on-tertiary-fixed-variant": "#494741",
+                    "outline": "#73777e",
+                    "on-primary-container": "#7d98b7",
+                    "tertiary-container": "#302e29",
+                    "error-container": "#ffdad6",
+                    "background": "#f7f9ff",
+                    "tertiary-fixed-dim": "#cac6be",
+                    "surface-tint": "#46617d",
+                    "on-secondary-container": "#783d17",
+                    "surface-bright": "#f7f9ff",
+                    "surface-container-low": "#edf4ff",
+                    "on-primary-fixed-variant": "#2d4964",
+                    "surface-container-highest": "#d9e3f1",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#001d34"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-sm": "8px",
+                    "section-gap": "40px",
+                    "stack-lg": "24px",
+                    "gutter": "16px",
+                    "stack-md": "16px",
+                    "container-margin": "20px"
+            },
+            "fontFamily": {
+                    "label-md": ["Noto Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-xl": ["Plus Jakarta Sans"],
+                    "body-md": ["Noto Sans"],
+                    "body-lg": ["Noto Sans"],
+                    "label-sm": ["Noto Sans"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Hide scrollbar for horizontal scrolling chips */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Ensure inputs don't zoom on mobile iOS */
+        @media screen and (max-width: 767px) {
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-sans antialiased h-screen flex flex-col overflow-hidden">
+<!-- Header Overlay -->
+<header class="flex-none flex items-center justify-between px-container-margin py-stack-md bg-surface-container-lowest shadow-[0_2px_12px_rgba(18,48,74,0.06)] relative z-20">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<h1 class="font-headline-md text-headline-md text-on-surface">Suwon AI Guide</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface rounded-full hover:bg-surface-variant/50 transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</header>
+<!-- Chat Canvas -->
+<main class="flex-1 overflow-y-auto px-container-margin py-stack-lg flex flex-col gap-stack-lg relative z-10">
+<!-- Date Divider -->
+<div class="flex justify-center">
+<span class="bg-surface-variant/50 text-on-surface-variant font-label-sm text-label-sm px-3 py-1 rounded-full">Today</span>
+</div>
+<!-- Bot Message (Greeting) -->
+<div class="flex gap-3 max-w-[90%] md:max-w-[75%] animate-fade-in-up" style="animation: fadeInUp 0.4s ease-out forwards;">
+<div class="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0 shadow-sm mt-1">
+<span class="material-symbols-outlined text-on-secondary text-sm" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-2xl rounded-tl-sm border border-[#E5E7EB] shadow-[0_2px_8px_rgba(18,48,74,0.04)] text-on-surface font-body-md text-body-md">
+<p>안녕하세요. 수원 여행을 도와드릴게요. 관광지, 이동 방법, 추천 코스에 대해 물어보세요.</p>
+</div>
+</div>
+<!-- Spacer to allow scrolling past input -->
+<div class="h-4"></div>
+</main>
+<!-- Input Area & Quick Actions -->
+<div class="flex-none bg-gradient-to-t from-background via-background/95 to-transparent pt-6 pb-[88px] relative z-20">
+<!-- Quick Questions (Chips) -->
+<div class="px-container-margin pb-4 overflow-x-auto whitespace-nowrap hide-scrollbar flex gap-2 w-full snap-x">
+<button class="snap-start inline-flex items-center h-9 px-4 rounded-full bg-[#FDF2EB] text-secondary font-label-md text-label-md border border-secondary/10 hover:bg-secondary/10 transition-colors shrink-0">
+                이 장소는 어떤 곳인가요?
+            </button>
+<button class="snap-start inline-flex items-center h-9 px-4 rounded-full bg-[#FDF2EB] text-secondary font-label-md text-label-md border border-secondary/10 hover:bg-secondary/10 transition-colors shrink-0">
+                근처에 같이 가볼 만한 곳이 있나요?
+            </button>
+<button class="snap-start inline-flex items-center h-9 px-4 rounded-full bg-[#FDF2EB] text-secondary font-label-md text-label-md border border-secondary/10 hover:bg-secondary/10 transition-colors shrink-0">
+                반나절 코스를 추천해주세요.
+            </button>
+</div>
+<!-- Search / Chat Input -->
+<div class="px-container-margin">
+<div class="flex items-center bg-surface-container-lowest rounded-[14px] border border-[#E5E7EB] p-1.5 shadow-[0_4px_12px_rgba(18,48,74,0.08)] focus-within:border-surface-tint focus-within:ring-1 focus-within:ring-surface-tint transition-all group">
+<input class="flex-1 bg-transparent border-none focus:ring-0 font-body-md text-body-md px-3 text-on-surface placeholder:text-outline-variant outline-none" placeholder="Ask anything about Suwon..." type="text"/>
+<button class="w-10 h-10 flex items-center justify-center rounded-[10px] bg-primary text-on-primary hover:bg-primary/90 active:scale-95 transition-all shrink-0">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">arrow_upward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- BottomNavBar (Shared Component Execution) -->
+<nav class="docked full-width bottom-0 z-50 rounded-t-xl backdrop-blur-lg bg-surface/90 dark:bg-inverse-surface/90 shadow-[0_-4px_12px_rgba(18,48,74,0.08)] fixed left-0 w-full flex justify-around items-center px-4 py-2 md:hidden">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 w-[20%] h-14 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-0.5">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<!-- Explore -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 w-[20%] h-14 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-0.5">explore</span>
+<span class="font-label-sm text-label-sm">Explore</span>
+</a>
+<!-- Maps -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 w-[20%] h-14 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-0.5">map</span>
+<span class="font-label-sm text-label-sm">Maps</span>
+</a>
+<!-- Saved -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 w-[20%] h-14 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-0.5">bookmark</span>
+<span class="font-label-sm text-label-sm">Saved</span>
+</a>
+<!-- AI Guide (ACTIVE STATE) -->
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed font-bold scale-95 transition-all duration-200 w-[20%] h-14 rounded-xl" href="#">
+<div class="px-4 py-1 rounded-full bg-secondary-container/20 mb-0.5 flex flex-col items-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">AI Guide</span>
+</a>
+</nav>
+<style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</body></html>

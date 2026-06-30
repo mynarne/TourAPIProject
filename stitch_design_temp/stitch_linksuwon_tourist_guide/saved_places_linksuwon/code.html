@@ -1,0 +1,247 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>LinkSuwon - Saved Places</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&amp;family=Noto+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#8d4e26",
+                        "on-surface-variant": "#43474d",
+                        "outline-variant": "#c3c7ce",
+                        "primary-fixed": "#cfe5ff",
+                        "secondary-fixed-dim": "#ffb68d",
+                        "secondary-fixed": "#ffdbc9",
+                        "tertiary-fixed": "#e7e2da",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#adc9ea",
+                        "surface": "#f7f9ff",
+                        "primary-container": "#12304a",
+                        "on-tertiary-container": "#99958e",
+                        "primary-fixed-dim": "#adc9ea",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#331200",
+                        "on-tertiary-fixed": "#1d1c17",
+                        "secondary-container": "#feab7b",
+                        "inverse-on-surface": "#e8f2ff",
+                        "surface-dim": "#d1dbe8",
+                        "surface-container-high": "#dfe9f7",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#27313c",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e4effd",
+                        "surface-variant": "#d9e3f1",
+                        "on-surface": "#121d26",
+                        "primary": "#001b31",
+                        "tertiary": "#1b1a15",
+                        "on-secondary-fixed-variant": "#703711",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-background": "#121d26",
+                        "on-tertiary-fixed-variant": "#494741",
+                        "outline": "#73777e",
+                        "on-primary-container": "#7d98b7",
+                        "tertiary-container": "#302e29",
+                        "error-container": "#ffdad6",
+                        "background": "#f7f9ff",
+                        "tertiary-fixed-dim": "#cac6be",
+                        "surface-tint": "#46617d",
+                        "on-secondary-container": "#783d17",
+                        "surface-bright": "#f7f9ff",
+                        "surface-container-low": "#edf4ff",
+                        "on-primary-fixed-variant": "#2d4964",
+                        "surface-container-highest": "#d9e3f1",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#001d34"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "section-gap": "40px",
+                        "stack-lg": "24px",
+                        "gutter": "16px",
+                        "stack-md": "16px",
+                        "container-margin": "20px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Noto Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-xl": ["Plus Jakarta Sans"],
+                        "body-md": ["Noto Sans"],
+                        "body-lg": ["Noto Sans"],
+                        "label-sm": ["Noto Sans"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased pb-24 font-body-md">
+<!-- TopNavBar (Responsive Pivot: Icon actions only on Mobile) -->
+<header class="sticky docked full-width top-0 z-50 bg-surface/80 backdrop-blur-md shadow-sm">
+<div class="flex justify-between items-center w-full px-container-margin py-stack-md max-w-[1140px] mx-auto">
+<div class="font-headline-lg-mobile font-bold text-primary tracking-tight">
+                LinkSuwon
+            </div>
+<!-- Desktop Nav Links (Hidden on Mobile) -->
+<nav class="hidden md:flex gap-6 items-center">
+<a class="text-on-surface-variant hover:text-secondary transition-colors duration-200 font-label-md text-label-md" href="#">Home</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors duration-200 font-label-md text-label-md" href="#">Explore</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors duration-200 font-label-md text-label-md" href="#">Maps</a>
+<a class="text-primary border-b-2 border-secondary font-bold font-label-md text-label-md pb-1" href="#">Saved</a>
+</nav>
+<!-- Trailing Icons -->
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-secondary transition-colors duration-200 scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300;">language</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="w-full max-w-[1140px] mx-auto px-container-margin py-stack-lg">
+<!-- Screen Header -->
+<div class="mb-stack-lg">
+<h1 class="font-headline-xl text-headline-xl text-primary">Saved Places</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Your curated list of Suwon destinations.</p>
+</div>
+<!-- Saved Places Grid -->
+<div class="grid grid-cols-1 gap-6">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-[18px] shadow-sm ring-1 ring-outline-variant/30 flex flex-col md:flex-row overflow-hidden group transition-all duration-300 hover:shadow-md">
+    <div class="h-48 md:h-auto md:w-1/3 bg-surface-variant relative overflow-hidden">
+        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBH3Q-IX8gW1sOecU1q5HW0Whhluv3pf8ROsALI-uuz8V1b3Zr651vuXSe-rT-k1iM8CljoxEPhPs_4awlU4kjIQhqc7Ssx-XjMr_kBDlx4zOcsL2q-DaHFHFC2BL9rfb1ExQ0jL84_mmHMT22yby7JcivbqgS_7lTJF1RE5T3ypXCUMMzZstnDbXayeCK4gYipBUCF4omcmbu3gIG2TufHbOVL3ZlELJCygjFJGwEHr_OR23XuFtXOGg" alt="Hwaseong Fortress">
+        <div class="absolute top-3 left-3 bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-2 py-1 rounded-full shadow-sm">Historical</div>
+    </div>
+    <div class="p-6 flex flex-col flex-1">
+        <div class="flex justify-between items-start mb-2">
+            <h2 class="font-headline-md text-headline-md text-primary">Hwaseong Fortress</h2>
+            <button class="text-secondary hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+            </button>
+        </div>
+        <p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 mb-6">
+            <span class="material-symbols-outlined text-[18px]">location_on</span>
+            11 Haenggung-ro, Paldal-gu
+        </p>
+        <div class="mt-auto">
+            <button class="w-full md:w-auto px-8 bg-primary-container text-on-primary font-label-md text-label-md py-3 rounded-[14px] hover:bg-primary transition-colors">
+                View Details
+            </button>
+        </div>
+    </div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-[18px] shadow-sm ring-1 ring-outline-variant/30 flex flex-col md:flex-row overflow-hidden group transition-all duration-300 hover:shadow-md">
+    <div class="h-48 md:h-auto md:w-1/3 bg-surface-variant relative overflow-hidden">
+        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBt8JEWInbS5PbMZRGvYsgnr8BgWAk0Giy_WT5rfbe_vVCKafkQ69_nSOaBysa1ug9Z49muHwCu5sL1ZYPYYpOKx9bU66qn7OumwxHuKJv53NpEzkU_big_wNNNo5Y8ewdziStPfITkdKdR4edOBkhsJOdQc3K8WZM2zzeZcp1R5_C9_gZ0aOrLlWQhebCsQUuoy87H2gdfUHVjzv1Qdr7iDmJahOSMxURlcji5ZMXQNWf9hpI3fmXYJw" alt="Yeonmudae Cafe">
+        <div class="absolute top-3 left-3 bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-2 py-1 rounded-full shadow-sm">Cafe</div>
+    </div>
+    <div class="p-6 flex flex-col flex-1">
+        <div class="flex justify-between items-start mb-2">
+            <h2 class="font-headline-md text-headline-md text-primary">Yeonmudae Cafe</h2>
+            <button class="text-secondary hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+            </button>
+        </div>
+        <p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 mb-6">
+            <span class="material-symbols-outlined text-[18px]">location_on</span>
+            8 Dongmun-ro, Paldal-gu
+        </p>
+        <div class="mt-auto">
+            <button class="w-full md:w-auto px-8 bg-primary-container text-on-primary font-label-md text-label-md py-3 rounded-[14px] hover:bg-primary transition-colors">
+                View Details
+            </button>
+        </div>
+    </div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-[18px] shadow-sm ring-1 ring-outline-variant/30 flex flex-col md:flex-row overflow-hidden group transition-all duration-300 hover:shadow-md">
+    <div class="h-48 md:h-auto md:w-1/3 bg-surface-variant relative overflow-hidden">
+        <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEW89fwXr1cbrFhYsXUhE1eYC-N4ZJAKchnQKSWypDZtTYAjpplhu1guDFErrB_hgdgqzjr6bOnTd1BZt7Rt3cceqZoxNYE-UeD69FQqvkeodXQrRg82Pden6e0Gvy-4NVGIyyTrjW6NWhY85Kl9y8J5cUUSzVKhABk_hg8QQ-xkPKPBajwehuT2L4JBRRvp2AXCgP3hVaZp1Sop94SAJeAB9sZM102UUZ2aK5UamebPvIbS7HQIBalA" alt="Haenggung Palace">
+        <div class="absolute top-3 left-3 bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-2 py-1 rounded-full shadow-sm">Palace</div>
+    </div>
+    <div class="p-6 flex flex-col flex-1">
+        <div class="flex justify-between items-start mb-2">
+            <h2 class="font-headline-md text-headline-md text-primary">Haenggung Palace</h2>
+            <button class="text-secondary hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+            </button>
+        </div>
+        <p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 mb-6">
+            <span class="material-symbols-outlined text-[18px]">location_on</span>
+            825 Jeongjo-ro, Paldal-gu
+        </p>
+        <div class="mt-auto">
+            <button class="w-full md:w-auto px-8 bg-primary-container text-on-primary font-label-md text-label-md py-3 rounded-[14px] hover:bg-primary transition-colors">
+                View Details
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+<!-- Empty State Example (Hidden by default, shown for demonstration logic if needed, but visually we show the populated state) -->
+<div class="hidden flex-col items-center justify-center text-center py-20 px-4">
+<span class="material-symbols-outlined text-outline-variant text-[64px] mb-4" style="font-variation-settings: 'wght' 200;">bookmark_border</span>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-6">아직 저장한 장소가 없어요. 마음에 드는 관광지를 저장해보세요.</p>
+<button class="bg-primary-container text-on-primary font-label-md text-label-md px-6 py-3 rounded-[14px] flex items-center gap-2 hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">explore</span>
+                Explore Places
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 md:hidden bg-surface/90 backdrop-blur-lg shadow-[0_-4px_12px_rgba(18,48,74,0.08)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 rounded-lg p-2 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300;">home</span>
+<span class="font-label-sm-mobile text-label-sm-mobile mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 rounded-lg p-2 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300;">explore</span>
+<span class="font-label-sm-mobile text-label-sm-mobile mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 rounded-lg p-2 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300;">map</span>
+<span class="font-label-sm-mobile text-label-sm-mobile mt-1">Maps</span>
+</a>
+<!-- Active State -->
+<a class="flex flex-col items-center justify-center text-secondary font-bold scale-95 transition-all duration-200 rounded-lg p-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1, 'wght' 400;">bookmark</span>
+<span class="font-label-sm-mobile text-label-sm-mobile mt-1">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/50 rounded-lg p-2 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300;">smart_toy</span>
+<span class="font-label-sm-mobile text-label-sm-mobile mt-1">AI Guide</span>
+</a>
+</nav>
+
+
+</body></html>

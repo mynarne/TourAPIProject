@@ -1,86 +1,108 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    {% if current_lang == 'kor' %}LinkSuwon - 추천 명소 안내
-    {% elif current_lang == 'eng' %}LinkSuwon - Attractions Guide
-    {% elif current_lang == 'jpn' %}LinkSuwon - 推薦名所一覧
-    {% else %}LinkSuwon - Attractions Guide
-    {% endif %}
+    {{ _('brand_title') }} - {{ _('menu_attractions') }}
 {% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/spot.css') }}">
+<style>
+    /* Hide scrollbar for sleek list */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    main {
+        padding-top: 60px;
+    }
+</style>
 {% endblock %}
 
 {% block scripts %}
     <script src="{{ url_for('static', filename='js/spot.js') }}" defer></script>
-    <script id="spot-data" type="application/json">
-        {{ items | tojson | safe }}
-    </script>
 {% endblock %}
 
 {% block content %}
-<div class="spot-main-container">
-    <div class="card border-0 shadow-sm p-4 bg-white spot-content-card-box">
+<!-- Main Content: Two-Pane Layout -->
+<div class="flex-grow flex w-full max-w-[1440px] mx-auto overflow-hidden relative" style="height: calc(100vh - 60px);">
+    
+    <!-- Left Pane: List View (Mobile: Toggleable, Desktop: 40% width) -->
+    <aside id="list-pane" class="w-full md:w-[40%] max-w-[500px] h-full bg-surface-container-lowest flex flex-col z-10 shadow-lg border-r border-outline-variant/20 relative">
         
-        <div class="spot-header-box d-flex justify-content-between align-items-center mb-3">
-            <h4 class="fw-bold m-0 spot-navy-theme-text">
-                {% if current_lang == 'kor' %}📸 수원 관광 명소 안내
-                {% elif current_lang == 'eng' %}📸 Suwon Attraction Guide
-                {% elif current_lang == 'jpn' %}📸 水原観光名所案内
-                {% else %}📸 水原旅游景点指南
-                {% endif %}
-            </h4>
-            <a href="{{ url_for('main.index', lang=current_lang) }}" class="btn btn-sm btn-outline-secondary fw-bold spot-back-home-btn">✕</a>
+        <!-- Tab Bar (Mobile Only) -->
+        <div class="flex md:hidden border-b border-outline-variant/20 bg-white">
+            <button onclick="switchMobileTab('list')" id="mobile-tab-list" class="flex-1 py-3 text-center font-bold text-sm text-secondary border-b-2 border-secondary">
+                📋 {{ _('tab_list') }}
+            </button>
+            <button onclick="switchMobileTab('map')" id="mobile-tab-map" class="flex-1 py-3 text-center font-bold text-sm text-on-surface-variant">
+                🗺️ {{ _('tab_map') }}
+            </button>
         </div>
-        
-        <div class="spot-map-details-split-box">
-            <div id="map" class="shadow-sm border spot-map-canvas-frame"></div>
-            
-            <div id="spot-inline-detail-panel" class="spot-inline-detail-drawer shadow-sm border">
-                <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
-                    <h5 id="panel-item-title" class="fw-bold m-0 text-dark header-truncate"></h5>
-                    <button onclick="closeInlineDetailPanel()" class="btn btn-sm btn-light fw-bold panel-close-x-btn" title="정보 접어두기">✕</button>
-                </div>
-                <div class="panel-scroll-content">
-                    <p id="panel-item-overview" class="text-secondary small mb-3 text-break-custom"></p>
-                    <p class="small mb-1 font-size-12"><strong>📍 {% if current_lang == 'kor' %}주소{% else %}Address{% endif %}:</strong> <span id="panel-item-addr" class="text-muted"></span></p>
-                    <div id="panel-dynamic-route-placeholder" class="mt-3"></div>
-                </div>
+
+        <!-- Search Bar (Mobile & List View Left Pane) -->
+        <div class="p-4 border-b border-outline-variant/10 shrink-0 bg-white">
+            <div class="w-full bg-surface-container-low rounded-2xl p-2 flex items-center border border-outline-variant/20 focus-within:border-secondary transition-all">
+                <span class="material-symbols-outlined text-primary ml-2 mr-2">search</span>
+                <input id="spot-search-input" oninput="filterPlaces()" class="flex-1 bg-transparent border-none focus:ring-0 text-sm text-on-surface placeholder:text-outline py-1.5 outline-none" 
+                       placeholder="{{ _('placeholder_search') }}" type="text" value="{{ request.args.get('search', '') }}">
             </div>
         </div>
-        
-        <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
-            <h5 class="fw-bold m-0 spot-navy-theme-text">
-                {% if current_lang == 'kor' %}📋 추천 명소 탐색 (좌우로 밀어보세요)
-                {% elif current_lang == 'eng' %}📋 Explore Attractions (Swipe Left/Right)
-                {% elif current_lang == 'jpn' %}📋 推薦名所一覧 (左右にスライドしてください)
-                {% else %}📋 推荐景点探索{% endif %}
-            </h5>
-            <small class="text-muted fw-bold horiz-scroll-hint-indicator">Scroll ➔</small>
+
+        <!-- Category Filters -->
+        <div class="px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar border-b border-outline-variant/10 shrink-0 bg-white">
+            <button onclick="filterCategory('all')" id="cat-all" class="cat-btn px-4 py-1.5 bg-primary text-on-primary rounded-full text-xs font-bold whitespace-nowrap shadow-sm ring-1 ring-primary transition-all">
+                {{ _('cat_all') }}
+            </button>
+            <button onclick="filterCategory('heritage')" id="cat-heritage" class="cat-btn px-4 py-1.5 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full text-xs font-bold whitespace-nowrap ring-1 ring-outline-variant/30 transition-all">
+                {{ _('cat_heritage') }}
+            </button>
+            <button onclick="filterCategory('museum')" id="cat-museum" class="cat-btn px-4 py-1.5 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full text-xs font-bold whitespace-nowrap ring-1 ring-outline-variant/30 transition-all">
+                {{ _('cat_museum') }}
+            </button>
+            <button onclick="filterCategory('market')" id="cat-market" class="cat-btn px-4 py-1.5 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full text-xs font-bold whitespace-nowrap ring-1 ring-outline-variant/30 transition-all">
+                {{ _('cat_market') }}
+            </button>
+            <button onclick="filterCategory('nature')" id="cat-nature" class="cat-btn px-4 py-1.5 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full text-xs font-bold whitespace-nowrap ring-1 ring-outline-variant/30 transition-all">
+                {{ _('cat_nature') }}
+            </button>
         </div>
-        
-        <div class="spot-horizontal-carousel-wrapper">
-            {% for item in items %}
-            <div class="spot-carousel-item-card shadow-sm border" onclick="loadInlineSpotDetail({{ loop.index0 }})">
-                {% if item.firstimage %}
-                    <img src="{{ item.firstimage }}" class="spot-carousel-image-top" alt="{{ item.title }}">
-                {% else %}
-                    <img src="{{ url_for('static', filename='images/default.png') }}" class="spot-carousel-image-top" alt="Default Image">
-                {% endif %}
-                <div class="spot-carousel-body-p3">
-                    <h6 class="fw-bold text-dark text-truncate mb-1" style="font-size: 0.9rem;">{{ item.title }}</h6>
-                    <p class="text-muted small text-truncate mb-2" style="font-size: 0.75rem;">{{ item.addr1 }}</p>
-                    <span class="btn btn-outline-primary btn-xs-custom fw-bold">
-                        {% if current_lang == 'kor' %}자세히 보기
-                        {% elif current_lang == 'jpn' %}詳細表示
-                        {% else %}Details{% endif %}
-                    </span>
-                </div>
-            </div>
-            {% endfor %}
+
+        <!-- Scrollable Cards List -->
+        <div id="places-list-container" class="flex-1 overflow-y-auto px-4 py-4 space-y-4 no-scrollbar pb-24 md:pb-4">
+            <!-- JS에서 동적으로 바인딩됩니다. -->
         </div>
-        
+    </aside>
+
+    <!-- Right Pane: Map View (Mobile: Toggleable, Desktop: 60% width) -->
+    <section id="map-pane" class="hidden md:block flex-1 relative bg-surface-variant h-full">
+        <!-- Naver Map Container -->
+        <div id="naver-map" class="absolute inset-0 w-full h-full"></div>
+
+        <!-- AI Floating Action Button (FAB) -->
+        <a href="{{ url_for('chatbot.chat_home', lang=current_lang) }}" class="absolute bottom-8 right-8 bg-surface-container-lowest text-primary rounded-full p-3.5 shadow-lg flex items-center justify-center ring-1 ring-outline-variant/10 hover:scale-105 transition-transform group z-20 text-decoration-none">
+            <span class="material-symbols-outlined text-[26px] group-hover:text-secondary transition-colors">smart_toy</span>
+            <span class="ml-2 font-bold text-sm pr-2 group-hover:text-secondary transition-colors">AI Guide</span>
+        </a>
+    </section>
+
+</div>
+
+<!-- 명소 상세 비동기 바텀시트 / 서랍장 (Drawer) -->
+<div id="spot-drawer" class="fixed bottom-0 left-0 w-full bg-white shadow-2xl rounded-t-3xl transform translate-y-full transition-transform duration-300 ease-out z-50 overflow-y-auto" style="max-height: 85vh; max-width: 500px; left: 50%; translate: -50% 0;">
+    <div class="flex justify-center py-3 border-b cursor-pointer" onclick="closeDrawer()">
+        <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+    </div>
+    <div id="drawer-content" class="p-5">
+        <!-- 동적 로드 -->
     </div>
 </div>
+
+<!-- 드롭바 뒷배경 블러 레이어 -->
+<div id="drawer-backdrop" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden z-40" onclick="closeDrawer()"></div>
+
+<script id="spot-data" type="application/json">
+    {{ items | tojson }}
+</script>
 {% endblock %}

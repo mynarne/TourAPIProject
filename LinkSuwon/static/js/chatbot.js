@@ -1,8 +1,29 @@
 // 전체 화면 모드로 전환되었으므로 토글 함수는 더 이상 사용하지 않습니다. 
-// 하위 호환성(에러 방지)을 위해 빈 함수로 남겨둡니다.
 function toggleChatbot() {
     console.log("전체 화면 모드에서는 토글 기능을 사용하지 않습니다.");
 }
+
+// 페이지 로드 시 특정 관광지(spot) 파라미터가 있으면 첫 질문 자동 발송
+document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const spot = urlParams.get('spot');
+    if (spot) {
+        const lang = document.documentElement.lang || 'ko';
+        let autoQuestion = `"${spot}"에 대해 자세히 설명해줘.`;
+        if (lang === 'en') autoQuestion = `Please tell me more about "${spot}".`;
+        if (lang === 'ja') autoQuestion = `"${spot}"について詳しく教えてください。`;
+        if (lang.startsWith('zh')) autoQuestion = `请详细介绍一下"${spot}"。`;
+
+        const input = document.getElementById('chat-input');
+        if (input) {
+            input.value = autoQuestion;
+            // 즉시 전송하기 위해 약간의 딜레이 후 실행
+            setTimeout(() => {
+                sendChatMessage();
+            }, 500);
+        }
+    }
+});
 
 // 메시지 전송 및 제미나이 API 연동 함수
 async function sendChatMessage() {
@@ -12,19 +33,18 @@ async function sendChatMessage() {
 
     const messagesContainer = document.getElementById('chat-messages');
 
-    // 사용자가 입력한 메시지 화면에 추가 (CSS 클래스 연동)
-    const userMessageDiv = document.createElement('div');
-    userMessageDiv.className = 'chat-bubble user-bubble shadow-sm';
-    userMessageDiv.textContent = message;
-    messagesContainer.appendChild(userMessageDiv);
+    // 사용자가 입력한 메시지 화면에 추가 (Stitch 테일윈드 스타일)
+    const userMsgWrapper = document.createElement('div');
+    userMsgWrapper.className = 'max-w-[85%] self-end msg-animation bg-primary text-on-primary p-4 rounded-2xl rounded-tr-sm shadow-sm text-sm font-body leading-relaxed text-break-custom';
+    userMsgWrapper.textContent = message;
+    messagesContainer.appendChild(userMsgWrapper);
 
     input.value = '';
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-    // 템플릿 변수 대신 현재 언어 정보를 안전하게 가져오도록 유지
     const lang = document.documentElement.lang || 'ko';
 
-    // 신규: 시스템 UI 메시지 다국어 매핑 정의
+    // 시스템 UI 메시지 다국어 매핑 정의
     const systemMsgMap = {
         'ko': {
             loading: '답변을 생성하고 있습니다...',
@@ -44,18 +64,22 @@ async function sendChatMessage() {
         }
     };
 
-    // 현재 언어 설정에 맞는 멘트 선택 (없으면 한국어 기본값)
     const currentMsgs = systemMsgMap[lang] || systemMsgMap['ko'];
 
-    // 로딩 메시지 추가 (API 응답 대기 시간 동안 언어별 분기 메시지 표시)
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'chat-bubble loading-bubble shadow-sm';
-    loadingDiv.textContent = currentMsgs.loading;
-    messagesContainer.appendChild(loadingDiv);
+    // 로딩 메시지 추가
+    const loadingWrapper = document.createElement('div');
+    loadingWrapper.className = 'flex gap-3 max-w-[85%] msg-animation';
+    loadingWrapper.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0 shadow-sm mt-1 animate-pulse">
+            <span class="material-symbols-outlined text-on-secondary text-sm" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+        </div>
+        <div class="bg-surface-container-lowest p-4 rounded-2xl rounded-tl-sm border border-outline-variant/30 shadow-sm text-on-surface font-body text-sm leading-relaxed italic text-black-50">
+            ${currentMsgs.loading}
+        </div>`;
+    messagesContainer.appendChild(loadingWrapper);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
     try {
-        // 언어 코드 매핑
         const langMap = {
             'ko': 'kor', 'en': 'eng', 'ja': 'jpn', 'zh': 'chs'
         };
@@ -70,37 +94,47 @@ async function sendChatMessage() {
         });
 
         // 정상적으로 통신이 끝났으므로 로딩 메시지 제거
-        if (messagesContainer.contains(loadingDiv)) {
-            messagesContainer.removeChild(loadingDiv);
+        if (messagesContainer.contains(loadingWrapper)) {
+            messagesContainer.removeChild(loadingWrapper);
         }
 
         if (response.ok) {
             const botText = await response.text();
 
-            // 챗봇 응답 메시지 화면에 추가 (CSS 클래스 연동)
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-bubble ai-bubble shadow-sm';
-            botMessageDiv.textContent = botText;
-            messagesContainer.appendChild(botMessageDiv);
+            // 챗봇 응답 메시지 화면에 추가 (Stitch 테일윈드 스타일)
+            const botMsgWrapper = document.createElement('div');
+            botMsgWrapper.className = 'flex gap-3 max-w-[85%] msg-animation';
+            botMsgWrapper.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0 shadow-sm mt-1">
+                    <span class="material-symbols-outlined text-on-secondary text-sm" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+                </div>
+                <div class="bg-surface-container-lowest p-4 rounded-2xl rounded-tl-sm border border-outline-variant/30 shadow-sm text-on-surface font-body text-sm leading-relaxed text-break-custom">
+                    ${botText}
+                </div>`;
+            
+            messagesContainer.appendChild(botMsgWrapper);
         } else {
             throw new Error('API 응답 실패');
         }
     } catch (error) {
         console.error("챗봇 에러:", error);
         
-        // 에러 발생 시 로딩 메시지가 남아있다면 제거
-        if (messagesContainer.contains(loadingDiv)) {
-            messagesContainer.removeChild(loadingDiv);
+        if (messagesContainer.contains(loadingWrapper)) {
+            messagesContainer.removeChild(loadingWrapper);
         }
 
-        const errMessageDiv = document.createElement('div');
-        errMessageDiv.className = 'chat-bubble ai-bubble shadow-sm';
-        errMessageDiv.style.color = '#990000';
-        errMessageDiv.style.backgroundColor = '#ffcccc';
-        // 에러 메시지도 언어별 맞춤 멘트로 출력
-        errMessageDiv.textContent = currentMsgs.error;
-        messagesContainer.appendChild(errMessageDiv);
+        const errWrapper = document.createElement('div');
+        errWrapper.className = 'flex gap-3 max-w-[85%] msg-animation';
+        errWrapper.innerHTML = `
+            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center shrink-0 shadow-sm mt-1">
+                <span class="material-symbols-outlined text-white text-sm" style="font-variation-settings: 'FILL' 1;">error</span>
+            </div>
+            <div class="bg-red-50 p-4 rounded-2xl rounded-tl-sm border border-red-200 shadow-sm text-red-700 font-body text-sm leading-relaxed">
+                ${currentMsgs.error}
+            </div>`;
+        
+        messagesContainer.appendChild(errWrapper);
     }
 
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
+}

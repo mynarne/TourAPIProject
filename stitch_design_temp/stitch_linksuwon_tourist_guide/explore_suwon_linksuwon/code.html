@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LinkSuwon - Explore</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#8d4e26",
+                      "on-surface-variant": "#43474d",
+                      "outline-variant": "#c3c7ce",
+                      "primary-fixed": "#cfe5ff",
+                      "secondary-fixed-dim": "#ffb68d",
+                      "secondary-fixed": "#ffdbc9",
+                      "tertiary-fixed": "#e7e2da",
+                      "error": "#ba1a1a",
+                      "inverse-primary": "#adc9ea",
+                      "surface": "#f7f9ff",
+                      "primary-container": "#12304a",
+                      "on-tertiary-container": "#99958e",
+                      "primary-fixed-dim": "#adc9ea",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed": "#331200",
+                      "on-tertiary-fixed": "#1d1c17",
+                      "secondary-container": "#feab7b",
+                      "inverse-on-surface": "#e8f2ff",
+                      "surface-dim": "#d1dbe8",
+                      "surface-container-high": "#dfe9f7",
+                      "on-error-container": "#93000a",
+                      "inverse-surface": "#27313c",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#e4effd",
+                      "surface-variant": "#d9e3f1",
+                      "on-surface": "#121d26",
+                      "primary": "#001b31",
+                      "tertiary": "#1b1a15",
+                      "on-secondary-fixed-variant": "#703711",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "on-background": "#121d26",
+                      "on-tertiary-fixed-variant": "#494741",
+                      "outline": "#73777e",
+                      "on-primary-container": "#7d98b7",
+                      "tertiary-container": "#302e29",
+                      "error-container": "#ffdad6",
+                      "background": "#f7f9ff",
+                      "tertiary-fixed-dim": "#cac6be",
+                      "surface-tint": "#46617d",
+                      "on-secondary-container": "#783d17",
+                      "surface-bright": "#f7f9ff",
+                      "surface-container-low": "#edf4ff",
+                      "on-primary-fixed-variant": "#2d4964",
+                      "surface-container-highest": "#d9e3f1",
+                      "on-primary": "#ffffff",
+                      "on-primary-fixed": "#001d34"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-sm": "8px",
+                      "section-gap": "40px",
+                      "stack-lg": "24px",
+                      "gutter": "16px",
+                      "stack-md": "16px",
+                      "container-margin": "20px"
+              },
+              "fontFamily": {
+                      "label-md": ["Noto Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"],
+                      "headline-lg-mobile": ["Plus Jakarta Sans"],
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "headline-xl": ["Plus Jakarta Sans"],
+                      "body-md": ["Noto Sans"],
+                      "body-lg": ["Noto Sans"],
+                      "label-sm": ["Noto Sans"]
+              },
+              "fontSize": {
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "600"}]
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        /* Hide scrollbar for sleek list */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background h-screen flex flex-col overflow-hidden font-body-md text-body-md">
+<!-- TopNavBar (Generated from JSON) -->
+<header class="bg-surface/80 backdrop-blur-md shadow-sm docked full-width top-0 z-50 border-none">
+<div class="flex justify-between items-center w-full px-container-margin py-stack-md max-w-[1140px] mx-auto">
+<!-- Brand Logo -->
+<div class="font-headline-lg text-headline-lg font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+                LinkSuwon
+            </div>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center gap-stack-lg">
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-secondary transition-colors duration-200 py-2" href="#">Home</a>
+<!-- Active Navigation: Explore -->
+<a class="text-primary border-b-2 border-secondary font-bold font-label-md text-label-md py-2 flex flex-col" href="#">Explore</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-secondary transition-colors duration-200 py-2" href="#">Maps</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-secondary transition-colors duration-200 py-2" href="#">Saved</a>
+</nav>
+<!-- Trailing Icon Action -->
+<div class="flex items-center gap-gutter">
+<div class="relative w-48 hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary text-[20px]">search</span>
+<input class="w-full bg-surface-container-lowest border-none ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-background rounded-[14px] py-2 pl-10 pr-4 text-label-md font-label-md text-on-surface placeholder:text-outline-variant outline-none transition-shadow" placeholder="Search places..." type="text"/>
+</div>
+<button class="scale-95 active:scale-90 transition-transform text-primary hover:text-secondary p-2 rounded-full hover:bg-surface-variant/30">
+<span class="material-symbols-outlined">language</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content: Two-Pane Layout -->
+<main class="flex-1 flex w-full max-w-[1440px] mx-auto overflow-hidden relative">
+<!-- Left Pane: List View (40%) -->
+<aside class="w-full md:w-[40%] max-w-[500px] h-full bg-surface-container-lowest flex flex-col z-10 shadow-[4px_0_12px_rgba(18,48,74,0.05)] border-r border-outline-variant/20 relative">
+<!-- Filters -->
+<div class="px-container-margin py-stack-md flex gap-stack-sm overflow-x-auto no-scrollbar border-b border-outline-variant/10 shrink-0">
+<button class="px-4 py-2 bg-primary text-on-primary rounded-full font-label-sm text-label-sm whitespace-nowrap shadow-sm ring-1 ring-primary">All</button>
+<button class="px-4 py-2 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full font-label-sm text-label-sm whitespace-nowrap ring-1 ring-outline-variant/30 transition-colors">Heritage</button>
+<button class="px-4 py-2 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full font-label-sm text-label-sm whitespace-nowrap ring-1 ring-outline-variant/30 transition-colors">Museum</button>
+<button class="px-4 py-2 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full font-label-sm text-label-sm whitespace-nowrap ring-1 ring-outline-variant/30 transition-colors">Market</button>
+<button class="px-4 py-2 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full font-label-sm text-label-sm whitespace-nowrap ring-1 ring-outline-variant/30 transition-colors">Nature</button>
+</div>
+<!-- Scrollable Cards List -->
+<div class="flex-1 overflow-y-auto px-container-margin py-stack-md space-y-stack-lg no-scrollbar">
+<!-- Card 1 -->
+<article class="bg-surface-container-lowest rounded-[18px] ring-1 ring-outline-variant/20 shadow-[0_2px_4px_rgba(18,48,74,0.08)] flex flex-col group hover:shadow-[0_4px_12px_rgba(18,48,74,0.12)] transition-shadow duration-300">
+<div class="p-[2px] relative">
+<img class="w-full aspect-video object-cover rounded-t-[16px]" data-alt="A wide-angle, high-quality photograph of Hwaseong Fortress in Suwon during the late afternoon 'golden hour'. The ancient stone masonry glows warmly in the sunlight, contrasting with a clear, vibrant blue sky. Lush green trees frame the bottom of the ancient wall. The aesthetic is clean, modern, and cinematic, emphasizing historical grandeur." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGf60wrtk_hBN5t5kFonfP0dfPmLlUUeWrmi0-YLoXSskv5EpjgJ1kuedUXAFRdbv3n5W0gv-b_OfBTy9gkEtLBOwmX99qOVgPo0DOBXi81pw_2_jtIMeFC-NUH_4oWFZU-IZmtReTx-wL5WtFRo84K5qvx2PKucok6VODW30PXlpNqQT8Qhac6bkJ21ig8AhqthOlOcfZxuwnvb9I2vWRymIjh7FgmDIVWez-5D_-LwchJYzFnL7hrQ"/>
+<div class="absolute top-4 left-4 bg-[#FDF2EB] text-secondary px-2.5 py-1 rounded-md font-label-sm text-label-sm uppercase tracking-wider backdrop-blur-sm bg-opacity-90">
+                            Heritage
+                        </div>
+<button class="absolute top-4 right-4 p-2 bg-surface-container-lowest/80 backdrop-blur-sm rounded-full text-on-surface hover:text-secondary transition-colors">
+<span class="material-symbols-outlined">bookmark_border</span>
+</button>
+</div>
+<div class="p-5 flex flex-col gap-2">
+<h3 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">Hwaseong Fortress</h3>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">A magnificent UNESCO World Heritage site featuring innovative 18th-century military architecture and scenic walking paths around the city.</p>
+<div class="flex items-center gap-1 text-outline font-label-sm text-label-sm mt-1">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span>11 Jangan-dong, Paldal-gu, Suwon-si</span>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/20 flex justify-between items-center">
+<button class="text-secondary font-label-md text-label-md hover:underline bg-transparent">View Map</button>
+<button class="bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md px-5 py-2 rounded-[14px] transition-colors">View Detail</button>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-surface-container-lowest rounded-[18px] ring-1 ring-outline-variant/20 shadow-[0_2px_4px_rgba(18,48,74,0.08)] flex flex-col group hover:shadow-[0_4px_12px_rgba(18,48,74,0.12)] transition-shadow duration-300">
+<div class="p-[2px] relative">
+<img class="w-full aspect-video object-cover rounded-t-[16px]" data-alt="A detailed, modern photograph of Suwon Hwaseong Museum exterior on a bright sunny day. The modern architectural lines of the building are juxtaposed against a traditional Korean landscape garden in the foreground. The lighting is crisp and bright, contributing to a clean, minimal, light-mode travel aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDg18KIO3x-bz3yHQ7oXeJ6L7bqNABGR4miil_BiWNTNI_zyWOuq2TUbxKwSH4AwLTKWh2o74qUw5AqDjY8rpOZchZmU6EcUA42EBLDmC76feKpIP18O6-YDxkcNYF1XbIfjrtn5sVqeBk5Max6KJjksYOZIjWBz5Rmy1r-PDMZGGej-XTc3KMaVjDVDouV8-oRmw8esmOo4L1hnBWko_tBK-B651EHWxqJfB51hfOQXY0f4HspLr_imA"/>
+<div class="absolute top-4 left-4 bg-[#FDF2EB] text-secondary px-2.5 py-1 rounded-md font-label-sm text-label-sm uppercase tracking-wider backdrop-blur-sm bg-opacity-90">
+                            Museum
+                        </div>
+<button class="absolute top-4 right-4 p-2 bg-surface-container-lowest/80 backdrop-blur-sm rounded-full text-on-surface hover:text-secondary transition-colors">
+<span class="material-symbols-outlined">bookmark_border</span>
+</button>
+</div>
+<div class="p-5 flex flex-col gap-2">
+<h3 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">Suwon Hwaseong Museum</h3>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Dive deep into the history and construction of Hwaseong Fortress with interactive exhibits and detailed historical artifacts.</p>
+<div class="flex items-center gap-1 text-outline font-label-sm text-label-sm mt-1">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span>21 Changnyong-daero, Paldal-gu, Suwon-si</span>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/20 flex justify-between items-center">
+<button class="text-secondary font-label-md text-label-md hover:underline bg-transparent">View Map</button>
+<button class="bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md px-5 py-2 rounded-[14px] transition-colors">View Detail</button>
+</div>
+</div>
+</article>
+<!-- Spacer for bottom padding -->
+<div class="h-8"></div>
+</div>
+</aside>
+<!-- Right Pane: Map View (60%) -->
+<section class="hidden md:block flex-1 relative bg-surface-variant">
+<!-- Map Background -->
+<div class="absolute inset-0 w-full h-full bg-cover bg-center" data-alt="A clean, minimalist vector-style map of Suwon, South Korea. The map uses a light-mode color palette with warm stone beige tones for landmasses, soft whites for major roads, and subtle light blues for water features. The design is uncluttered, professional, and optimized for an interactive UI background, evoking a calm and reliable navigational experience." data-location="Suwon, South Korea" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBw3zaHpZClTpMlC5EVaiHKFzkslOUcs9ooUB8NyB94x5CDLgcb9yx8roXHk2_G7Vfjv87CmykP12XCt_N9L9RG8ZvrpN7ZcGKAuRknrRCDOn8ERcMx37CdLAmBNUuEtPjLgpH-jfQEfca0INIPIfmCZKJV1an966iTnigsC0yiLdvCUtLTGsPinTztVqBUtLRzrJvCdezlioqj9dlDqCBNpD9VgRBZHTCDO60eViKADw1L4C9l11QCeQ')"></div>
+<!-- Map UI Overlay Elements -->
+<div class="absolute top-6 left-6 right-6 flex justify-between items-start pointer-events-none">
+<!-- Map Zoom Controls (Example) -->
+<div class="flex flex-col gap-2 pointer-events-auto bg-surface-container-lowest/90 backdrop-blur-md rounded-xl shadow-[0_4px_12px_rgba(18,48,74,0.08)] p-1 ring-1 ring-outline-variant/20">
+<button class="p-2 text-primary hover:bg-surface-variant rounded-lg transition-colors"><span class="material-symbols-outlined">add</span></button>
+<div class="h-[1px] bg-outline-variant/20 mx-2"></div>
+<button class="p-2 text-primary hover:bg-surface-variant rounded-lg transition-colors"><span class="material-symbols-outlined">remove</span></button>
+</div>
+</div>
+<!-- Map Pins (Mockup) -->
+<!-- Active Pin -->
+<div class="absolute top-[40%] left-[50%] -translate-x-1/2 -translate-y-full flex flex-col items-center group cursor-pointer pointer-events-auto">
+<div class="bg-primary text-on-primary px-3 py-1.5 rounded-lg shadow-md font-label-sm text-label-sm mb-1 opacity-100 transition-opacity">Hwaseong Fortress</div>
+<span class="material-symbols-outlined text-primary text-[36px] drop-shadow-md" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+<!-- Inactive Pin -->
+<div class="absolute top-[60%] left-[30%] -translate-x-1/2 -translate-y-full flex flex-col items-center group cursor-pointer pointer-events-auto">
+<div class="bg-surface text-on-surface px-3 py-1.5 rounded-lg shadow-sm font-label-sm text-label-sm mb-1 opacity-0 group-hover:opacity-100 transition-opacity">Suwon Museum</div>
+<span class="material-symbols-outlined text-primary-container text-[32px] drop-shadow-sm group-hover:text-primary group-hover:scale-110 transition-all">location_on</span>
+</div>
+<!-- AI Floating Action Button (FAB) -->
+<button class="absolute bottom-8 right-8 bg-surface-container-lowest text-primary rounded-full p-4 shadow-[0_6px_16px_rgba(18,48,74,0.12)] flex items-center justify-center ring-1 ring-outline-variant/10 hover:scale-105 transition-transform group z-20 pointer-events-auto">
+<span class="material-symbols-outlined text-[28px] group-hover:text-secondary transition-colors">smart_toy</span>
+<span class="ml-2 font-label-md text-label-md font-bold pr-2 group-hover:text-secondary transition-colors">AI Guide</span>
+</button>
+</section>
+</main>
+</body></html>

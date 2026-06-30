@@ -1,0 +1,45 @@
+<!-- Bottom Navigation Bar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface/90 backdrop-blur-lg shadow-[0_-4px_12px_rgba(18,48,74,0.08)] rounded-t-2xl border-t border-outline-variant/10">
+    
+    <!-- Home -->
+    <a class="flex flex-col items-center justify-center {% if request.path == '/' %}text-secondary font-bold{% else %}text-on-surface-variant{% endif %} hover:bg-surface-variant/50 w-16 h-14 rounded-xl transition-all duration-200 text-decoration-none" 
+       href="{{ url_for('main.index', lang=current_lang) }}">
+        <span class="material-symbols-outlined mb-0.5 {% if request.path == '/' %}filled-icon{% endif %}">home</span>
+        <span class="text-[10px] leading-[12px] font-semibold tracking-wide">{{ _('menu_home') }}</span>
+    </a>
+
+    <!-- Explore (Attractions) -->
+    <a class="flex flex-col items-center justify-center {% if request.path == '/spot/' %}text-secondary font-bold{% else %}text-on-surface-variant{% endif %} hover:bg-surface-variant/50 w-16 h-14 rounded-xl transition-all duration-200 text-decoration-none" 
+       href="{{ url_for('spot.spot_home', lang=current_lang) }}">
+        <span class="material-symbols-outlined mb-0.5 {% if request.path == '/spot/' %}filled-icon{% endif %}">explore</span>
+        <span class="text-[10px] leading-[12px] font-semibold tracking-wide">{{ _('menu_attractions') }}</span>
+    </a>
+
+    <!-- Map (Quick Link to Spot with Map tab) -->
+    <a class="flex flex-col items-center justify-center {% if request.path == '/spot/' and request.args.get('tab') == 'map' %}text-secondary font-bold{% else %}text-on-surface-variant{% endif %} hover:bg-surface-variant/50 w-16 h-14 rounded-xl transition-all duration-200 text-decoration-none" 
+       href="{{ url_for('spot.spot_home', lang=current_lang) }}?tab=map">
+        <span class="material-symbols-outlined mb-0.5 {% if request.path == '/spot/' and request.args.get('tab') == 'map' %}filled-icon{% endif %}">map</span>
+        <span class="text-[10px] leading-[12px] font-semibold tracking-wide">{{ _('menu_map') }}</span>
+    </a>
+
+    <!-- Courses -->
+    <a class="flex flex-col items-center justify-center {% if request.path == '/courses' %}text-secondary font-bold{% else %}text-on-surface-variant{% endif %} hover:bg-surface-variant/50 w-16 h-14 rounded-xl transition-all duration-200 text-decoration-none" 
+       href="{{ url_for('main.courses', lang=current_lang) }}">
+        <span class="material-symbols-outlined mb-0.5 {% if request.path == '/courses' %}filled-icon{% endif %}">route</span>
+        <span class="text-[10px] leading-[12px] font-semibold tracking-wide">{{ _('menu_courses') }}</span>
+    </a>
+
+    <!-- Records -->
+    <a class="flex flex-col items-center justify-center {% if request.path == '/record/' %}text-secondary font-bold{% else %}text-on-surface-variant{% endif %} hover:bg-surface-variant/50 w-16 h-14 rounded-xl transition-all duration-200 text-decoration-none" 
+       href="{{ url_for('record.record_home', lang=current_lang) }}">
+        <span class="material-symbols-outlined mb-0.5 {% if request.path == '/record/' %}filled-icon{% endif %}">bookmark</span>
+        <span class="text-[10px] leading-[12px] font-semibold tracking-wide">{{ _('menu_records') }}</span>
+    </a>
+
+</nav>
+
+<style>
+    .filled-icon {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+</style>

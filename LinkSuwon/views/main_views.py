@@ -13,3 +13,15 @@ def index():
     
     NCP_CLIENT_ID = current_app.config['NCP_CLIENT_ID']
     return render_template('index.html', current_lang=lang, ncp_id=NCP_CLIENT_ID)
+
+@bp.route('/courses')
+def courses():
+    lang = request.args.get('lang', 'kor')
+    NCP_CLIENT_ID = current_app.config['NCP_CLIENT_ID']
+    return render_template('courses.html', current_lang=lang, ncp_id=NCP_CLIENT_ID)
+
+@bp.route('/tips')
+def tips():
+    lang = request.args.get('lang', 'kor')
+    NCP_CLIENT_ID = current_app.config['NCP_CLIENT_ID']
+    return render_template('tips.html', current_lang=lang, ncp_id=NCP_CLIENT_ID)

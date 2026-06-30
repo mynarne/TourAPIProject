@@ -1,0 +1,299 @@
+<!DOCTYPE html><html lang="ko"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>LinkSuwon - My Travel Records</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#8d4e26",
+                    "on-surface-variant": "#43474d",
+                    "outline-variant": "#c3c7ce",
+                    "primary-fixed": "#cfe5ff",
+                    "secondary-fixed-dim": "#ffb68d",
+                    "secondary-fixed": "#ffdbc9",
+                    "tertiary-fixed": "#e7e2da",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#adc9ea",
+                    "surface": "#f7f9ff",
+                    "primary-container": "#12304a",
+                    "on-tertiary-container": "#99958e",
+                    "primary-fixed-dim": "#adc9ea",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-fixed": "#331200",
+                    "on-tertiary-fixed": "#1d1c17",
+                    "secondary-container": "#feab7b",
+                    "inverse-on-surface": "#e8f2ff",
+                    "surface-dim": "#d1dbe8",
+                    "surface-container-high": "#dfe9f7",
+                    "on-error-container": "#93000a",
+                    "inverse-surface": "#27313c",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container": "#e4effd",
+                    "surface-variant": "#d9e3f1",
+                    "on-surface": "#121d26",
+                    "primary": "#001b31",
+                    "tertiary": "#1b1a15",
+                    "on-secondary-fixed-variant": "#703711",
+                    "on-tertiary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-background": "#121d26",
+                    "on-tertiary-fixed-variant": "#494741",
+                    "outline": "#73777e",
+                    "on-primary-container": "#7d98b7",
+                    "tertiary-container": "#302e29",
+                    "error-container": "#ffdad6",
+                    "background": "#f7f9ff",
+                    "tertiary-fixed-dim": "#cac6be",
+                    "surface-tint": "#46617d",
+                    "on-secondary-container": "#783d17",
+                    "surface-bright": "#f7f9ff",
+                    "surface-container-low": "#edf4ff",
+                    "on-primary-fixed-variant": "#2d4964",
+                    "surface-container-highest": "#d9e3f1",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#001d34"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-sm": "8px",
+                    "section-gap": "40px",
+                    "stack-lg": "24px",
+                    "gutter": "16px",
+                    "stack-md": "16px",
+                    "container-margin": "20px"
+            },
+            "fontFamily": {
+                    "label-md": [
+                            "Noto Sans"
+                    ],
+                    "headline-lg": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-lg-mobile": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-xl": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "body-md": [
+                            "Noto Sans"
+                    ],
+                    "body-lg": [
+                            "Noto Sans"
+                    ],
+                    "label-sm": [
+                            "Noto Sans"
+                    ]
+            },
+            "fontSize": {
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.01em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-xl": [
+                            "40px",
+                            {
+                                    "lineHeight": "48px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.03em",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f7f9ff;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .shadow-ambient-md {
+            box-shadow: 0 4px 12px rgba(18, 48, 74, 0.08);
+        }
+        
+        .card-inner-stroke {
+            box-shadow: inset 0 0 0 1px #E5E7EB;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col pb-24 md:pb-0">
+<!-- Top App Bar (Hidden on Mobile, Visible on Desktop) -->
+<header class="hidden md:flex bg-surface/80 backdrop-blur-md shadow-sm dark:shadow-none docked full-width top-0 z-50 justify-between items-center w-full px-container-margin py-stack-md max-w-[1140px] mx-auto">
+<div class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed">LinkSuwon</div>
+<nav class="flex space-x-6">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200 font-label-md text-label-md scale-95 active:scale-90 transition-transform" href="#">Home</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200 font-label-md text-label-md scale-95 active:scale-90 transition-transform" href="#">Explore</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200 font-label-md text-label-md scale-95 active:scale-90 transition-transform" href="#">Maps</a>
+<a class="text-primary dark:text-primary-fixed border-b-2 border-secondary font-bold font-label-md text-label-md scale-95 active:scale-90 transition-transform" href="#">Saved</a>
+</nav>
+<button class="text-primary dark:text-primary-fixed hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200">
+<span class="material-symbols-outlined">language</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow px-container-margin pt-stack-lg max-w-[1140px] mx-auto w-full">
+<!-- Header Section -->
+<div class="flex justify-between items-center mb-section-gap pt-4 md:pt-0">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">My Travel Records</h1>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span class="hidden sm:inline">Add Record</span>
+</button>
+</div>
+<!-- Timeline List -->
+<div class="space-y-stack-lg relative before:absolute before:inset-0 before:ml-[19px] before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-outline-variant/30 before:to-transparent">
+<!-- Record Item 1 -->
+<div class="relative flex items-start group">
+  <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-surface bg-secondary shadow-sm absolute left-0 shrink-0 z-10 transition-transform duration-300 group-hover:scale-110">
+    <span class="material-symbols-outlined text-on-primary text-[20px]">photo_camera</span>
+  </div>
+  <div class="w-[calc(100%-3rem)] ml-auto bg-surface-container-lowest rounded-[18px] shadow-ambient-md card-inner-stroke overflow-hidden hover:shadow-lg transition-shadow duration-300">
+    <div class="h-40 bg-surface-container w-full relative overflow-hidden">
+      <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDvoShxmN_1iVxpr_b_vAsuDEXN32o_a0MpYDEbOETPgnDo_uKOrCWLkCguJKKG-mqBKnCxEm97ccnVRYh2R7I-uJhjpI9NsHwr_ktCll1sKkMHaPtoR2Ah5ZZ3_tyX2YfTZHIqjE93PddJiZvPP-O4_aqYo2CZUmJEkhbVS7y1QMjwcFrcAsvcWGpnC9bcfW8sqOWBHfjzqX1LP0c0ZkbzE6YsIGqVa8bhPmeSANUVRkaXqNDJPL-VRw')"></div>
+    </div>
+    <div class="p-4">
+      <div class="flex justify-between items-center mb-2">
+        <span class="font-label-sm text-label-sm text-outline">Oct 24, 2024</span>
+        <span class="font-label-sm text-label-sm bg-[#FDF2EB] text-[#8d4e26] px-2 py-0.5 rounded-full">Landmark</span>
+      </div>
+      <h3 class="font-headline-md text-headline-md text-on-surface mb-2">Hwaseong Fortress Walk</h3>
+      <p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">A peaceful afternoon strolling along the historic walls. The juxtaposition of ancient masonry and the modern city skyline was breathtaking.</p>
+    </div>
+  </div>
+</div>
+<!-- Record Item 2 -->
+<div class="relative flex items-start group">
+  <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-surface bg-surface-container-high shadow-sm absolute left-0 shrink-0 z-10 transition-transform duration-300 group-hover:scale-110">
+    <span class="material-symbols-outlined text-on-surface-variant text-[20px]">local_cafe</span>
+  </div>
+  <div class="w-[calc(100%-3rem)] ml-auto bg-surface-container-lowest rounded-[18px] shadow-ambient-md card-inner-stroke overflow-hidden hover:shadow-lg transition-shadow duration-300">
+    <div class="h-40 bg-surface-container w-full relative overflow-hidden">
+      <div class="absolute inset-0 bg-cover bg-center opacity-40 flex items-center justify-center bg-surface-variant">
+        <span class="material-symbols-outlined text-outline text-4xl">image</span>
+      </div>
+    </div>
+    <div class="p-4">
+      <div class="flex justify-between items-center mb-2">
+        <span class="font-label-sm text-label-sm text-outline">Oct 23, 2024</span>
+        <span class="font-label-sm text-label-sm bg-[#FDF2EB] text-[#8d4e26] px-2 py-0.5 rounded-full">Cafe</span>
+      </div>
+      <h3 class="font-headline-md text-headline-md text-on-surface mb-2">Jungji-dong Cafe Street</h3>
+      <p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Found a quiet spot serving excellent hand-drip coffee. The minimalist interior with traditional Hanji paper accents felt very relaxing after a long walk.</p>
+    </div>
+  </div>
+</div>
+</div>
+<!-- Empty State (Hidden in this layout, but provided as requested) -->
+<!-- 
+        <div class="flex flex-col items-center justify-center py-20 text-center">
+            <div class="w-24 h-24 bg-surface-container-highest rounded-full flex items-center justify-center mb-6">
+                <span class="material-symbols-outlined text-[40px] text-outline">edit_document</span>
+            </div>
+            <p class="font-body-lg text-body-lg text-on-surface-variant mb-2">아직 기록한 여행지가 없어요.</p>
+            <p class="font-body-md text-body-md text-outline">방문한 장소를 기록해보세요.</p>
+        </div> 
+        -->
+</main>
+<!-- Bottom Navigation Bar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface/90 dark:bg-inverse-surface/90 backdrop-blur-lg shadow-[0_-4px_12px_rgba(18,48,74,0.08)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 w-16 h-14 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-sm text-[10px] leading-[12px] font-semibold tracking-[0.03em]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 w-16 h-14 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-label-sm text-[10px] leading-[12px] font-semibold tracking-[0.03em]">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 w-16 h-14 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1">map</span>
+<span class="font-label-sm text-[10px] leading-[12px] font-semibold tracking-[0.03em]">Maps</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed font-bold hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 w-16 h-14 rounded-xl transition-all duration-200 scale-95" href="#">
+<span class="material-symbols-outlined filled-icon mb-1">bookmark</span>
+<span class="font-label-sm text-[10px] leading-[12px] font-semibold tracking-[0.03em]">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 w-16 h-14 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1">smart_toy</span>
+<span class="font-label-sm text-[10px] leading-[12px] font-semibold tracking-[0.03em]">AI Guide</span>
+</a>
+</nav>
+
+
+</body></html>

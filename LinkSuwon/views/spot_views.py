@@ -10,6 +10,7 @@ api_manager = TourAPIManager()
 @bp.route('/')
 def spot_home():
     lang = request.args.get('lang', 'kor')
+    search_query = request.args.get('search', '').strip()
     valid_lang = ['kor', 'eng', 'jpn', 'chs', 'cht']
 
     if lang not in valid_lang:
@@ -31,12 +32,20 @@ def spot_home():
             elif not items_container:
                 print("--- [DEBUG] 검색 결과가 존재하지 않습니다. ---")
 
-        print(f"--- [DEBUG] 현재 언어: {lang} / 가져온 데이터: {len(items)}개 ---")
+        # 검색어가 있는 경우 서버사이드에서 1차 필터링 (클라이언트에서도 2차 필터링 수행)
+        if search_query and items:
+            q = search_query.lower()
+            items = [
+                item for item in items
+                if q in item.get('title', '').lower() or q in item.get('addr1', '').lower()
+            ]
+
+        print(f"--- [DEBUG] 현재 언어: {lang} / 가져온 데이터: {len(items)}개 (검색어: {search_query or 'N/A'}) ---")
     except Exception as e:
         print(f"데이터 처리 중 에러 발생: {e}")
     
     NCP_CLIENT_ID = current_app.config['NCP_CLIENT_ID']
-    return render_template('spot.html', items=items, current_lang=lang, ncp_id=NCP_CLIENT_ID)
+    return render_template('spot.html', items=items, current_lang=lang, ncp_id=NCP_CLIENT_ID, search_query=search_query)
 
 # 비동기 상세 가이드 정보 반환 API 엔드포인트
 @bp.route('/api/detail/<content_id>')

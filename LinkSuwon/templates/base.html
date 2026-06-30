@@ -1,16 +1,66 @@
 <!DOCTYPE html>
-<html lang="{{ 'ko' if current_lang == 'kor' else 'en' if current_lang == 'eng' else 'ja' if current_lang == 'jpn' else 'zh' }}">
+<html lang="{{ 'ko' if current_lang == 'kor' else 'en' if current_lang == 'eng' else 'ja' if current_lang == 'jpn' else 'zh-CN' if current_lang == 'chs' else 'zh-TW' }}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %} LinkSuwon {% endblock %}</title>
 
     <link rel="manifest" href="{{ url_for('static', filename='pwa/manifest.json') }}">
-    <meta name="theme-color" content="#1a2b3c">
+    <meta name="theme-color" content="#001b31">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <!-- TailwindCSS CDN & Fonts (Stitch Design) -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#001b31",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#12304a",
+                        "on-primary-container": "#7d98b7",
+                        "secondary": "#8d4e26",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#feab7b",
+                        "on-secondary-container": "#783d17",
+                        "background": "#f7f9ff",
+                        "on-background": "#121d26",
+                        "surface": "#f7f9ff",
+                        "on-surface": "#121d26",
+                        "on-surface-variant": "#43474d",
+                        "outline": "#73777e",
+                        "outline-variant": "#c3c7ce",
+                        "surface-variant": "#d9e3f1",
+                        "surface-container": "#e4effd",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#edf4ff",
+                        "surface-container-high": "#dfe9f7",
+                        "surface-container-highest": "#d9e3f1",
+                        "tertiary": "#1b1a15"
+                    },
+                    spacing: {
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "stack-lg": "24px",
+                        "gutter": "16px",
+                        "section-gap": "40px",
+                        "container-margin": "20px"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Noto Sans"]
+                    }
+                }
+            }
+        }
+    </script>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     
     {% block extra_css %}{% endblock %}
@@ -19,15 +69,27 @@
         src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpKeyId={{ ncp_id }}&language={{ 'ko' if current_lang == 'kor' else 'en' if current_lang == 'eng' else 'ja' if current_lang == 'jpn' else 'zh_cn' if current_lang == 'chs' else 'zh_tw' }}">
     </script>
     
+    <!-- LocalStorage 및 공통 스토리지 모듈 로드 -->
+    <script src="{{ url_for('static', filename='js/storage.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sync.js') }}" defer></script>
+    
     {% block scripts %}{% endblock %}
 </head>
-<body class="bg-light">
+<body class="bg-background text-on-background font-body antialiased min-h-screen flex flex-col pb-24 md:pb-0" lang="{{ 'ko' if current_lang == 'kor' else 'en' if current_lang == 'eng' else 'ja' if current_lang == 'jpn' else 'zh-CN' if current_lang == 'chs' else 'zh-TW' }}">
+
+    
+    <!-- 오프라인 네트워크 경고 배너 -->
+    <div id="offline-banner" class="bg-warning text-dark text-center py-2 fw-bold w-100 d-none" style="position: sticky; top: 0; z-index: 2000; font-size: 0.9rem;">
+        ⚠️ {{ _('msg_offline') }}
+    </div>
+
     {% include 'includes/header.html' %}
     
     <main>
         {% block content %}{% endblock %}
     </main>
 
+    {% include 'includes/bottom_nav.html' %}
     {% include 'includes/footer.html' %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
@@ -45,6 +107,22 @@
                     });
             });
         }
+
+        // 실시간 온라인/오프라인 네트워크 감지 및 배너 제어
+        function updateNetworkStatus() {
+            const banner = document.getElementById('offline-banner');
+            if (banner) {
+                if (navigator.onLine) {
+                    banner.classList.add('d-none');
+                } else {
+                    banner.classList.remove('d-none');
+                }
+            }
+        }
+
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+        document.addEventListener('DOMContentLoaded', updateNetworkStatus);
     </script>
 </body>
-</html>
+</html>

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if current_lang == 'kor' %}오프라인 상태 - LinkSuwon
+    {% elif current_lang == 'eng' %}Offline - LinkSuwon
+    {% elif current_lang == 'jpn' %}オフライン - LinkSuwon
+    {% elif current_lang == 'chs' %}离线状态 - LinkSuwon
+    {% elif current_lang == 'cht' %}離線狀態 - LinkSuwon
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .offline-container {
+        min-height: 70vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+    }
+    .offline-icon {
+        font-size: 5rem;
+        color: #D98C5F; /* Secondary Orange */
+        margin-bottom: 20px;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .btn-custom-primary {
+        background-color: #12304A; /* Primary Navy */
+        color: #ffffff;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 12px;
+        font-weight: bold;
+        transition: background-color 0.2s;
+    }
+    .btn-custom-primary:hover {
+        background-color: #1a456a;
+        color: #ffffff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container offline-container">
+    <div class="offline-icon">📶❌</div>
+    
+    <h2 class="fw-bold mb-3" style="color: #12304A;">
+        {% if current_lang == 'kor' %}네트워크 연결을 확인해 주세요
+        {% elif current_lang == 'eng' %}Please check your network connection
+        {% elif current_lang == 'jpn' %}ネットワーク接続を確認してください
+        {% elif current_lang == 'chs' %}请检查您的网络连接
+        {% elif current_lang == 'cht' %}請檢查您的網路連線
+        {% endif %}
+    </h2>
+    
+    <p class="text-muted mb-4" style="max-width: 500px; line-height: 1.6;">
+        {% if current_lang == 'kor' %}
+            현재 인터넷에 연결되어 있지 않습니다. 하지만 이전에 저장된 명소 정보와 즐겨찾기, 작성하신 여행 기록은 '나만의 기록' 메뉴에서 오프라인 상태로 계속 확인할 수 있습니다.
+        {% elif current_lang == 'eng' %}
+            You are currently offline. However, you can still view your saved attractions, favorites, and travel logs in the 'Travel Logs' menu offline.
+        {% elif current_lang == 'jpn' %}
+            現在インターネットに接続されていません。ただし、以前に保存された観光地情報、お気に入り、作成された旅行記録は、「旅行記録」メニューでオフライン状態で引き続きご確認いただけます。
+        {% elif current_lang == 'chs' %}
+            您目前处于离线状态。但是，您仍然可以在“我的记录”菜单中离线查看之前保存的景点信息、收藏夹和旅行记录。
+        {% elif current_lang == 'cht' %}
+            您目前處於離線狀態。但是，您仍然可以在「我的記錄」功能表中離線查看之前儲存的景點資訊、收藏夾和旅行記錄。
+        {% endif %}
+    </p>
+    
+    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <button onclick="window.location.reload();" class="btn btn-custom-primary btn-lg px-4 gap-3">
+            🔄 {% if current_lang == 'kor' %}재시도
+               {% elif current_lang == 'eng' %}Retry
+               {% elif current_lang == 'jpn' %}再試行
+               {% elif current_lang == 'chs' %}重试
+               {% elif current_lang == 'cht' %}重試
+               {% endif %}
+        </button>
+        <a href="/record?lang={{ current_lang }}" class="btn btn-outline-secondary btn-lg px-4" style="border-radius: 12px; padding: 12px 30px;">
+            📓 {% if current_lang == 'kor' %}나만의 기록 보기
+               {% elif current_lang == 'eng' %}View Travel Logs
+               {% elif current_lang == 'jpn' %}旅行記録を見る
+               {% elif current_lang == 'chs' %}查看我的记录
+               {% elif current_lang == 'cht' %}檢視我的記錄
+               {% endif %}
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,70 +1,115 @@
-/* 대문 전체 중앙 정렬 컨테이너 */
+/* 메인 랜딩 컨테이너 */
 .landing-main-container {
-    min-height: 80vh;
+    padding: 2rem 0 3rem 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
+    gap: 2rem;
 }
 
-/* 로고 페이드인 다운 애니메이션 */
-@keyframes slideDownFade {
-    0% {
-        opacity: 0;
-        transform: translateY(-40px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.landing-logo-wrap {
-    animation: slideDownFade 1s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+/* 히어로 섹션 */
+.hero-section {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 24px;
+    padding: 2.5rem 1.5rem;
     text-align: center;
-    margin-bottom: 3rem;
+    box-shadow: 0 4px 15px rgba(18, 48, 74, 0.03);
+    margin-bottom: 0.5rem;
+    animation: fadeIn 0.8s ease-out;
 }
 
-.logo-navy-text {
-    color: var(--giwa-navy);
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.logo-blue-text {
-    color: var(--point-blue);
+.hero-title {
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 1.8rem;
+    line-height: 1.3;
+    margin-bottom: 0.75rem;
 }
 
-/* 2x2 메뉴 배치 상자 중앙 고정 */
+.hero-subtitle {
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+/* 퀵 액션 그리드 */
 .menu-grid-wrapper-box {
-    max-width: 500px;
     width: 100%;
 }
 
-/* 메뉴 카드 호버 인터랙션 */
 .menu-card {
-    border-radius: 16px !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
-    background-color: #ffffff;
+    border-radius: 20px !important;
+    border: 1px solid var(--color-border) !important;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s, border-color 0.2s;
+    background-color: var(--color-surface);
     cursor: pointer;
+    overflow: hidden;
 }
 
 .menu-card:hover, .menu-card:active {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 10px 25px rgba(0, 102, 204, 0.15) !important;
-    border: 2px solid var(--point-blue) !important;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(18, 48, 74, 0.08) !important;
+    border-color: var(--color-secondary) !important;
 }
 
 .menu-icon {
-    font-size: 2.5rem;
-    line-height: 1;
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    display: inline-block;
 }
 
-/* 모바일 환경 대응 폰트 축소 정의 */
-@media (max-width: 576px) {
-    .card-title {
-        font-size: 1rem !important;
-    }
-    .menu-icon {
-        font-size: 2rem;
-    }
+.card-title-custom {
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 0;
 }
+
+/* 프리뷰 섹션 타이틀 */
+.section-title-custom {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* 프리뷰 카드 */
+.preview-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: border-color 0.2s;
+}
+
+.preview-card:hover {
+    border-color: var(--color-secondary);
+    color: inherit;
+}
+
+/* 모바일 우선 해상도 폰트 최적화 */
+@media (max-width: 576px) {
+    .hero-title {
+        font-size: 1.5rem;
+    }
+    .hero-subtitle {
+        font-size: 0.85rem;
+    }
+    .card-title-custom {
+        font-size: 0.95rem;
+    }
+}

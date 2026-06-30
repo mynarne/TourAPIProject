@@ -1,0 +1,542 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ _('brand_title') }} - {{ _('menu_tips') }}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tip-grid-card {
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .tip-grid-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(18, 48, 74, 0.05);
+    }
+
+    /* Modal */
+    .wowpass-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.55);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    .wowpass-modal-overlay.active {
+        display: flex;
+    }
+    .wowpass-modal {
+        background: #fff;
+        border-radius: 24px;
+        width: 100%;
+        max-width: 560px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+        animation: modalSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes modalSlideUp {
+        from { transform: translateY(32px); opacity: 0; }
+        to   { transform: translateY(0);   opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="max-w-[1140px] mx-auto w-full pt-20 px-container-margin pb-24 md:pb-12">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ url_for('main.index', lang=current_lang) }}" class="text-decoration-none text-secondary fw-bold" style="font-size: 1.1rem;">
+            ← {{ _('btn_back') }}
+        </a>
+    </div>
+
+    <div class="mb-6 md:mb-10">
+        <h1 class="font-headline text-2xl md:text-3xl font-extrabold text-primary mb-2">💡 {{ _('menu_tips') }}</h1>
+        <p class="font-body text-sm text-on-surface-variant">
+            {% if current_lang == 'kor' %}수원 여행을 한층 더 편리하게 만들어 줄 핵심 가이드입니다.
+            {% elif current_lang == 'eng' %}Essential information for a smooth journey in Suwon.
+            {% elif current_lang == 'jpn' %}水原旅行をより便利にする核心ガイドです。
+            {% elif current_lang == 'chs' %}让您的水原之旅更加便利的核心指南。
+            {% else %}讓您的水原之旅更加便利的核心指南。{% endif %}
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        
+        <!-- Tip 1: Transportation -->
+        <div class="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/20 flex flex-col justify-between tip-grid-card">
+            <div>
+                <div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center mb-4 text-primary">
+                    <span class="material-symbols-outlined text-2xl">directions_bus</span>
+                </div>
+                <h3 class="font-headline text-lg font-bold text-primary mb-2">
+                    {% if current_lang == 'kor' %}1. 교통카드 이용 (T-money / 기후동행카드)
+                    {% elif current_lang == 'eng' %}1. Transit Cards (T-money &amp; Climate Card)
+                    {% elif current_lang == 'jpn' %}1. 交通カード（T-money＆気候同行カード）
+                    {% elif current_lang == 'chs' %}1. 交通卡指南 (T-money 和 气候同行卡)
+                    {% else %}1. 交通卡指南 (T-money 和 氣候同行卡){% endif %}
+                </h3>
+                <p class="font-body text-sm text-on-surface-variant mb-4 leading-relaxed">
+                    {% if current_lang == 'kor' %}편의점이나 지하철역에서 T-money 카드를 현금 충전하여 버스/지하철에 간편하게 태그하세요. 기후동행카드는 서울 시내용이므로 수원 시외에서는 요금이 차감될 수 있습니다.
+                    {% elif current_lang == 'eng' %}Purchase a T-money card at a convenience store and top it up with cash. The Climate Card tourist pass has limited validity outside Seoul, so additional fare may apply in Suwon.
+                    {% elif current_lang == 'jpn' %}コンビニや地下鉄駅でT-moneyカードを現金でチャージし、バスや地下鉄でタッチしてご利用ください。気候同行カードはソウル市内専用のため、水原市外では追加料金が発生することがあります。
+                    {% elif current_lang == 'chs' %}在便利店或地铁站用现金充值T-money卡，即可刷卡乘坐公交和地铁。气候同行卡仅限首尔市内使用，在水原市外可能会扣除额外费用。
+                    {% else %}在便利店或地鐵站用現金加值T-money卡，即可刷卡乘坐公車和地鐵。氣候同行卡僅限首爾市內使用，在水原市外可能會扣除額外費用。{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Tip 2: WOWPASS — 버튼 2개 포함 -->
+        <div class="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/20 flex flex-col justify-between tip-grid-card">
+            <div>
+                <div class="w-12 h-12 rounded-xl bg-[#fff3e0] flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-2xl text-[#cc4a00]">credit_card</span>
+                </div>
+                <h3 class="font-headline text-lg font-bold text-primary mb-2">
+                    {% if current_lang == 'kor' %}2. 올인원 결제 카드 WOWPASS
+                    {% elif current_lang == 'eng' %}2. All-in-One WOWPASS Card
+                    {% elif current_lang == 'jpn' %}2. オールインワン WOWPASS 決済
+                    {% elif current_lang == 'chs' %}2. 一体化 WOWPASS 支付卡
+                    {% else %}2. 一體化 WOWPASS 支付卡{% endif %}
+                </h3>
+                <p class="font-body text-sm text-on-surface-variant mb-4 leading-relaxed">
+                    {% if current_lang == 'kor' %}외화를 바로 원화로 환전하고 신용카드처럼 긁을 수 있는 선불카드입니다. 교통카드 기능(T-money)도 탑재되어 지하철 무인 자판기에서 편하게 개설 및 충전이 가능합니다.
+                    {% elif current_lang == 'eng' %}WOWPASS is an all-in-one prepaid card for foreign tourists. Top up using foreign currencies at airport/station kiosks, and use it everywhere as a payment + T-money card.
+                    {% elif current_lang == 'jpn' %}外貨を直接ウォンに両替し、クレジットカードのように支払えるプリペイドカードです。交通カード機能（T-money）も搭載されており、駅の無人発券機で簡単に発行・チャージが可能です。
+                    {% elif current_lang == 'chs' %}这是一款可以直接将外币兑换为韩币，并像信用卡一样刷卡消费的预付卡。卡内还集成了交通卡功能（T-money），可在地铁站自助发卡机上轻松开通和充值。
+                    {% else %}這是一款可以直接將外幣兌換為韓幣，並像信用卡一樣刷卡消費的預付卡。卡內還集成了交通卡功能（T-money），可在地鐵站自助發卡機上輕鬆開通和加值。{% endif %}
+                </p>
+            </div>
+            <!-- ✅ Action Buttons -->
+            <div class="flex gap-2 mt-2">
+                <button onclick="document.getElementById('modal-location').classList.add('active')"
+                        class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border-2 border-[#cc4a00] text-[#cc4a00] font-bold text-xs hover:bg-[#fff3e0] transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">location_on</span>
+                    {% if current_lang == 'kor' %}발급 위치
+                    {% elif current_lang == 'eng' %}Find Kiosk
+                    {% elif current_lang == 'jpn' %}発券場所
+                    {% elif current_lang == 'chs' %}发卡地点
+                    {% else %}發卡地點{% endif %}
+                </button>
+                <button onclick="document.getElementById('modal-machine').classList.add('active')"
+                        class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#cc4a00] text-white font-bold text-xs hover:bg-[#a33800] transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-[16px]">smart_display</span>
+                    {% if current_lang == 'kor' %}기기 실물 확인
+                    {% elif current_lang == 'eng' %}See the Machine
+                    {% elif current_lang == 'jpn' %}発券機を見る
+                    {% elif current_lang == 'chs' %}查看发卡机
+                    {% else %}查看發卡機{% endif %}
+                </button>
+            </div>
+        </div>
+
+        <!-- Tip 3: Taxi App -->
+        <div class="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/20 flex flex-col justify-between tip-grid-card">
+            <div>
+                <div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center mb-4 text-primary">
+                    <span class="material-symbols-outlined text-2xl">local_taxi</span>
+                </div>
+                <h3 class="font-headline text-lg font-bold text-primary mb-2">
+                    {% if current_lang == 'kor' %}3. 택시 호출 앱 (Kakao T / Uber)
+                    {% elif current_lang == 'eng' %}3. Taxi Hailing (Kakao T &amp; Uber)
+                    {% elif current_lang == 'jpn' %}3. タクシー配車アプリ（Kakao T ＆ Uber）
+                    {% elif current_lang == 'chs' %}3. 打车软件 (Kakao T 和 优步)
+                    {% else %}3. 打車軟體 (Kakao T 和 优步){% endif %}
+                </h3>
+                <p class="font-body text-sm text-on-surface-variant mb-4 leading-relaxed">
+                    {% if current_lang == 'kor' %}길거리 택시를 잡기보다 카카오 T나 우버 앱을 다운로드하여 호출하세요. 목적지를 미리 설정하므로 소통의 장벽 없이 신용카드 자동 결제로 쾌적하게 이동할 수 있습니다.
+                    {% elif current_lang == 'eng' %}Download Kakao T or Uber to call a taxi. Because your destination is pre-configured on the map, you won't have to face any language barriers with the driver.
+                    {% elif current_lang == 'jpn' %}流しのタクシーを捕まえるよりも、Kakao TやUberアプリをダウンロードして配車することをおすすめします。目的地を事前に設定するため、言葉の壁がなく、クレジットカードの自動決済で快適に移動できます。
+                    {% elif current_lang == 'chs' %}建议下载Kakao T或Uber应用呼叫出租车，而不是在路边拦车。由于在地图上提前设置了目的地，您无需面对语言沟通障碍，且支持绑定信用卡自动扣款，出行更加舒适。
+                    {% else %}建議下載Kakao T或Uber應用呼叫計程車，而不是在路邊攔車。由於在地圖上提前設置了目的地，您無需面對語言溝通障礙，且支援綁定信用卡自動扣款，出行更加舒適。{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Tip 4: Map App -->
+        <div class="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/20 flex flex-col justify-between tip-grid-card">
+            <div>
+                <div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center mb-4 text-primary">
+                    <span class="material-symbols-outlined text-2xl">map</span>
+                </div>
+                <h3 class="font-headline text-lg font-bold text-primary mb-2">
+                    {% if current_lang == 'kor' %}4. 필수 내비게이션 (Naver Map)
+                    {% elif current_lang == 'eng' %}4. Navigation App (Naver Map)
+                    {% elif current_lang == 'jpn' %}4. 必須の地図アプリ（Naver Map）
+                    {% elif current_lang == 'chs' %}4. 必备地图应用 (Naver Map)
+                    {% else %}4. 必備地圖應用 (Naver Map){% endif %}
+                </h3>
+                <p class="font-body text-sm text-on-surface-variant mb-4 leading-relaxed">
+                    {% if current_lang == 'kor' %}한국에서는 구글 지도의 상세 도보 안내나 대중교통이 정확하지 않을 수 있습니다. 영어/중국어/일어를 지원하는 네이버 지도를 활용하여 정확한 도보 길찾기를 수행하세요.
+                    {% elif current_lang == 'eng' %}In Korea, Naver Map is far more accurate than Google Maps for walking and public transit navigation. It supports English, Chinese, and Japanese scripts.
+                    {% elif current_lang == 'jpn' %}韓国では、Googleマップの徒歩案内や公共交通機関の情報が正確でない場合があります。英語、中国語、日本語に対応しているNaverマップを活用して、正確なルート案内を利用してください。
+                    {% elif current_lang == 'chs' %}在韩国，谷歌地图的步行导航或公共交通数据可能不够准确。请下载支持英文/中文/日文的Naver地图，以获取精确的步行路线导航。
+                    {% else %}在韓國，谷歌地圖的步行導航或公共交通數據可能不夠準確。請下載支援英文/中文/日文的Naver地圖，以獲取精確的步行路線導航。{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Tip 5: Emergency Contacts -->
+        <div class="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/20 flex flex-col justify-between tip-grid-card">
+            <div>
+                <div class="w-12 h-12 rounded-xl bg-error-container flex items-center justify-center mb-4 text-error">
+                    <span class="material-symbols-outlined">emergency</span>
+                </div>
+                <h3 class="font-headline text-lg font-bold text-primary mb-2">
+                    {% if current_lang == 'kor' %}5. 비상 연락망 (112 / 119)
+                    {% elif current_lang == 'eng' %}5. Emergency Calls (112 / 119)
+                    {% elif current_lang == 'jpn' %}5. 緊急連絡先 (112 / 119)
+                    {% elif current_lang == 'chs' %}5. 紧急联系电话 (112 / 119)
+                    {% else %}5. 緊急聯絡電話 (112 / 119){% endif %}
+                </h3>
+                <p class="font-body text-sm text-on-surface-variant mb-4 leading-relaxed">
+                    {% if current_lang == 'kor' %}경찰 신고는 112, 소방/구급차 호출은 119입니다. 전화를 연결하면 영어/중국어/일어 등 다국어 통역 서비스를 실시간으로 지원받을 수 있어 안심하셔도 됩니다.
+                    {% elif current_lang == 'eng' %}Dial 112 for Police and 119 for Fire/Ambulance. Free real-time foreign language translation services (English, Chinese, Japanese) are immediately available upon connection.
+                    {% elif current_lang == 'jpn' %}警察への通報は112、消防・救급車は119です。電話がつながると、英語、中国語、日本語などの多言語通訳サービスをリアルタイムで受けられるため安心です。
+                    {% elif current_lang == 'chs' %}警务协助请拨打112，消防/急救请拨打119。接通后，您可以实时获得英文、中文、日文等多语种同声传译服务，无需担心沟通问题。
+                    {% else %}警務協助請撥打112，消防/急救請撥打119。接通後，您可以即時獲得英文、中文、日文等多語種同聲傳譯服務，無需擔心溝通問題。{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Tip 6: Public Wi-Fi -->
+        <div class="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/20 flex flex-col justify-between tip-grid-card">
+            <div>
+                <div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center mb-4 text-primary">
+                    <span class="material-symbols-outlined text-2xl">wifi</span>
+                </div>
+                <h3 class="font-headline text-lg font-bold text-primary mb-2">
+                    {% if current_lang == 'kor' %}6. 무료 공공 와이파이 이용
+                    {% elif current_lang == 'eng' %}6. Free Public Wi-Fi
+                    {% elif current_lang == 'jpn' %}6. 無料の公共Wi-Fi
+                    {% elif current_lang == 'chs' %}6. 免费公共无线网络 (Wi-Fi)
+                    {% else %}6. 免費公共無線網路 (Wi-Fi){% endif %}
+                </h3>
+                <p class="font-body text-sm text-on-surface-variant mb-4 leading-relaxed">
+                    {% if current_lang == 'kor' %}수원시 주요 관광지(화성행궁 주변 등)와 모든 대중교통, 지하철역, 카페에서는 "Public WiFi Secure" 등 무료 기가 와이파이를 제공하므로 무선 데이터 사용 걱정을 덜 수 있습니다.
+                    {% elif current_lang == 'eng' %}Free high-speed public Wi-Fi is widely available in all subway stations, city buses, major tourist hubs around Hwaseong Fortress, and local cafes.
+                    {% elif current_lang == 'jpn' %}水原市の主要観光地（華城行宮の周辺など）や、すべての公共交通機関、地下鉄駅、カフェでは、「Public WiFi Secure」などの無料の高速Wi-Fiを提供しています。
+                    {% elif current_lang == 'chs' %}水原市的主要景点（华城行宫周边等）、所有公共交通工具、地铁站和咖啡厅均提供"Public WiFi Secure"等免费高速无线网络，让您免受流量限制困扰。
+                    {% else %}水原市的主要景點（華城行宮周邊等）、所有公共交通工具、地鐵站和咖啡廳均提供「Public WiFi Secure」等免費高速無線網路，讓您免受流量限制困擾。{% endif %}
+                </p>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+
+<!-- ===================================================
+     Modal 1: 발급 위치 (Kiosk Location)
+     =================================================== -->
+<div id="modal-location" class="wowpass-modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="wowpass-modal">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-5 border-b border-outline-variant/20">
+            <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full bg-[#fff3e0] flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[#cc4a00] text-[18px]">location_on</span>
+                </span>
+                <span class="font-headline font-bold text-primary text-base">
+                    {% if current_lang == 'kor' %}WOWPASS 발급기 설치 위치
+                    {% elif current_lang == 'eng' %}WOWPASS Kiosk Locations
+                    {% elif current_lang == 'jpn' %}WOWPASS 発券機の設置場所
+                    {% elif current_lang == 'chs' %}WOWPASS 发卡机安装位置
+                    {% else %}WOWPASS 發卡機安裝位置{% endif %}
+                </span>
+            </div>
+            <button onclick="document.getElementById('modal-location').classList.remove('active')"
+                    class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center hover:bg-surface-variant transition-colors border-0">
+                <span class="material-symbols-outlined text-[18px] text-on-surface-variant">close</span>
+            </button>
+        </div>
+        <!-- Body -->
+        <div class="p-5 flex flex-col gap-3">
+
+            <!-- Suwon Station — HIGHLIGHT -->
+            <div class="p-4 rounded-2xl border-2 border-[#cc4a00]/30 bg-[#fff8f4]">
+                <div class="flex gap-3">
+                    <span class="material-symbols-outlined text-[#cc4a00] text-2xl shrink-0 mt-0.5">train</span>
+                    <div>
+                        <p class="font-bold text-sm text-[#8d3a00] mb-1">
+                            🌟 {% if current_lang == 'kor' %}수원역 (가장 가까운 발급처)
+                            {% elif current_lang == 'eng' %}Suwon Station (Nearest Location)
+                            {% elif current_lang == 'jpn' %}水原駅（最寄りの発券場所）
+                            {% elif current_lang == 'chs' %}水原站（最近的发卡处）
+                            {% else %}水原站（最近的發卡處）{% endif %}
+                        </p>
+                        <p class="text-xs text-on-surface-variant leading-relaxed">
+                            {% if current_lang == 'kor' %}
+                                1호선 지하 개찰구를 통과한 뒤, <strong>4번 출구 방향 전철 고객센터(Customer Office) 바로 맞은편</strong>에 주황색 WOWPASS 키오스크가 있습니다.
+                            {% elif current_lang == 'eng' %}
+                                Exit through the Line 1 underground gates. The orange WOWPASS kiosk is located <strong>directly across from the Subway Customer Office, toward Exit 4</strong>.
+                            {% elif current_lang == 'jpn' %}
+                                1号線の地下改札を通過後、<strong>4番出口方面の電車案内窓口（Customer Office）の真向かい</strong>にオレンジ色のWOWPASS発券機があります。
+                            {% elif current_lang == 'chs' %}
+                                通过1号线地下闸机后，<strong>在4号出口方向的地铁客服中心（Customer Office）正对面</strong>可找到橙色的WOWPASS自助发卡机。
+                            {% else %}
+                                通過1號線地下閘機後，<strong>在4號出口方向的地鐵客服中心（Customer Office）正對面</strong>可找到橙色的WOWPASS自助發卡機。
+                            {% endif %}
+                        </p>
+                        <p class="text-[11px] text-[#cc4a00] font-bold mt-2">⏰ 06:00 ~ 23:30</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Incheon T1 -->
+            <div class="p-4 rounded-2xl border border-outline-variant/20 bg-surface-container-low">
+                <div class="flex gap-3">
+                    <span class="material-symbols-outlined text-primary text-xl shrink-0 mt-0.5">flight_land</span>
+                    <div>
+                        <p class="font-bold text-sm text-primary mb-1">
+                            {% if current_lang == 'kor' %}인천국제공항 제1터미널 (T1)
+                            {% elif current_lang == 'eng' %}Incheon Int'l Airport — Terminal 1
+                            {% elif current_lang == 'jpn' %}仁川国際空港 第1ターミナル
+                            {% elif current_lang == 'chs' %}仁川国际机场 T1 航站楼
+                            {% else %}仁川國際機場 T1 航站樓{% endif %}
+                        </p>
+                        <p class="text-xs text-on-surface-variant leading-relaxed">
+                            {% if current_lang == 'kor' %}
+                                • <strong>지하 1층 공항철도 개찰구 옆</strong> — 직통열차 게이트 진입로의 주황색 단말기<br>
+                                • <strong>1층 입국장 대합실</strong> — 2번 및 11번 게이트 근처 트래블센터 내부
+                            {% elif current_lang == 'eng' %}
+                                • <strong>B1 Airport Railroad Gate</strong> — Orange kiosk near the Express Train entry<br>
+                                • <strong>1F Arrivals Concourse</strong> — Inside the Travel Center near Gates 2 and 11
+                            {% elif current_lang == 'jpn' %}
+                                • <strong>地下1階 空港鉄道改札口横</strong> — 直通列車ゲート入口付近のオレンジ色発券機<br>
+                                • <strong>1階 到着ロビー</strong> — 2番・11番ゲート付近のトラベルセンター内
+                            {% elif current_lang == 'chs' %}
+                                • <strong>地下1层 机场铁路出站口旁</strong> — 直达列车闸口附近的橙色自助机<br>
+                                • <strong>1层 入境大厅</strong> — 2号及11号门附近旅游服务中心内
+                            {% else %}
+                                • <strong>地下1層 機場鐵路出站口旁</strong> — 直達列車閘口附近的橙色自助機<br>
+                                • <strong>1層 入境大廳</strong> — 2號及11號門附近旅遊服務中心內
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Incheon T2 -->
+            <div class="p-4 rounded-2xl border border-outline-variant/20 bg-surface-container-low">
+                <div class="flex gap-3">
+                    <span class="material-symbols-outlined text-primary text-xl shrink-0 mt-0.5">flight_land</span>
+                    <div>
+                        <p class="font-bold text-sm text-primary mb-1">
+                            {% if current_lang == 'kor' %}인천국제공항 제2터미널 (T2)
+                            {% elif current_lang == 'eng' %}Incheon Int'l Airport — Terminal 2
+                            {% elif current_lang == 'jpn' %}仁川国際空港 第2ターミナル
+                            {% elif current_lang == 'chs' %}仁川国际机场 T2 航站楼
+                            {% else %}仁川國際機場 T2 航站樓{% endif %}
+                        </p>
+                        <p class="text-xs text-on-surface-variant leading-relaxed">
+                            {% if current_lang == 'kor' %}• <strong>지하 1층 공항철도 교통센터</strong> — 철도 매표소 바로 우측 통로
+                            {% elif current_lang == 'eng' %}• <strong>B1F Transit Center</strong> — Right of the train ticket window
+                            {% elif current_lang == 'jpn' %}• <strong>地下1階 交通センター</strong> — 鉄道切符売り場の右側通路
+                            {% elif current_lang == 'chs' %}• <strong>地下1层 交通中心</strong> — 铁路售票处右侧通道
+                            {% else %}• <strong>地下1層 交通中心</strong> — 鐵路售票處右側通道{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seoul Station -->
+            <div class="p-4 rounded-2xl border border-outline-variant/20 bg-surface-container-low">
+                <div class="flex gap-3">
+                    <span class="material-symbols-outlined text-primary text-xl shrink-0 mt-0.5">directions_subway</span>
+                    <div>
+                        <p class="font-bold text-sm text-primary mb-1">
+                            {% if current_lang == 'kor' %}서울역
+                            {% elif current_lang == 'eng' %}Seoul Station
+                            {% elif current_lang == 'jpn' %}ソウル駅
+                            {% elif current_lang == 'chs' %}首尔站
+                            {% else %}首爾站{% endif %}
+                        </p>
+                        <p class="text-xs text-on-surface-variant leading-relaxed">
+                            {% if current_lang == 'kor' %}
+                                • <strong>지하 2층 공항철도 도심 터미널</strong> — 고객안내센터 게이트 바로 앞<br>
+                                • <strong>2층 대합실 중앙</strong> — 종합안내소 공항철도 계단 부근 트래블스토어 옆
+                            {% elif current_lang == 'eng' %}
+                                • <strong>B2F City Airport Terminal</strong> — In front of the Travel Service Center<br>
+                                • <strong>2F Main Concourse</strong> — Next to the Travel Store near the AREX stairs
+                            {% elif current_lang == 'jpn' %}
+                                • <strong>地下2階 都心空港ターミナル</strong> — サービスセンターゲート正面<br>
+                                • <strong>2階 待合室中央</strong> — 総合案内所近くのトラベルストア横
+                            {% elif current_lang == 'chs' %}
+                                • <strong>地下2层 城市航站楼</strong> — 服务中心柜台正前方<br>
+                                • <strong>2层 大厅中央</strong> — 综合服务台附近旅游商店隔壁
+                            {% else %}
+                                • <strong>地下2層 城市航站樓</strong> — 服務中心櫃台正前方<br>
+                                • <strong>2層 大廳中央</strong> — 綜合服務台附近旅遊商店隔壁
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="px-5 pb-5">
+            <button onclick="document.getElementById('modal-location').classList.remove('active')"
+                    class="w-full py-3 rounded-xl bg-primary text-on-primary font-bold text-sm border-0 hover:opacity-90 transition-opacity">
+                {% if current_lang == 'kor' %}닫기{% elif current_lang == 'eng' %}Close{% elif current_lang == 'jpn' %}閉じる{% elif current_lang == 'chs' %}关闭{% else %}關閉{% endif %}
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ===================================================
+     Modal 2: 기기 실물 확인 (Machine Visual)
+     =================================================== -->
+<div id="modal-machine" class="wowpass-modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="wowpass-modal">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-5 border-b border-outline-variant/20">
+            <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full bg-[#fff3e0] flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[#cc4a00] text-[18px]">smart_display</span>
+                </span>
+                <span class="font-headline font-bold text-primary text-base">
+                    {% if current_lang == 'kor' %}발급기 실물 확인
+                    {% elif current_lang == 'eng' %}Kiosk Machine Visual
+                    {% elif current_lang == 'jpn' %}発券機の実物
+                    {% elif current_lang == 'chs' %}发卡机实物图
+                    {% else %}發卡機實物圖{% endif %}
+                </span>
+            </div>
+            <button onclick="document.getElementById('modal-machine').classList.remove('active')"
+                    class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center hover:bg-surface-variant transition-colors border-0">
+                <span class="material-symbols-outlined text-[18px] text-on-surface-variant">close</span>
+            </button>
+        </div>
+        <!-- Body: SVG Kiosk Illustrations side by side -->
+        <div class="p-5">
+            <p class="text-xs text-on-surface-variant text-center mb-4">
+                {% if current_lang == 'kor' %}현장에서 아래 색상의 기기를 찾으세요. 주황색(WOWPASS) · 분홍색(NAMANE)
+                {% elif current_lang == 'eng' %}Look for these colored machines on-site. Orange (WOWPASS) · Pink (NAMANE)
+                {% elif current_lang == 'jpn' %}現場でこちらの色の発券機を探してください。オレンジ（WOWPASS）・ピンク（NAMANE）
+                {% elif current_lang == 'chs' %}在现场寻找以下颜色的机器。橙色（WOWPASS）· 粉色（NAMANE）
+                {% else %}在現場尋找以下顏色的機器。橙色（WOWPASS）· 粉色（NAMANE）{% endif %}
+            </p>
+            <div class="grid grid-cols-2 gap-4 mb-5">
+
+                <!-- WOWPASS Machine -->
+                <div class="flex flex-col items-center gap-3">
+                    <svg viewBox="0 0 120 220" xmlns="http://www.w3.org/2000/svg" class="w-full max-w-[150px] drop-shadow-xl">
+                        <defs>
+                            <linearGradient id="wg2" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#ff8c00"/><stop offset="100%" stop-color="#cc4a00"/>
+                            </linearGradient>
+                            <linearGradient id="cg2" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#ff8c42"/><stop offset="100%" stop-color="#8d1a00"/>
+                            </linearGradient>
+                        </defs>
+                        <rect x="15" y="10" width="90" height="200" rx="10" fill="url(#wg2)"/>
+                        <rect x="15" y="10" width="8" height="200" rx="8" fill="white" opacity="0.12"/>
+                        <!-- Logo panel -->
+                        <rect x="22" y="18" width="76" height="28" rx="6" fill="#fff3e0"/>
+                        <text x="60" y="29" text-anchor="middle" font-family="Arial" font-weight="800" font-size="9" fill="#cc4a00">WOWPASS</text>
+                        <text x="60" y="40" text-anchor="middle" font-family="Arial" font-size="5" fill="#e07030">PREPAID · TRANSIT</text>
+                        <!-- Screen -->
+                        <rect x="22" y="52" width="76" height="70" rx="5" fill="#0f1a35"/>
+                        <rect x="36" y="62" width="48" height="28" rx="4" fill="url(#cg2)"/>
+                        <text x="60" y="72" text-anchor="middle" font-family="Arial" font-weight="700" font-size="5" fill="white">WOWPASS</text>
+                        <text x="60" y="82" text-anchor="middle" font-family="Arial" font-size="3.5" fill="#ffccaa">•••• •••• •••• 4321</text>
+                        <text x="60" y="100" text-anchor="middle" font-family="Arial" font-size="5" fill="#7ec8ff">INSERT PASSPORT</text>
+                        <text x="60" y="110" text-anchor="middle" font-family="Arial" font-size="4" fill="#5ba3d9">여권을 스캔해주세요</text>
+                        <!-- Slots -->
+                        <rect x="30" y="128" width="60" height="8" rx="2" fill="#0d0d20"/>
+                        <text x="60" y="134" text-anchor="middle" font-family="Arial" font-size="3.5" fill="#6699cc">PASSPORT SCAN ▶</text>
+                        <rect x="30" y="142" width="60" height="9" rx="2" fill="#1a0f00"/>
+                        <text x="60" y="149" text-anchor="middle" font-family="Arial" font-size="3.5" fill="#ff9933">💵 CASH INSERT</text>
+                        <rect x="30" y="157" width="60" height="10" rx="2" fill="#150a00"/>
+                        <text x="60" y="164" text-anchor="middle" font-family="Arial" font-size="3.5" fill="#ffaa44">CARD DISPENSER ⬇</text>
+                        <!-- Keypad -->
+                        <rect x="30" y="173" width="26" height="18" rx="3" fill="#331800"/>
+                        <circle cx="37" cy="179" r="2" fill="#cc6600"/><circle cx="44" cy="179" r="2" fill="#cc6600"/>
+                        <circle cx="37" cy="186" r="2" fill="#cc6600"/><circle cx="44" cy="186" r="2" fill="#cc6600"/>
+                        <rect x="62" y="173" width="28" height="18" rx="3" fill="#331800"/>
+                        <text x="76" y="183" text-anchor="middle" font-family="Arial" font-size="3.5" fill="#ffaa44">RECEIPT</text>
+                        <text x="76" y="188" text-anchor="middle" font-family="Arial" font-size="4" fill="#ff6600">🧾</text>
+                        <!-- Base -->
+                        <rect x="8" y="205" width="104" height="8" rx="4" fill="#8b3a00"/>
+                    </svg>
+                    <span class="inline-flex items-center gap-1 bg-[#ffdbc9] text-[#8d3a00] font-bold text-xs px-3 py-1.5 rounded-full">🟠 WOWPASS</span>
+                </div>
+
+                <!-- NAMANE Machine -->
+                <div class="flex flex-col items-center gap-3">
+                    <svg viewBox="0 0 120 220" xmlns="http://www.w3.org/2000/svg" class="w-full max-w-[150px] drop-shadow-xl">
+                        <defs>
+                            <linearGradient id="ng2" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#ff80b0"/><stop offset="100%" stop-color="#a0245a"/>
+                            </linearGradient>
+                        </defs>
+                        <rect x="15" y="10" width="90" height="200" rx="10" fill="url(#ng2)"/>
+                        <rect x="15" y="10" width="8" height="200" rx="8" fill="white" opacity="0.15"/>
+                        <!-- Logo panel -->
+                        <rect x="22" y="18" width="76" height="28" rx="6" fill="#fff0f5"/>
+                        <text x="60" y="29" text-anchor="middle" font-family="Arial" font-weight="800" font-size="10" fill="#a0245a">NAMANE</text>
+                        <text x="60" y="40" text-anchor="middle" font-family="Arial" font-size="4.5" fill="#c06080">나만의 교통카드</text>
+                        <!-- Screen -->
+                        <rect x="22" y="52" width="76" height="70" rx="5" fill="#140814"/>
+                        <rect x="36" y="58" width="48" height="34" rx="4" fill="#2d0d2d"/>
+                        <rect x="55" y="61" width="22" height="28" rx="3" fill="#1a051a"/>
+                        <circle cx="66" cy="70" r="5" fill="#ff80b0" opacity="0.5"/>
+                        <circle cx="66" cy="70" r="2.5" fill="#ff60a0" opacity="0.7"/>
+                        <text x="44" y="67" text-anchor="middle" font-family="Arial" font-size="3.5" fill="#ff80b0">MY</text>
+                        <text x="44" y="73" text-anchor="middle" font-family="Arial" font-size="3.5" fill="#ff80b0">CARD</text>
+                        <text x="44" y="79" text-anchor="middle" font-family="Arial" font-size="3.5" fill="#ff80b0">PHOTO</text>
+                        <text x="60" y="102" text-anchor="middle" font-family="Arial" font-size="5" fill="#ffb0d8">QR CODE SCAN</text>
+                        <text x="60" y="112" text-anchor="middle" font-family="Arial" font-size="4" fill="#e070a0">앱 QR코드 스캔</text>
+                        <!-- Slots -->
+                        <rect x="30" y="128" width="60" height="8" rx="2" fill="#1a051a"/>
+                        <text x="60" y="134" text-anchor="middle" font-family="Arial" font-size="3.5" fill="#ff80b0">[ QR SCAN ] ▶</text>
+                        <rect x="30" y="142" width="60" height="9" rx="2" fill="#1a051a"/>
+                        <text x="60" y="149" text-anchor="middle" font-family="Arial" font-size="3.5" fill="#ffaacc">💵 CASH INSERT</text>
+                        <rect x="30" y="157" width="60" height="10" rx="2" fill="#110311"/>
+                        <text x="60" y="164" text-anchor="middle" font-family="Arial" font-size="3.5" fill="#ffaacc">CARD DISPENSER ⬇</text>
+                        <!-- Keypad -->
+                        <rect x="30" y="173" width="26" height="18" rx="3" fill="#2a0a2a"/>
+                        <circle cx="37" cy="179" r="2" fill="#cc2266"/><circle cx="44" cy="179" r="2" fill="#cc2266"/>
+                        <circle cx="37" cy="186" r="2" fill="#cc2266"/><circle cx="44" cy="186" r="2" fill="#cc2266"/>
+                        <rect x="62" y="173" width="28" height="18" rx="3" fill="#2a0a2a"/>
+                        <text x="76" y="183" text-anchor="middle" font-family="Arial" font-size="3.5" fill="#ffaacc">RECEIPT</text>
+                        <text x="76" y="188" text-anchor="middle" font-family="Arial" font-size="4" fill="#ff4499">🧾</text>
+                        <!-- Base -->
+                        <rect x="8" y="205" width="104" height="8" rx="4" fill="#80103a"/>
+                    </svg>
+                    <span class="inline-flex items-center gap-1 bg-[#ffdbe9] text-[#781745] font-bold text-xs px-3 py-1.5 rounded-full">💗 NAMANE</span>
+                </div>
+            </div>
+
+            <!-- Usage steps -->
+            <div class="bg-[#fff8f4] rounded-2xl p-4 border border-[#cc4a00]/15">
+                <p class="text-xs font-bold text-[#8d3a00] mb-2">
+                    📋 {% if current_lang == 'kor' %}WOWPASS 발급 순서{% elif current_lang == 'eng' %}WOWPASS Issuance Steps{% elif current_lang == 'jpn' %}WOWPASS 発行手順{% elif current_lang == 'chs' %}WOWPASS 发卡步骤{% else %}WOWPASS 發卡步驟{% endif %}
+                </p>
+                <ol class="text-xs text-on-surface-variant space-y-1 pl-4 list-decimal">
+                    <li>{% if current_lang == 'kor' %}여권을 스캐너에 올려 본인 확인{% elif current_lang == 'eng' %}Place passport on scanner for ID verification{% elif current_lang == 'jpn' %}パスポートをスキャナーに置く{% elif current_lang == 'chs' %}将护照放在扫描仪上验证身份{% else %}將護照放在掃描儀上驗證身份{% endif %}</li>
+                    <li>{% if current_lang == 'kor' %}외화 현금(달러·엔·위안화 등)을 현금 투입구에 삽입{% elif current_lang == 'eng' %}Insert foreign cash (USD / JPY / CNY) into the slot{% elif current_lang == 'jpn' %}外貨現金（ドル・円など）を投入口に挿入{% elif current_lang == 'chs' %}将外币现金（美元/日元/人民币）插入投币口{% else %}將外幣現金（美元/日圓/人民幣）插入投幣口{% endif %}</li>
+                    <li>{% if current_lang == 'kor' %}원화 충전 금액 확인 후 확정{% elif current_lang == 'eng' %}Confirm the KRW top-up amount{% elif current_lang == 'jpn' %}ウォン充電額を確認して確定{% elif current_lang == 'chs' %}确认韩币充值金额后确认{% else %}確認韓幣充值金額後確認{% endif %}</li>
+                    <li>{% if current_lang == 'kor' %}카드 배출구에서 카드 수령!{% elif current_lang == 'eng' %}Collect your card from the dispenser!{% elif current_lang == 'jpn' %}カード排出口からカードを受け取る！{% elif current_lang == 'chs' %}从出卡口取出您的卡！{% else %}從出卡口取出您的卡！{% endif %}</li>
+                </ol>
+            </div>
+        </div>
+        <div class="px-5 pb-5">
+            <button onclick="document.getElementById('modal-machine').classList.remove('active')"
+                    class="w-full py-3 rounded-xl bg-primary text-on-primary font-bold text-sm border-0 hover:opacity-90 transition-opacity">
+                {% if current_lang == 'kor' %}닫기{% elif current_lang == 'eng' %}Close{% elif current_lang == 'jpn' %}閉じる{% elif current_lang == 'chs' %}关闭{% else %}關閉{% endif %}
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

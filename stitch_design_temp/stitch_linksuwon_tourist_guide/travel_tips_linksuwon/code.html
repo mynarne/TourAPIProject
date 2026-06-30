@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LinkSuwon - Travel Tips</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&amp;family=Noto+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#8d4e26",
+                        "on-surface-variant": "#43474d",
+                        "outline-variant": "#c3c7ce",
+                        "primary-fixed": "#cfe5ff",
+                        "secondary-fixed-dim": "#ffb68d",
+                        "secondary-fixed": "#ffdbc9",
+                        "tertiary-fixed": "#e7e2da",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#adc9ea",
+                        "surface": "#f7f9ff",
+                        "primary-container": "#12304a",
+                        "on-tertiary-container": "#99958e",
+                        "primary-fixed-dim": "#adc9ea",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#331200",
+                        "on-tertiary-fixed": "#1d1c17",
+                        "secondary-container": "#feab7b",
+                        "inverse-on-surface": "#e8f2ff",
+                        "surface-dim": "#d1dbe8",
+                        "surface-container-high": "#dfe9f7",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#27313c",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e4effd",
+                        "surface-variant": "#d9e3f1",
+                        "on-surface": "#121d26",
+                        "primary": "#001b31",
+                        "tertiary": "#1b1a15",
+                        "on-secondary-fixed-variant": "#703711",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-background": "#121d26",
+                        "on-tertiary-fixed-variant": "#494741",
+                        "outline": "#73777e",
+                        "on-primary-container": "#7d98b7",
+                        "tertiary-container": "#302e29",
+                        "error-container": "#ffdad6",
+                        "background": "#f7f9ff",
+                        "tertiary-fixed-dim": "#cac6be",
+                        "surface-tint": "#46617d",
+                        "on-secondary-container": "#783d17",
+                        "surface-bright": "#f7f9ff",
+                        "surface-container-low": "#edf4ff",
+                        "on-primary-fixed-variant": "#2d4964",
+                        "surface-container-highest": "#d9e3f1",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#001d34"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "section-gap": "40px",
+                        "stack-lg": "24px",
+                        "gutter": "16px",
+                        "stack-md": "16px",
+                        "container-margin": "20px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Noto Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-xl": ["Plus Jakarta Sans"],
+                        "body-md": ["Noto Sans"],
+                        "body-lg": ["Noto Sans"],
+                        "label-sm": ["Noto Sans"],
+                        "label-sm-mobile": ["Noto Sans"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "600" }],
+                        "label-sm-mobile": ["10px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #f7f9ff; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col pb-24 md:pb-0">
+<!-- Top Navigation (Desktop Only) -->
+<header class="hidden md:flex bg-surface dark:bg-surface-dim shadow-sm dark:shadow-none docked full-width top-0 z-50 bg-surface/80 backdrop-blur-md justify-between items-center w-full px-container-margin py-stack-md max-w-[1140px] mx-auto transition-transform">
+<div class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed">LinkSuwon</div>
+<nav class="flex gap-gutter">
+<a class="text-on-surface-variant dark:text-outline-variant font-label-md text-label-md hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200" href="#">Home</a>
+<a class="text-primary dark:text-primary-fixed border-b-2 border-secondary font-bold font-label-md text-label-md hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200" href="#">Explore</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-label-md text-label-md hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200" href="#">Maps</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-label-md text-label-md hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200" href="#">Saved</a>
+</nav>
+<button class="text-on-surface-variant hover:text-secondary transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="language">language</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-[1140px] mx-auto px-container-margin pt-stack-lg md:pt-section-gap">
+<div class="mb-stack-lg md:mb-section-gap">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-xl md:text-headline-xl text-primary mb-stack-sm">Travel Tips</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Essential information for a smooth journey in Suwon.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter md:gap-stack-lg">
+<!-- Transportation Card -->
+<div class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_2px_4px_rgba(18,48,74,0.08)] border border-surface-variant flex flex-col justify-between">
+<div>
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center mb-stack-sm">
+<span class="material-symbols-outlined text-primary" data-icon="directions_bus">directions_bus</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-stack-sm">Transportation</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">Use a T-money card for buses and subways. Top up at convenience stores. Suwon Station is the main hub.</p>
+</div>
+<a class="font-label-md text-label-md text-secondary hover:text-primary transition-colors flex items-center gap-2 mt-auto" href="#">
+                    Read More <span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<!-- Taxi App Card -->
+<div class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_2px_4px_rgba(18,48,74,0.08)] border border-surface-variant flex flex-col justify-between">
+<div>
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center mb-stack-sm">
+<span class="material-symbols-outlined text-primary" data-icon="local_taxi">local_taxi</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-stack-sm">Taxi App</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">Kakao T is highly recommended for hailing taxis. You can pay cash to the driver if you don't link a card.</p>
+</div>
+<a class="font-label-md text-label-md text-secondary hover:text-primary transition-colors flex items-center gap-2 mt-auto" href="#">
+                    Read More <span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<!-- Payment Card -->
+<div class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_2px_4px_rgba(18,48,74,0.08)] border border-surface-variant flex flex-col justify-between">
+<div>
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center mb-stack-sm">
+<span class="material-symbols-outlined text-primary" data-icon="credit_card">credit_card</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-stack-sm">Payment</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">Cards are widely accepted, but keep some cash (KRW) for traditional markets like Paldalmun Market.</p>
+</div>
+<a class="font-label-md text-label-md text-secondary hover:text-primary transition-colors flex items-center gap-2 mt-auto" href="#">
+                    Read More <span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<!-- Emergency Card -->
+<div class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_2px_4px_rgba(18,48,74,0.08)] border border-surface-variant flex flex-col justify-between">
+<div>
+<div class="w-12 h-12 rounded-lg bg-error-container flex items-center justify-center mb-stack-sm">
+<span class="material-symbols-outlined text-error" data-icon="emergency">emergency</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-stack-sm">Emergency</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">Dial 112 for Police and 119 for Fire/Ambulance. English translation services are usually available.</p>
+</div>
+<a class="font-label-md text-label-md text-secondary hover:text-primary transition-colors flex items-center gap-2 mt-auto" href="#">
+                    Read More <span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<!-- Language Card -->
+<div class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_2px_4px_rgba(18,48,74,0.08)] border border-surface-variant flex flex-col justify-between">
+<div>
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center mb-stack-sm">
+<span class="material-symbols-outlined text-primary" data-icon="translate">translate</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-stack-sm">Language</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">Papago is the best translation app for Korean. Download offline packs for reliability.</p>
+</div>
+<a class="font-label-md text-label-md text-secondary hover:text-primary transition-colors flex items-center gap-2 mt-auto" href="#">
+                    Read More <span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<!-- Map App Card -->
+<div class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_2px_4px_rgba(18,48,74,0.08)] border border-surface-variant flex flex-col justify-between">
+<div>
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center mb-stack-sm">
+<span class="material-symbols-outlined text-primary" data-icon="map">map</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-stack-sm">Map App</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">Google Maps is limited for walking/driving. Use Naver Map or KakaoMap for accurate navigation.</p>
+</div>
+<a class="font-label-md text-label-md text-secondary hover:text-primary transition-colors flex items-center gap-2 mt-auto" href="#">
+                    Read More <span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<!-- Wi-Fi Card -->
+<div class="bg-surface-container-lowest rounded-xl p-stack-md shadow-[0_2px_4px_rgba(18,48,74,0.08)] border border-surface-variant flex flex-col justify-between">
+<div>
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center mb-stack-sm">
+<span class="material-symbols-outlined text-primary" data-icon="wifi">wifi</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-stack-sm">Wi-Fi</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">Free public Wi-Fi is common in cafes, subways, and major tourist spots around Hwaseong Fortress.</p>
+</div>
+<a class="font-label-md text-label-md text-secondary hover:text-primary transition-colors flex items-center gap-2 mt-auto" href="#">
+                    Read More <span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 md:hidden bg-surface/90 dark:bg-inverse-surface/90 docked full-width rounded-t-xl backdrop-blur-lg shadow-[0_-4px_12px_rgba(18,48,74,0.08)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant font-label-sm-mobile text-label-sm-mobile hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 p-2 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span>Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed font-bold font-label-sm-mobile text-label-sm-mobile hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 p-2 rounded-lg transition-all duration-200 scale-95" href="#" style="font-variation-settings: 'FILL' 1;">
+<span class="material-symbols-outlined mb-1" data-icon="explore" data-weight="fill">explore</span>
+<span>Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant font-label-sm-mobile text-label-sm-mobile hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 p-2 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="map">map</span>
+<span>Maps</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant font-label-sm-mobile text-label-sm-mobile hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 p-2 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="bookmark">bookmark</span>
+<span>Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant font-label-sm-mobile text-label-sm-mobile hover:bg-surface-variant/50 dark:hover:bg-surface-container-high/20 p-2 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="smart_toy">smart_toy</span>
+<span>AI Guide</span>
+</a>
+</nav>
+<!-- Footer (Desktop Only) -->
+<footer class="hidden md:grid w-full py-stack-lg px-container-margin max-w-[1140px] mx-auto grid-cols-1 md:grid-cols-3 gap-stack-lg bg-primary dark:bg-primary-container full-width mt-section-gap">
+<div class="col-span-1">
+<div class="font-headline-md text-headline-md font-bold text-on-primary mb-stack-sm">LinkSuwon</div>
+<p class="font-body-md text-body-md text-on-primary/80">© 2024 LinkSuwon. All rights reserved.</p>
+</div>
+<div class="col-span-2 flex flex-wrap gap-x-stack-lg gap-y-stack-sm justify-end items-center">
+<a class="font-label-sm text-label-sm text-on-primary/80 hover:text-secondary-container transition-colors" href="#">About Suwon</a>
+<a class="font-label-sm text-label-sm text-on-primary/80 hover:text-secondary-container transition-colors" href="#">Accessibility</a>
+<a class="font-label-sm text-label-sm text-on-primary/80 hover:text-secondary-container transition-colors" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-primary/80 hover:text-secondary-container transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-primary/80 hover:text-secondary-container transition-colors" href="#">Contact Support</a>
+</div>
+</footer>
+</body></html>

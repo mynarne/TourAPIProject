@@ -1,68 +1,138 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    {% if current_lang == 'kor' %}LinkSuwon - AI 여행 비서
-    {% elif current_lang == 'eng' %}LinkSuwon - AI Guide
-    {% elif current_lang == 'jpn' %}LinkSuwon - AI旅行秘書
-    {% elif current_lang == 'chs' %}LinkSuwon - AI旅行助理
-    {% elif current_lang == 'cht' %}LinkSuwon - AI旅行助理
-    {% else %}LinkSuwon - AI Guide
-    {% endif %}
+    {{ _('brand_title') }} - AI Guide
 {% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}">
+<style>
+    body {
+        padding-top: 0px !important; /* 풀 스크린 채팅창을 위해 상단 패딩 제거 */
+        overflow: hidden;
+    }
+    header.fixed {
+        display: none !important; /* 챗봇 집중을 위해 공통 헤더 숨김 */
+    }
+    nav.fixed {
+        display: none !important; /* 챗봇 집중을 위해 하단바 숨김 */
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .msg-animation {
+        animation: fadeInUp 0.3s ease-out forwards;
+    }
+</style>
 {% endblock %}
 
 {% block scripts %}
     <script src="{{ url_for('static', filename='js/chatbot.js') }}" defer></script>
+    <script>
+        // 퀵 질문 전송
+        function sendQuickQuestion(text) {
+            const input = document.getElementById('chat-input');
+            if (input) {
+                input.value = text;
+                sendChatMessage();
+            }
+        }
+    </script>
 {% endblock %}
 
 {% block content %}
-<div class="chat-container d-flex flex-column" style="height: calc(100vh - 140px); max-width: 700px; margin: 0 auto; background-color: #f4f7f6;">
+<div class="h-screen flex flex-col overflow-hidden bg-background">
     
-    <div class="chat-header p-3 bg-white border-bottom shadow-sm d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center">
-            <div class="ai-avatar me-2 fs-4">🤖</div>
-            <div>
-                <h5 class="m-0 fw-bold" style="color: var(--giwa-navy);">LinkSuwon AI</h5>
-                <small class="text-success fw-bold">● Online</small>
+    <!-- Header Overlay -->
+    <header class="flex-none flex items-center justify-between px-container-margin py-stack-md bg-surface-container-lowest shadow-[0_2px_12px_rgba(18,48,74,0.06)] relative z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-secondary-container/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+            </div>
+            <h1 class="font-headline text-lg font-extrabold text-on-surface">Suwon AI Guide</h1>
+        </div>
+        <a href="{{ url_for('main.index', lang=current_lang) }}" class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface rounded-full hover:bg-surface-variant/50 transition-colors text-decoration-none">
+            <span class="material-symbols-outlined">close</span>
+        </a>
+    </header>
+
+    <!-- Chat Canvas -->
+    <main id="chat-messages" class="flex-1 overflow-y-auto px-container-margin py-6 flex flex-col gap-4 relative z-10 no-scrollbar">
+        <!-- Date Divider -->
+        <div class="flex justify-center">
+            <span class="bg-surface-variant/50 text-on-surface-variant font-bold text-xs px-3 py-1 rounded-full">Today</span>
+        </div>
+        
+        <!-- Bot Message (Greeting) -->
+        <div class="flex gap-3 max-w-[85%] msg-animation">
+            <div class="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0 shadow-sm mt-1">
+                <span class="material-symbols-outlined text-on-secondary text-sm" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+            </div>
+            <div class="bg-surface-container-lowest p-4 rounded-2xl rounded-tl-sm border border-outline-variant/30 shadow-sm text-on-surface font-body text-sm leading-relaxed text-break-custom">
+                <p>
+                    {% if current_lang == 'kor' %}
+                        안녕하세요! 저는 수원 여행을 도와드릴 AI 비서입니다. 길찾기, 맛집 추천, 관광지 정보 등 무엇이든 물어보세요!
+                    {% elif current_lang == 'eng' %}
+                        Hello! I am your AI guide for Suwon. Ask me anything about directions, restaurants, or tourist spots!
+                    {% elif current_lang == 'jpn' %}
+                        こんにちは！水原旅行をサポート하는 AI秘書です。道案内、おすすめグルメ、観光地情報など何でも聞いてください！
+                    {% else %}
+                        您好！我是您的水原旅行AI助理。请问有关导航、美食推荐或景点信息的任何问题！
+                    {% endif %}
+                </p>
             </div>
         </div>
-        <a href="{{ url_for('main.index', lang=current_lang) }}" class="btn btn-sm btn-outline-secondary fw-bold">
-            {% if current_lang == 'kor' %}나가기{% elif current_lang == 'eng' %}Exit{% elif current_lang == 'jpn' %}終了{% else %}退出{% endif %}
-        </a>
-    </div>
+    </main>
 
-    <div id="chat-messages" class="flex-grow-1 p-3 overflow-auto d-flex flex-column gap-3">
+    <!-- Input Area & Quick Actions -->
+    <div class="flex-none bg-gradient-to-t from-background via-background/95 to-transparent pt-4 pb-6 relative z-20">
         
-        <div class="chat-bubble ai-bubble shadow-sm">
-            {% if current_lang == 'kor' %}
-                안녕하세요! 저는 수원 여행을 도와드릴 AI 비서입니다. 길찾기, 맛집 추천, 관광지 정보 등 무엇이든 물어보세요!
-            {% elif current_lang == 'eng' %}
-                Hello! I am your AI guide for Suwon. Ask me anything about directions, restaurants, or tourist spots!
-            {% elif current_lang == 'jpn' %}
-                こんにちは！水原旅行をサポートするAI秘書です。道案内、おすすめグルメ、観光地情報など何でも聞いてください！
-            {% elif current_lang == 'chs' %}
-                您好！我是您的水原旅行AI助理。请问有关导航、美食推荐或景点信息的任何问题！
-            {% elif current_lang == 'cht' %}
-                您好！我是您的水原旅行AI助理。請問有關導航、美食推薦或景點資訊的任何問題！
-            {% else %}
-                Hello! Ask me anything about Suwon tourism!
-            {% endif %}
-        </div>
-        
-    </div>
-
-    <div class="chat-input-area p-3 bg-white border-top shadow-sm">
-        <div class="input-group">
-            <input type="text" id="chat-input" class="form-control border-primary py-2" 
-                   placeholder="{% if current_lang == 'kor' %}여기에 질문을 입력하세요...{% elif current_lang == 'eng' %}Ask your question here...{% elif current_lang == 'jpn' %}質問を入力してください...{% else %}在此输入您的问题...{% endif %}" 
-                   onkeypress="if(event.key === 'Enter') sendChatMessage()">
-            <button class="btn btn-primary fw-bold px-4" onclick="sendChatMessage()" style="background-color: var(--point-blue); border-color: var(--point-blue);">
-                {% if current_lang == 'kor' %}전송{% elif current_lang == 'eng' %}Send{% elif current_lang == 'jpn' %}送信{% else %}发送{% endif %}
+        <!-- Quick Questions (Chips) -->
+        <div class="px-container-margin pb-3 overflow-x-auto whitespace-nowrap hide-scrollbar flex gap-2 w-full">
+            <button onclick="sendQuickQuestion('{% if current_lang == 'kor' %}이 관광지는 어떤 역사를 가지고 있나요?{% else %}What is the history of this place?{% endif %}')" 
+                    class="snap-start inline-flex items-center h-9 px-4 rounded-full bg-[#FDF2EB] text-secondary font-bold text-xs border border-secondary/10 hover:bg-secondary/10 transition-colors shrink-0">
+                🧭 {% if current_lang == 'kor' %}이곳의 역사에 대해 알려줘{% else %}Tell me about the history{% endif %}
+            </button>
+            <button onclick="sendQuickQuestion('{% if current_lang == 'kor' %}근처에 같이 가볼 만한 맛집이 있나요?{% else %}Are there any good restaurants nearby?{% endif %}')" 
+                    class="snap-start inline-flex items-center h-9 px-4 rounded-full bg-[#FDF2EB] text-secondary font-bold text-xs border border-secondary/10 hover:bg-secondary/10 transition-colors shrink-0">
+                🥩 {% if current_lang == 'kor' %}근처 맛집 추천{% else %}Recommend restaurants nearby{% endif %}
+            </button>
+            <button onclick="sendQuickQuestion('{% if current_lang == 'kor' %}수원화성 반나절 코스를 추천해줘.{% else %}Recommend a half-day course for Hwaseong Fortress.{% endif %}')" 
+                    class="snap-start inline-flex items-center h-9 px-4 rounded-full bg-[#FDF2EB] text-secondary font-bold text-xs border border-secondary/10 hover:bg-secondary/10 transition-colors shrink-0">
+                🚶 {% if current_lang == 'kor' %}반나절 코스 추천{% else %}Recommend half-day course{% endif %}
             </button>
         </div>
+
+        <!-- Chat Input Form -->
+        <div class="px-container-margin">
+            <div class="flex items-center bg-surface-container-lowest rounded-2xl border border-outline-variant/30 p-1.5 shadow-md focus-within:border-secondary focus-within:ring-1 focus-within:ring-secondary transition-all">
+                <input id="chat-input" 
+                       class="flex-1 bg-transparent border-0 focus:ring-0 font-body text-sm px-3 text-on-surface placeholder:text-outline-variant outline-none py-2" 
+                       placeholder="Ask anything about Suwon..." 
+                       type="text"
+                       onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                <button id="send-btn" 
+                        onclick="sendChatMessage()" 
+                        class="w-10 h-10 flex items-center justify-center rounded-xl bg-primary text-on-primary hover:bg-primary/90 active:scale-95 transition-all shrink-0 border-0">
+                    <span class="material-symbols-outlined text-lg">arrow_upward</span>
+                </button>
+            </div>
+        </div>
+
     </div>
+
 </div>
 {% endblock %}

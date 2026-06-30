@@ -182,3 +182,46 @@
     border-radius: 50%;
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
+
+/* 즐겨찾기 별 버튼 */
+.btn-favorite {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: #b0bec5;
+    transition: background-color 0.2s, color 0.2s, transform 0.1s;
+    z-index: 5;
+}
+
+.btn-favorite.active {
+    color: #FFB300; /* 따뜻한 골드 */
+    background-color: #ffffff;
+    border-color: #FFB300;
+}
+
+.btn-favorite:active {
+    transform: scale(0.9);
+}
+
+/* 카드 상대 위치 지정 필수 */
+.spot-carousel-item-card {
+    position: relative;
+    flex: 0 0 170px;
+    scroll-snap-align: start;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #eef0f2;
+}

@@ -1,127 +1,150 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    {% if current_lang == 'kor' %}
-        LinkSuwon - 수원의 모든 연결
-    {% elif current_lang == 'eng' %}
-        LinkSuwon - Connect to Suwon
-    {% elif current_lang == 'jpn' %}
-        LinkSuwon - 水元のすべて을 繋ぐ
-    {% elif current_lang == 'chs' %}
-        LinkSuwon - 连接水原的一切
-    {% elif current_lang == 'cht' %}
-        LinkSuwon - 連接水原的一切
-    {% else %}
-        LinkSuwon - Connect to Suwon
-    {% endif %}
+    {{ _('brand_title') }} - {{ _('brand_subtitle') }}
 {% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-{% endblock %}
-
-{% block scripts %}
-    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+<style>
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .hero-overlay {
+        background: linear-gradient(180deg, rgba(0, 27, 49, 0.15) 0%, rgba(247, 249, 255, 1) 100%);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container landing-main-container">
+<main class="pt-[60px]">
     
-    <div class="landing-logo-wrap">
-        <h1 class="landing-logo display-4 fw-bolder logo-navy-text">
-            Link<span class="logo-blue-text">Suwon</span>
-        </h1>
-        <p class="text-muted fw-bold mt-2">
-            {% if current_lang == 'kor' %}수원의 모든 연결
-            {% elif current_lang == 'eng' %}Connect to Suwon
-            {% elif current_lang == 'jpn' %}水元のすべて를 繋ぐ
-            {% elif current_lang == 'chs' %}连接水原的一切
-            {% elif current_lang == 'cht' %}連接水原的一切
-            {% else %}Connect to Suwon
-            {% endif %}
-        </p>
-    </div>
-
-    <div class="menu-grid-wrapper-box">
-        <div class="row g-3">
+    <!-- Hero Section -->
+    <section class="relative w-full h-[550px] flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div class="w-full h-full bg-cover bg-center object-cover" 
+                 style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBsWlLD9PhGXZPSPdgzowviHVqqaqcR8JE602_8GBavSV422MkaD8U18QVgW2nIya9xiVBEf3BNzpLCjGPBLOxM_STlJKHIoSzRgjnPgh4Etx2rwZ-GPy2gzlkPFnKugLA49-1qRtFkEa0or2xixb6w_emCdLWYI_gZuknF-rdAVRo_wC_zKgGa73IdBDAnCHd0aHfaO7Q4Of__lPoUrXHg6cDJsZndFmlKdiLnfk2JF4K1-2ynzHw9yA')">
+            </div>
+            <div class="absolute inset-0 hero-overlay"></div>
+        </div>
+        
+        <div class="relative z-10 w-full max-w-[1140px] px-container-margin mx-auto flex flex-col items-center text-center mt-12">
+            <h1 class="font-headline text-4xl md:text-5xl font-extrabold text-primary mb-3 drop-shadow-sm leading-tight">
+                {{ _('hero_title') }}
+            </h1>
+            <p class="font-body text-base md:text-lg text-on-surface-variant mb-8 max-w-2xl">
+                {{ _('hero_subtitle') }}
+            </p>
             
-            <div class="col-6">
-                <a href="{{ url_for('spot.spot_home', lang=current_lang) }}" class="text-decoration-none">
-                    <div class="card h-100 text-center border-0 shadow-sm menu-card">
-                        <div class="card-body py-4">
-                            <div class="menu-icon mb-2">📸</div>
-                            <h5 class="card-title fw-bold text-dark mb-0">
-                                {% if current_lang == 'kor' %}명소 안내
-                                {% elif current_lang == 'eng' %}Attractions
-                                {% elif current_lang == 'jpn' %}名所案内
-                                {% elif current_lang == 'chs' %}景点指南
-                                {% elif current_lang == 'cht' %}景點指南
-                                {% else %}Attractions
-                                {% endif %}
-                            </h5>
-                        </div>
-                    </div>
-                </a>
-            </div>
+            <!-- Search Bar Form -->
+            <form action="{{ url_for('spot.spot_home') }}" method="GET" class="w-full max-w-xl">
+                <input type="hidden" name="lang" value="{{ current_lang }}">
+                <div class="w-full glass-panel rounded-2xl p-2 flex items-center shadow-lg border border-outline-variant/20 focus-within:border-secondary transition-all bg-surface-container-lowest">
+                    <span class="material-symbols-outlined text-primary ml-3 mr-2">search</span>
+                    <input name="search" class="flex-1 bg-transparent border-0 focus:ring-0 text-sm md:text-base text-on-surface placeholder:text-outline py-2.5 outline-none" 
+                           placeholder="{{ _('placeholder_search') }}" type="text">
+                    <button type="submit" class="bg-primary text-on-primary rounded-xl px-5 py-2 text-sm font-bold hover:bg-secondary transition-colors ml-2 shadow-md">
+                        {{ _('btn_search') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
 
-            <div class="col-6">
-                <a href="{{ url_for('traffic.traffic_home', lang=current_lang) }}" class="text-decoration-none">
-                    <div class="card h-100 text-center border-0 shadow-sm menu-card">
-                        <div class="card-body py-4">
-                            <div class="menu-icon mb-2">🗺️</div>
-                            <h5 class="card-title fw-bold text-dark mb-0">
-                                {% if current_lang == 'kor' %}지도 · 길찾기
-                                {% elif current_lang == 'eng' %}Map & Directions
-                                {% elif current_lang == 'jpn' %}地図・道案内
-                                {% elif current_lang == 'chs' %}地图 · 导航
-                                {% elif current_lang == 'cht' %}地圖 · 導航
-                                {% else %}Map & Directions
-                                {% endif %}
-                            </h5>
-                        </div>
-                    </div>
-                </a>
-            </div>
+    <!-- Quick Actions Bento Grid -->
+    <section class="max-w-[1140px] mx-auto px-container-margin py-6 relative z-20 -mt-[80px]">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+            
+            <!-- Card 1: 명소 안내 -->
+            <a class="group block bg-surface-container-lowest rounded-2xl p-stack-lg shadow-md border border-outline-variant/10 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-start h-full text-decoration-none" 
+               href="{{ url_for('spot.spot_home', lang=current_lang) }}">
+                <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center mb-stack-md text-secondary group-hover:bg-secondary-container group-hover:text-on-secondary-container transition-colors">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">location_on</span>
+                </div>
+                <h3 class="font-headline text-lg font-bold text-primary mb-1">{{ _('menu_attractions') }}</h3>
+                <p class="font-body text-xs md:text-sm text-on-surface-variant flex-1 mb-3">
+                    {{ _('dashboard_spot_desc') }}
+                </p>
+                <span class="text-secondary font-bold text-sm group-hover:underline">Explore →</span>
+            </a>
 
-            <div class="col-6">
-                <a href="{{ url_for('chatbot.chat_home', lang=current_lang) }}" class="text-decoration-none">
-                    <div class="card h-100 text-center border-0 shadow-sm menu-card">
-                        <div class="card-body py-4">
-                            <div class="menu-icon mb-2">🤖</div>
-                            <h5 class="card-title fw-bold text-dark mb-0">
-                                {% if current_lang == 'kor' %}AI 여행 비서
-                                {% elif current_lang == 'eng' %}AI Guide
-                                {% elif current_lang == 'jpn' %}AI旅行秘書
-                                {% elif current_lang == 'chs' %}AI旅行助理
-                                {% elif current_lang == 'cht' %}AI旅行助理
-                                {% else %}AI Guide
-                                {% endif %}
-                            </h5>
-                        </div>
-                    </div>
-                </a>
-            </div>
+            <!-- Card 2: 추천 코스 -->
+            <a class="group block bg-surface-container-lowest rounded-2xl p-stack-lg shadow-md border border-outline-variant/10 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-start h-full text-decoration-none" 
+               href="{{ url_for('main.courses', lang=current_lang) }}">
+                <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center mb-stack-md text-secondary group-hover:bg-secondary-container group-hover:text-on-secondary-container transition-colors">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">route</span>
+                </div>
+                <h3 class="font-headline text-lg font-bold text-primary mb-1">{{ _('menu_courses') }}</h3>
+                <p class="font-body text-xs md:text-sm text-on-surface-variant flex-1 mb-3">
+                    {{ _('dashboard_course_desc') }}
+                </p>
+                <span class="text-secondary font-bold text-sm group-hover:underline">View Paths →</span>
+            </a>
 
-            <div class="col-6">
-                <a href="{{ url_for('record.record_home', lang=current_lang) }}" class="text-decoration-none">
-                    <div class="card h-100 text-center border-0 shadow-sm menu-card">
-                        <div class="card-body py-4">
-                            <div class="menu-icon mb-2">📓</div>
-                            <h5 class="card-title fw-bold text-dark mb-0">
-                                {% if current_lang == 'kor' %}나만의 기록
-                                {% elif current_lang == 'eng' %}Travel Logs
-                                {% elif current_lang == 'jpn' %}旅行記録
-                                {% elif current_lang == 'chs' %}我的记录
-                                {% elif current_lang == 'cht' %}我的記錄
-                                {% else %}Travel Logs
-                                {% endif %}
-                            </h5>
-                        </div>
-                    </div>
-                </a>
-            </div>
+            <!-- Card 3: 나만의 기록 -->
+            <a class="group block bg-surface-container-lowest rounded-2xl p-stack-lg shadow-md border border-outline-variant/10 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-start h-full text-decoration-none" 
+               href="{{ url_for('record.record_home', lang=current_lang) }}">
+                <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center mb-stack-md text-secondary group-hover:bg-secondary-container group-hover:text-on-secondary-container transition-colors">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+                </div>
+                <h3 class="font-headline text-lg font-bold text-primary mb-1">{{ _('menu_records') }}</h3>
+                <p class="font-body text-xs md:text-sm text-on-surface-variant flex-1 mb-3">
+                    {{ _('dashboard_record_desc') }}
+                </p>
+                <span class="text-secondary font-bold text-sm group-hover:underline">View List →</span>
+            </a>
+
+            <!-- Card 4: 여행 팁 -->
+            <a class="group block bg-surface-container-lowest rounded-2xl p-stack-lg shadow-md border border-outline-variant/10 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-start h-full text-decoration-none" 
+               href="{{ url_for('main.tips', lang=current_lang) }}">
+                <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center mb-stack-md text-secondary group-hover:bg-secondary-container group-hover:text-on-secondary-container transition-colors">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+                </div>
+                <h3 class="font-headline text-lg font-bold text-primary mb-1">{{ _('menu_tips') }}</h3>
+                <p class="font-body text-xs md:text-sm text-on-surface-variant flex-1 mb-3">
+                    {{ _('dashboard_tip_desc') }}
+                </p>
+                <span class="text-secondary font-bold text-sm group-hover:underline">Read More →</span>
+            </a>
 
         </div>
-    </div>
-</div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="max-w-[1140px] mx-auto px-container-margin py-12">
+        <div class="text-center mb-10">
+            <h2 class="font-headline text-3xl font-extrabold text-primary mb-2">{{ _('section_plan_title') }}</h2>
+            <p class="font-body text-sm md:text-base text-on-surface-variant max-w-2xl mx-auto">
+                {{ _('section_plan_desc') }}
+            </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+            <a href="{{ url_for('main.courses', lang=current_lang) }}" class="group relative overflow-hidden rounded-2xl p-6 flex flex-col justify-end h-56 transition-all duration-300 hover:shadow-lg text-decoration-none bg-primary-container">
+                <div class="relative z-10">
+                    <span class="material-symbols-outlined text-white text-3xl mb-2">route</span>
+                    <h3 class="font-headline text-xl font-bold text-white mb-1">{{ _('menu_courses') }}</h3>
+                    <p class="text-white/80 font-body text-xs md:text-sm">{{ _('dashboard_course_desc') }}</p>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-primary/85 to-transparent opacity-70 group-hover:opacity-60 transition-opacity"></div>
+            </a>
+            <a href="{{ url_for('main.tips', lang=current_lang) }}" class="group relative overflow-hidden rounded-2xl p-6 flex flex-col justify-end h-56 transition-all duration-300 hover:shadow-lg text-decoration-none bg-secondary">
+                <div class="relative z-10">
+                    <span class="material-symbols-outlined text-white text-3xl mb-2">lightbulb</span>
+                    <h3 class="font-headline text-xl font-bold text-white mb-1">{{ _('menu_tips') }}</h3>
+                    <p class="text-white/80 font-body text-xs md:text-sm">{{ _('dashboard_tip_desc') }}</p>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-secondary/85 to-transparent opacity-70 group-hover:opacity-60 transition-opacity"></div>
+            </a>
+        </div>
+    </section>
+
+</main>
+
+<!-- AI Floating Action Button (FAB) -->
+<a href="{{ url_for('chatbot.chat_home', lang=current_lang) }}" 
+   aria-label="AI Guide" 
+   class="fixed bottom-24 right-6 md:bottom-8 md:right-8 z-50 bg-secondary text-white rounded-full p-4 shadow-lg hover:bg-primary hover:-translate-y-1 transition-all duration-300 flex items-center justify-center group text-decoration-none">
+    <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1; font-weight: 400;">smart_toy</span>
+</a>
 {% endblock %}

@@ -1,26 +1,49 @@
-<header class="py-3 bg-white border-bottom shadow-sm sticky-top">
-    <div class="container d-flex justify-content-between align-items-center">
-        <h1 class="logo m-0" onclick="location.href='/?lang={{ current_lang }}'">
-            Link<span>Suwon</span>
-        </h1>
+<!-- TopNavBar -->
+<header class="fixed top-0 z-50 w-full bg-surface/80 dark:bg-surface-dim backdrop-blur-md shadow-sm dark:shadow-none border-b border-outline-variant/10">
+    <div class="flex justify-between items-center w-full px-container-margin py-stack-md max-w-[1140px] mx-auto">
         
-        <div class="dropdown">
-            <button class="btn btn-outline-secondary dropdown-toggle btn-sm fw-bold text-uppercase" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                {% if current_lang == 'kor' %}KOR
-                {% elif current_lang == 'eng' %}ENG
-                {% elif current_lang == 'jpn' %}JPN
-                {% elif current_lang == 'chs' %}简
-                {% elif current_lang == 'cht' %}繁
-                {% else %}KOR
-                {% endif %}
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="langDropdown">
-                <li><a class="dropdown-item {% if current_lang == 'kor' %}active{% endif %}" href="{{ request.path }}?lang=kor">KOR</a></li>
-                <li><a class="dropdown-item {% if current_lang == 'eng' %}active{% endif %}" href="{{ request.path }}?lang=eng">ENG</a></li>
-                <li><a class="dropdown-item {% if current_lang == 'jpn' %}active{% endif %}" href="{{ request.path }}?lang=jpn">JPN</a></li>
-                <li><a class="dropdown-item {% if current_lang == 'chs' %}active{% endif %}" href="{{ request.path }}?lang=chs">简体中文 (简)</a></li>
-                <li><a class="dropdown-item {% if current_lang == 'cht' %}active{% endif %}" href="{{ request.path }}?lang=cht">繁體中文 (繁)</a></li>
-            </ul>
+        <!-- Brand Logo -->
+        <a href="{{ url_for('main.index', lang=current_lang) }}" class="font-headline text-2xl font-extrabold text-primary hover:opacity-95 text-decoration-none flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">explore</span>
+            LinkSuwon
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center gap-stack-lg">
+            <a class="{% if request.path == '/' and not request.args.get('tab') %}text-primary border-b-2 border-secondary font-bold{% else %}text-on-surface-variant hover:text-secondary{% endif %} font-semibold text-sm py-2 text-decoration-none transition-colors" 
+               href="{{ url_for('main.index', lang=current_lang) }}">{{ _('menu_home') }}</a>
+            
+            <a class="{% if request.path == '/spot/' %}text-primary border-b-2 border-secondary font-bold{% else %}text-on-surface-variant hover:text-secondary{% endif %} font-semibold text-sm py-2 text-decoration-none transition-colors" 
+               href="{{ url_for('spot.spot_home', lang=current_lang) }}">{{ _('menu_attractions') }}</a>
+            
+            <a class="{% if request.path == '/courses' %}text-primary border-b-2 border-secondary font-bold{% else %}text-on-surface-variant hover:text-secondary{% endif %} font-semibold text-sm py-2 text-decoration-none transition-colors" 
+               href="{{ url_for('main.courses', lang=current_lang) }}">{{ _('menu_courses') }}</a>
+            
+            <a class="{% if request.path == '/record/' %}text-primary border-b-2 border-secondary font-bold{% else %}text-on-surface-variant hover:text-secondary{% endif %} font-semibold text-sm py-2 text-decoration-none transition-colors" 
+               href="{{ url_for('record.record_home', lang=current_lang) }}">{{ _('menu_records') }}</a>
+            
+            <a class="{% if request.path == '/tips' %}text-primary border-b-2 border-secondary font-bold{% else %}text-on-surface-variant hover:text-secondary{% endif %} font-semibold text-sm py-2 text-decoration-none transition-colors" 
+               href="{{ url_for('main.tips', lang=current_lang) }}">{{ _('menu_tips') }}</a>
+        </nav>
+
+        <!-- Language Selector & Login -->
+        <div class="flex items-center gap-4">
+            <!-- Google Login Container -->
+            <div id="google-login-container" class="flex items-center"></div>
+
+            <div class="dropdown">
+                <button class="btn btn-link text-primary p-2 rounded-full hover:bg-surface-variant/30 text-decoration-none flex items-center justify-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="material-symbols-outlined text-[22px]">language</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2" style="border-radius: 14px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px);">
+                    <li><a class="dropdown-item py-2 px-3 rounded-lg text-sm fw-bold {% if current_lang == 'kor' %}bg-primary text-white{% endif %}" href="?lang=kor">한국어</a></li>
+                    <li><a class="dropdown-item py-2 px-3 rounded-lg text-sm fw-bold {% if current_lang == 'eng' %}bg-primary text-white{% endif %}" href="?lang=eng">English</a></li>
+                    <li><a class="dropdown-item py-2 px-3 rounded-lg text-sm fw-bold {% if current_lang == 'jpn' %}bg-primary text-white{% endif %}" href="?lang=jpn">日本語</a></li>
+                    <li><a class="dropdown-item py-2 px-3 rounded-lg text-sm fw-bold {% if current_lang == 'chs' %}bg-primary text-white{% endif %}" href="?lang=chs">简体中文</a></li>
+                    <li><a class="dropdown-item py-2 px-3 rounded-lg text-sm fw-bold {% if current_lang == 'cht' %}bg-primary text-white{% endif %}" href="?lang=cht">繁體中文</a></li>
+                </ul>
+            </div>
         </div>
+
     </div>
 </header>
