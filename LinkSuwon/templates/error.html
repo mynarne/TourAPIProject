@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Error {{ status_code }} - {{ _('brand_title') }}
+{% endblock %}
+
+{% block content %}
+<main class="pt-[80px] min-h-[80vh] flex items-center justify-center px-container-margin">
+    <div class="w-full max-w-md bg-surface-container-lowest rounded-3xl p-8 shadow-lg border border-outline-variant/20 text-center flex flex-col items-center gap-6 animate-fade-in">
+        <!-- 에러 헤더 아이콘 효과 -->
+        <div class="w-16 h-16 rounded-full bg-red-50 dark:bg-red-950/20 text-red-500 flex items-center justify-center shrink-0 shadow-inner">
+            <span class="material-symbols-outlined text-4xl animate-bounce">
+                {% if status_code == 404 %}explore_off{% else %}running_with_errors{% endif %}
+            </span>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            <h1 class="font-headline text-5xl font-black text-outline">HTTP {{ status_code }}</h1>
+            <h2 class="font-headline text-lg font-bold text-primary">
+                {% if status_code == 404 %}
+                    {{ {'kor':'페이지를 찾을 수 없습니다', 'eng':'Page Not Found', 'jpn':'ページが見つかりません', 'chs':'未找到页面', 'cht':'未找到頁面'}[current_lang] }}
+                {% else %}
+                    {{ {'kor':'서버 내부 오류가 발생했습니다', 'eng':'Internal Server Error', 'jpn':'サーバー内部エラーが発生しました', 'chs':'服务器内部错误', 'cht':'伺服器內部錯誤'}[current_lang] }}
+                {% endif %}
+            </h2>
+            <p class="font-body text-xs md:text-sm text-on-surface-variant leading-relaxed px-2">
+                {% if status_code == 404 %}
+                    {{ {'kor':'요청하신 주소가 올바르지 않거나 변경되어 접속할 수 없습니다. 철자를 확인하거나 아래 버튼으로 메인 화면으로 돌아가 주세요.', 'eng':'The requested URL was not found on this server. Please check the spelling or return to the main dashboard.', 'jpn':'要求されたアドレスが正しくないか、変更されたためアクセスできません。スペルを確認するか、下のボタンでメイン画面に戻ってください。', 'chs':'请求的页面不存在或已被移除。请检查拼写或点击下方按钮返回首页。', 'cht':'請求的頁面不存在或已被移除。請檢查拼寫或點擊下方按鈕返回首頁'}[current_lang] }}
+                {% else %}
+                    {{ {'kor':'일시적인 시스템 장애가 발생했습니다. 개발진이 신속하게 조치 중이오니 잠시 후 다시 접속해 주세요.', 'eng':'A temporary error occurred in the system. Our team is working on resolving this, please try again shortly.', 'jpn':'一時的なシステムエラーが発生しました。開発チームが迅速に対処しておりますので、しばらくしてから再度アクセスしてください。', 'chs':'系统发生临时故障。我们的团队正在加急修复，请稍后再试。', 'cht':'系統發生臨時故障。我們的團隊正在加急修復，請稍後再試。'}[current_lang] }}
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- 메인으로 복귀 액션 -->
+        <a href="/?lang={{ current_lang }}" 
+           class="w-full py-3.5 bg-primary text-on-primary font-bold text-sm rounded-2xl shadow-md hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-decoration-none">
+            <span class="material-symbols-outlined text-[18px]">home</span>
+            {{ {'kor':'메인 화면으로 이동', 'eng':'Return to Home', 'jpn':'ホームに戻る', 'chs':'返回首页', 'cht':'返回首頁'}[current_lang] }}
+        </a>
+    </div>
+</main>
+{% endblock %}

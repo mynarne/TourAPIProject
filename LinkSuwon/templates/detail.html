@@ -22,25 +22,99 @@
     <script src="{{ url_for('static', filename='js/detail.js') }}"></script>
     <script>
         window.onload = function() {
-            const mapX = parseFloat("{{ item.mapx }}");
-            const mapY = parseFloat("{{ item.mapy }}");
-            const title = "{{ item.title }}";
+            let mapX = parseFloat("{{ item.mapx }}");
+            let mapY = parseFloat("{{ item.mapy }}");
+            let title = "{{ item.title }}";
+            let addr = "{{ item.addr1 }}";
+            let img = "{{ item.firstimage }}";
+            let overview = "{{ item.overview }}";
+
+            // 오프라인 플레이스홀더 감지 시 LocalStorage 백업 데이터 복원
+            const isPlaceholder = "{{ item.is_offline_placeholder or False }}".toLowerCase() === 'true';
+            if (isPlaceholder) {
+                const contentid = "{{ item.contentid }}";
+                console.log(`--- [오프라인 상세 복구 시도] ID: ${contentid} ---`);
+
+                // 1. 즐겨찾기 스토리지에서 탐색
+                const saved = JSON.parse(localStorage.getItem('linksuwon:savedPlaces') || '[]');
+                let matched = saved.find(x => String(x.contentid) === String(contentid));
+
+                // 2. 최근 본 장소에서 탐색 (fallback)
+                if (!matched) {
+                    const recents = JSON.parse(localStorage.getItem('linksuwon:recentPlaces') || '[]');
+                    matched = recents.find(x => String(x.contentid) === String(contentid));
+                }
+
+                if (matched) {
+                    title = matched.title || title;
+                    addr = matched.addr1 || addr;
+                    img = matched.firstimage || img;
+                    overview = matched.overview || (window.RECORD_PAGE_LANG === 'kor' ? '이 명소의 정보가 오프라인에 저장되어 있습니다.' : 'Offline cached details are loaded.');
+                    if (matched.mapx) mapX = parseFloat(matched.mapx);
+                    if (matched.mapy) mapY = parseFloat(matched.mapy);
+
+                    // DOM 동적 복원
+                    const titleEl = document.getElementById('detail-title');
+                    const addrEl = document.getElementById('detail-address');
+                    const heroEl = document.getElementById('detail-hero-img');
+                    const overviewEl = document.getElementById('detail-overview');
+
+                    if (titleEl) titleEl.textContent = title;
+                    if (addrEl) addrEl.textContent = addr;
+                    if (heroEl && img) heroEl.src = img;
+                    if (overviewEl) overviewEl.textContent = overview;
+                    
+                    console.log("--- [오프라인 상세 복구 성공] ---");
+                }
+            } else {
+                // 온라인으로 정상 로드된 경우 최근 본 장소에 추가 (오프라인 캐시화)
+                try {
+                    addRecentPlace({
+                        contentid: "{{ item.contentid }}",
+                        title: title,
+                        firstimage: img,
+                        addr1: addr,
+                        mapx: "{{ item.mapx }}",
+                        mapy: "{{ item.mapy }}"
+                    });
+                    console.log("--- [상세보기] 최근 본 관광지에 추가 완료 ---");
+                } catch(err) {
+                    console.error("최근 본 장소 등록 실패:", err);
+                }
+            }
             
             initDetailMap(mapY, mapX, title);
             checkFavoriteStatus();
+            initTalkSection("{{ item.contentid }}");
+            if (typeof initStampButton === 'function') {
+                initStampButton("{{ item.contentid }}");
+            }
         };
 
         function checkFavoriteStatus() {
             const contentid = "{{ item.contentid }}";
             const favBtn = document.getElementById('detail-fav-btn');
+            const favIcon = document.getElementById('fav-btn-icon');
+            const favLabel = document.getElementById('fav-btn-label');
             if (!favBtn) return;
             
+            const labelSaved = "{{ {'kor':'저장됨', 'eng':'Saved', 'jpn':'保存済', 'chs':'已收藏', 'cht':'已收藏'}[current_lang] }}";
+            const labelSave = "{{ {'kor':'즐겨찾기', 'eng':'Save', 'jpn':'お気に入り', 'chs':'收藏', 'cht':'收藏'}[current_lang] }}";
+
             if (isPlaceSaved(contentid)) {
-                favBtn.innerHTML = `<span class="material-symbols-outlined text-secondary filled-icon">bookmark</span> Saved`;
-                favBtn.classList.add('bg-yellow-100');
+                if (favIcon) {
+                    favIcon.textContent = 'bookmark';
+                    favIcon.classList.add('text-secondary', 'filled-icon');
+                }
+                if (favLabel) favLabel.textContent = labelSaved;
+                favBtn.classList.add('bg-yellow-100/50');
             } else {
-                favBtn.innerHTML = `<span class="material-symbols-outlined">bookmark_add</span> Save`;
-                favBtn.classList.remove('bg-yellow-100');
+                if (favIcon) {
+                    favIcon.textContent = 'bookmark_add';
+                    favIcon.classList.remove('text-secondary', 'filled-icon');
+                }
+                if (favLabel) favLabel.textContent = labelSave;
+                favBtn.classList.remove('bg-yellow-100/50');
             }
         }
 
@@ -94,9 +168,9 @@
 <!-- Hero Image Section -->
 <div class="relative w-full h-[350px] md:h-[400px]">
     {% if item.firstimage %}
-        <img class="absolute inset-0 w-full h-full object-cover" src="{{ item.firstimage }}" alt="{{ item.title }}">
+        <img id="detail-hero-img" class="absolute inset-0 w-full h-full object-cover" src="{{ item.firstimage }}" alt="{{ item.title }}" fetchpriority="high">
     {% else %}
-        <img class="absolute inset-0 w-full h-full object-cover" src="{{ url_for('static', filename='images/default.png') }}" alt="Default Image">
+        <img id="detail-hero-img" class="absolute inset-0 w-full h-full object-cover" src="{{ url_for('static', filename='images/default.png') }}" alt="Default Image" fetchpriority="high">
     {% endif %}
     <!-- Top Gradient -->
     <div class="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-primary/40 to-transparent pointer-events-none"></div>
@@ -116,35 +190,49 @@
             <span class="px-3 py-1 bg-secondary-fixed text-on-secondary-fixed font-bold text-xs rounded-full">Suwon</span>
             <span class="px-3 py-1 bg-surface-container-high text-on-surface-variant font-bold text-xs rounded-full">Tourist Attraction</span>
         </div>
-        <h1 class="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight">
+        <h1 id="detail-title" class="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight">
             {{ item.title }}
         </h1>
         
         <div class="flex flex-col gap-2 mt-2">
             <div class="flex items-start gap-2 text-on-surface-variant text-sm">
                 <span class="material-symbols-outlined text-[20px] text-primary shrink-0 mt-0.5">location_on</span>
-                <span>{{ item.addr1 }}</span>
+                <span id="detail-address">{{ item.addr1 }}</span>
             </div>
         </div>
     </section>
 
     <!-- Action Buttons Grid -->
-    <section class="grid grid-cols-2 gap-3">
+    <section class="grid grid-cols-3 gap-2">
         <!-- Ask AI (Primary) -->
-        <a href="/chat?lang={{ current_lang }}&spot={{ item.title | urlencode }}" class="col-span-2 min-h-[48px] bg-primary text-on-primary font-bold text-sm rounded-2xl flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all text-decoration-none">
+        <a href="/chat?lang={{ current_lang }}&spot={{ item.title | urlencode }}" class="col-span-3 min-h-[48px] bg-primary text-on-primary font-bold text-sm rounded-2xl flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all text-decoration-none">
             <span class="material-symbols-outlined">smart_toy</span>
             {{ _('btn_ask_ai') }}
         </a>
-        <!-- Naver Map (Secondary) -->
-        <button onclick="startDetailNavigation()" class="min-h-[48px] bg-transparent border-[1.5px] border-primary text-primary font-bold text-sm rounded-2xl flex items-center justify-center gap-2 active:bg-primary/5 transition-colors">
-            <span class="material-symbols-outlined">map</span>
-            {{ _('btn_transit') }}
+        <!-- Naver Map Navigation (Secondary) -->
+        <button onclick="startDetailNavigation()" class="min-h-[46px] bg-transparent border-[1.5px] border-primary text-primary font-bold text-xs rounded-2xl flex flex-col items-center justify-center gap-0.5 active:bg-primary/5 transition-colors p-1 text-center border-0">
+            <span class="material-symbols-outlined text-[18px]">directions_run</span>
+            <span class="scale-90 origin-center truncate w-full">{{ {'kor':'길찾기', 'eng':'Navi', 'jpn':'道案内', 'chs':'路线', 'cht':'路線'}[current_lang] }}</span>
+        </button>
+        <!-- Nearby Transit (Secondary) -->
+        <button onclick="showNearbyTransit()" class="min-h-[46px] bg-transparent border-[1.5px] border-primary text-primary font-bold text-xs rounded-2xl flex flex-col items-center justify-center gap-0.5 active:bg-primary/5 transition-colors p-1 text-center border-0">
+            <span class="material-symbols-outlined text-[18px]">directions_bus</span>
+            <span class="scale-90 origin-center truncate w-full">{{ {'kor':'대중교통', 'eng':'Transit', 'jpn':'公共交通', 'chs':'公交/地铁', 'cht':'公車/地鐵'}[current_lang] }}</span>
         </button>
         <!-- Save to List (Secondary) -->
-        <button id="detail-fav-btn" onclick="toggleDetailFavorite()" class="min-h-[48px] bg-transparent border-[1.5px] border-primary text-primary font-bold text-sm rounded-2xl flex items-center justify-center gap-2 active:bg-primary/5 transition-colors">
-            <span class="material-symbols-outlined">bookmark_add</span>
-            Save
+        <button id="detail-fav-btn" onclick="toggleDetailFavorite()" class="min-h-[46px] bg-transparent border-[1.5px] border-primary text-primary font-bold text-xs rounded-2xl flex flex-col items-center justify-center gap-0.5 active:bg-primary/5 transition-colors p-1 text-center border-0">
+            <span class="material-symbols-outlined text-[18px]" id="fav-btn-icon">bookmark_add</span>
+            <span class="scale-90 origin-center truncate w-full" id="fav-btn-label">{{ {'kor':'즐겨찾기', 'eng':'Save', 'jpn':'お気に入り', 'chs':'收藏', 'cht':'收藏'}[current_lang] }}</span>
         </button>
+        <!-- 스탬프 투어 획득 영역 (8대 명소 전용) -->
+        <div id="detail-stamp-container" class="hidden col-span-2 mt-2">
+            <button id="detail-stamp-btn" onclick="tryStampInDetail()"
+                    class="w-full min-h-[48px] bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md border-0">
+                <span class="material-symbols-outlined text-lg" id="stamp-btn-icon">workspace_premium</span>
+                <span id="stamp-btn-text">{{ {'kor':'📍 스탬프 투어 인증하기', 'eng':'📍 Verify Stamp Tour', 'jpn':'📍 スタンプ認証', 'chs':'📍 盖章认证', 'cht':'📍 蓋章認證'}[current_lang] }}</span>
+            </button>
+        </div>
+
         <!-- Add Travel Record -->
         <button onclick="toggleLogForm()" class="col-span-2 min-h-[44px] text-secondary font-bold text-sm flex items-center justify-center gap-2 mt-2 active:opacity-70 transition-opacity border-0 bg-transparent">
             <span class="material-symbols-outlined">edit_calendar</span>
@@ -164,10 +252,26 @@
     </section>
 
     <!-- Description Card -->
-    <section class="bg-surface-container-lowest rounded-2xl p-5 shadow-sm border border-outline-variant/30 relative overflow-hidden">
+    <section class="bg-surface-container-lowest rounded-2xl p-5 shadow-sm border border-outline-variant/30 relative overflow-hidden flex flex-col gap-3">
         <div class="absolute inset-x-0 top-0 h-[1px] bg-outline-variant/20"></div>
-        <h2 class="font-headline text-lg font-bold text-on-surface mb-3">About</h2>
-        <p class="font-body text-sm text-on-surface-variant leading-relaxed text-break-custom">
+        <div class="flex justify-between items-center">
+            <h2 class="font-headline text-lg font-bold text-on-surface">About</h2>
+            
+            <!-- TTS 오디오 가이드 재생 컨트롤러 -->
+            <div class="flex items-center gap-2">
+                <select id="tts-speed" class="bg-surface-container border border-outline-variant/30 rounded-lg px-2 py-1 text-[11px] font-bold outline-none text-on-surface">
+                    <option value="1.0">1.0x</option>
+                    <option value="1.2" selected>1.2x</option>
+                    <option value="1.5">1.5x</option>
+                </select>
+                <button id="tts-toggle-btn" onclick="toggleTTS()" 
+                        class="h-8 px-3 rounded-xl bg-primary text-on-primary font-bold text-xs flex items-center justify-center gap-1.5 border-0 hover:opacity-90 active:scale-95 transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-[15px]" id="tts-icon">play_arrow</span>
+                    <span id="tts-text">Listen</span>
+                </button>
+            </div>
+        </div>
+        <p id="detail-overview" class="font-body text-sm text-on-surface-variant leading-relaxed text-break-custom">
             {{ item.overview|safe }}
         </p>
     </section>
@@ -180,6 +284,62 @@
         </div>
         <!-- Map Container -->
         <div id="detail-map" class="w-full h-44 rounded-xl overflow-hidden bg-surface-variant relative border border-outline-variant/20"></div>
+    </section>
+
+    <!-- 실시간 수다방 섹션 (Live Tour Talk) -->
+    <section class="bg-surface-container-lowest rounded-2xl p-5 shadow-sm border border-outline-variant/30 flex flex-col gap-4 relative">
+        <div class="absolute inset-x-0 top-0 h-[1px] bg-outline-variant/20"></div>
+        <div class="flex justify-between items-center">
+            <h2 class="font-headline text-lg font-bold text-on-surface">💬 실시간 한줄 톡 (Live Talk)</h2>
+        </div>
+        
+        <!-- 실시간 한줄 톡 작성 폼 -->
+        <div class="flex flex-col gap-3 bg-surface-container rounded-2xl p-4 border border-outline-variant/10">
+            <!-- 닉네임 입력 및 혼잡도 선택 -->
+            <div class="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <span class="text-xs font-bold text-primary shrink-0">ID</span>
+                    <input type="text" id="talk-nickname" 
+                           class="bg-background border border-outline-variant/30 rounded-xl px-3 py-1.5 text-xs outline-none w-full sm:w-36 font-semibold" 
+                           placeholder="닉네임" maxlength="20">
+                </div>
+                
+                <!-- 혼잡도 선택 버튼 -->
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="text-xs font-bold text-primary shrink-0 mr-1">혼잡도</span>
+                    <label class="flex items-center gap-1 cursor-pointer select-none">
+                        <input type="radio" name="talk-congestion" value="smooth" class="sr-only peer">
+                        <span class="text-[11px] px-2.5 py-1 rounded-full bg-background border border-outline-variant/30 peer-checked:bg-green-500/10 peer-checked:border-green-500 peer-checked:text-green-600 dark:peer-checked:text-green-400 font-bold transition-all">🟢 원활</span>
+                    </label>
+                    <label class="flex items-center gap-1 cursor-pointer select-none">
+                        <input type="radio" name="talk-congestion" value="normal" class="sr-only peer" checked>
+                        <span class="text-[11px] px-2.5 py-1 rounded-full bg-background border border-outline-variant/30 peer-checked:bg-yellow-500/10 peer-checked:border-yellow-500 peer-checked:text-yellow-600 dark:peer-checked:text-yellow-400 font-bold transition-all">🟡 보통</span>
+                    </label>
+                    <label class="flex items-center gap-1 cursor-pointer select-none">
+                        <input type="radio" name="talk-congestion" value="crowded" class="sr-only peer">
+                        <span class="text-[11px] px-2.5 py-1 rounded-full bg-background border border-outline-variant/30 peer-checked:bg-red-500/10 peer-checked:border-red-500 peer-checked:text-red-600 dark:peer-checked:text-red-400 font-bold transition-all">🔴 혼잡</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- 한줄 메시지 입력창 -->
+            <div class="flex gap-2">
+                <input type="text" id="talk-message" 
+                       class="flex-1 bg-background border border-outline-variant/30 rounded-xl px-4 py-2.5 text-xs outline-none" 
+                       placeholder="지금 명소 상황이나 한마디를 나누어보세요. (100자 이내)" maxlength="100"
+                       onkeydown="if(event.key === 'Enter') submitTalk('{{ item.contentid }}')">
+                <button onclick="submitTalk('{{ item.contentid }}')" 
+                        class="bg-primary text-on-primary font-bold text-xs px-4 rounded-xl border-0 active:scale-95 transition-all">
+                    등록
+                </button>
+            </div>
+        </div>
+        
+        <!-- 한줄 톡 목록 영역 -->
+        <div id="talk-list-container" class="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-1">
+            <!-- JS 동적 렌더링 -->
+            <div class="py-4 text-center text-xs text-outline italic">불러오는 중...</div>
+        </div>
     </section>
 
 </main>

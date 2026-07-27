@@ -6,21 +6,68 @@
 
 {% block extra_css %}
 <style>
-    .shadow-ambient-md {
-        box-shadow: 0 4px 12px rgba(18, 48, 74, 0.06);
+    /* ── 타임라인 수직선 ── */
+    .timeline-track {
+        position: relative;
     }
-    .card-inner-stroke {
-        box-shadow: inset 0 0 0 1px #E5E7EB;
-    }
-    .timeline-line::before {
+    .timeline-track::before {
         content: '';
         position: absolute;
-        top: 0;
-        bottom: 0;
+        top: 20px;
+        bottom: 20px;
         left: 19px;
         width: 2px;
-        background: linear-gradient(to bottom, transparent, rgba(195, 199, 206, 0.4) 15%, rgba(195, 199, 206, 0.4) 85%, transparent);
+        background: linear-gradient(to bottom,
+            transparent,
+            var(--color-outline-variant) 10%,
+            var(--color-outline-variant) 90%,
+            transparent
+        );
+        z-index: 0;
     }
+
+    /* ── 카드 호버 ── */
+    .record-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .record-card:hover {
+        transform: translateX(4px);
+        box-shadow: 0 8px 24px rgba(18,48,74,0.1);
+    }
+
+    /* ── 배경 이미지 페이드인 ── */
+    .record-thumb {
+        background-size: cover;
+        background-position: center;
+        transition: opacity 0.4s ease;
+    }
+
+    /* ── 빈 상태 일러스트 ── */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-8px); }
+    }
+    .float-icon { animation: float 3s ease-in-out infinite; }
+
+    /* ── 통계 카드 ── */
+    .stat-pill {
+        background: var(--color-surface-container);
+        border: 1px solid var(--color-outline-variant);
+    }
+
+    /* ── 카테고리 뱃지 색상 ── */
+    .cat-heritage { background:#FDF2EB; color:#8d4e26; }
+    .cat-museum   { background:#EBF2FD; color:#1a4fa0; }
+    .cat-festival { background:#FDF0FF; color:#7a1fa0; }
+    .cat-food     { background:#FFFBEB; color:#92400e; }
+    .cat-nature   { background:#F0FDF4; color:#14532d; }
+    .cat-leisure  { background:#ECFDF5; color:#065f46; }
+    .cat-market   { background:#FFF1F2; color:#9f1239; }
+    .cat-stay     { background:#FFF7ED; color:#92400e; }
+    .cat-course   { background:#F0FDF4; color:#166534; }
+
+    /* ── PDF 내보내기 시 스타일 보정 ── */
+    .exporting * { -webkit-print-color-adjust: exact !important; }
 </style>
 {% endblock %}
 
@@ -31,51 +78,108 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-6 max-w-[700px] mx-auto pb-24 md:pb-12">
-    
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="{{ url_for('main.index', lang=current_lang) }}" class="text-decoration-none text-secondary fw-bold" style="font-size: 1.1rem;">
-            ← {{ _('btn_back') }}
+<main class="max-w-[700px] mx-auto w-full pt-20 px-4 pb-28 md:pb-14">
+
+    <!-- 상단 헤더 -->
+    <div class="flex justify-between items-center mb-6">
+        <a href="{{ url_for('main.index', lang=current_lang) }}"
+           class="text-decoration-none text-secondary font-bold flex items-center gap-1 text-sm">
+            <span class="material-symbols-outlined text-[18px]">arrow_back_ios</span>
+            {{ _('btn_back') }}
         </a>
-        <span id="user-uuid-display" class="badge bg-light text-secondary border px-3 py-2" style="border-radius: 20px;">ID: Loading...</span>
+        <span id="user-uuid-display"
+              class="text-[10px] text-on-surface-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant/30">
+            ID: ...
+        </span>
     </div>
 
-    <!-- 이미지/PDF 캡처 영역 -->
-    <div id="log-export-area" class="bg-white rounded-[24px] shadow-ambient-md card-inner-stroke p-6 mb-6">
-        <div class="flex justify-between items-end mb-6 border-b border-outline-variant/10 pb-4">
-            <div>
-                <h1 class="font-headline text-2xl font-extrabold text-primary mb-1">{{ _('timeline_title') }}</h1>
-                <p class="text-xs text-outline">EveryTripLog ✕ LinkSuwon</p>
-            </div>
+    <!-- 페이지 타이틀 -->
+    <div class="mb-6">
+        <h1 class="font-headline text-2xl font-extrabold text-primary mb-1">
+            ✈️ {{ _('timeline_title') }}
+        </h1>
+        <p class="text-sm text-on-surface-variant">
+            {% if current_lang == 'kor' %}수원에서 남긴 나만의 여행 발자취{% elif current_lang == 'eng' %}Your personal travel footprints in Suwon{% elif current_lang == 'jpn' %}水原に残した私だけの旅の足跡{% elif current_lang == 'chs' %}留在水原的我的旅行足迹{% else %}留在水原的我的旅行足跡{% endif %}
+        </p>
+    </div>
+
+    <!-- 통계 요약 바 -->
+    <div id="stats-bar" class="grid grid-cols-3 gap-3 mb-6 hidden">
+        <div class="stat-pill rounded-2xl p-3 text-center">
+            <p class="text-xl font-extrabold text-primary" id="stat-count">0</p>
+            <p class="text-[10px] text-on-surface-variant mt-0.5">
+                {% if current_lang == 'kor' %}방문 장소{% elif current_lang == 'eng' %}Places{% elif current_lang == 'jpn' %}訪問地{% elif current_lang == 'chs' %}景点{% else %}景點{% endif %}
+            </p>
+        </div>
+        <div class="stat-pill rounded-2xl p-3 text-center">
+            <p class="text-xl font-extrabold text-primary" id="stat-days">0</p>
+            <p class="text-[10px] text-on-surface-variant mt-0.5">
+                {% if current_lang == 'kor' %}방문 일수{% elif current_lang == 'eng' %}Days{% elif current_lang == 'jpn' %}日数{% elif current_lang == 'chs' %}天数{% else %}天數{% endif %}
+            </p>
+        </div>
+        <div class="stat-pill rounded-2xl p-3 text-center">
+            <p class="text-xl font-extrabold text-primary" id="stat-memo">0</p>
+            <p class="text-[10px] text-on-surface-variant mt-0.5">
+                {% if current_lang == 'kor' %}메모{% elif current_lang == 'eng' %}Memos{% elif current_lang == 'jpn' %}メモ{% elif current_lang == 'chs' %}备注{% else %}備註{% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- 캡처 영역 -->
+    <div id="log-export-area">
+
+        <!-- 타임라인 컨테이너 -->
+        <div id="timeline-container" class="timeline-track space-y-5">
+            <!-- JS 동적 렌더링 -->
         </div>
 
-        <!-- 동적 타임라인이 그려질 구역 (수직선 타임라인 스타일) -->
-        <div id="timeline-container" class="space-y-6 relative timeline-line">
-            <!-- JS에서 동적으로 바인딩됩니다. -->
-        </div>
-
-        <!-- 전체 총평/한줄 평 남기기 (선택형 보존) -->
-        <div class="review-section mt-8 pt-4 border-t border-outline-variant/20" id="overall-review-section">
+        <!-- 총평 입력 (기록 있을 때만 노출) -->
+        <div id="overall-review-section" class="hidden mt-8 pt-6 border-t border-outline-variant/20">
             <label class="block text-sm font-bold text-primary mb-2">
-                ✍️ {% if current_lang == 'kor' %}이번 수원 여행의 한 줄 총평
-                {% elif current_lang == 'eng' %}Overall Trip Review
-                {% elif current_lang == 'jpn' %}今回の水原旅行の感想
-                {% else %}这次水原之行的总评{% endif %}
+                ✍️ {% if current_lang == 'kor' %}이번 수원 여행 한 줄 총평{% elif current_lang == 'eng' %}Overall Trip Review{% elif current_lang == 'jpn' %}今回の旅行の一言感想{% elif current_lang == 'chs' %}本次旅行总评{% else %}本次旅行總評{% endif %}
             </label>
-            <textarea id="travel-review-input" class="w-full bg-background border border-outline-variant/30 rounded-xl p-3 text-sm outline-none resize-none" rows="2" 
+            <textarea id="travel-review-input"
+                      rows="2"
+                      class="w-full bg-surface-container border border-outline-variant/30 rounded-xl p-3 text-sm outline-none resize-none"
                       placeholder="{{ _('placeholder_review') }}"></textarea>
         </div>
+
+    </div><!-- /log-export-area -->
+
+    <!-- 내보내기 버튼 (기록 있을 때만 노출) -->
+    <div id="export-actions" class="hidden grid grid-cols-2 gap-3 mt-6">
+        <button onclick="shareTripCourse()"
+                class="col-span-2 py-3.5 rounded-xl bg-secondary text-white font-bold text-sm flex items-center justify-center gap-1.5 border-0 hover:opacity-90 active:scale-[0.99] transition-all shadow-md">
+            <span class="material-symbols-outlined text-[18px]">share</span>
+            {% if current_lang == 'kor' %}코스 공유 링크 생성{% else %}Share Trip Course{% endif %}
+        </button>
+        <button onclick="exportLogAsImage()"
+                class="py-3.5 rounded-xl border-[1.5px] border-primary text-primary font-bold text-sm flex items-center justify-center gap-1.5 hover:bg-surface-container transition-colors bg-transparent">
+            <span class="material-symbols-outlined text-[18px]">image</span>
+            {{ _('btn_save_img') }}
+        </button>
+        <button onclick="exportLogAsPDF()"
+                class="py-3.5 rounded-xl bg-primary text-on-primary font-bold text-sm flex items-center justify-center gap-1.5 border-0 hover:opacity-90 transition-opacity">
+            <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+            {{ _('btn_export_pdf') }}
+        </button>
     </div>
 
-    <!-- 액션 버튼 -->
-    <div class="grid grid-cols-2 gap-3 mb-6">
-        <button onclick="exportLogAsImage()" class="py-3.5 bg-transparent border-[1.5px] border-primary text-primary font-bold text-sm rounded-xl transition-colors flex items-center justify-center gap-1">
-            <span class="material-symbols-outlined text-[18px]">image</span> {{ _('btn_save_img') }}
-        </button>
-        <button onclick="exportLogAsPDF()" class="py-3.5 bg-primary text-on-primary font-bold text-sm rounded-xl transition-colors flex items-center justify-center gap-1 border-0">
-            <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span> {{ _('btn_export_pdf') }}
+    <!-- 전체 삭제 버튼 (기록 있을 때만 노출) -->
+    <div id="clear-action" class="hidden mt-3">
+        <button onclick="clearAllRecords()"
+                class="w-full py-3 rounded-xl border border-red-200 text-red-500 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-red-50 transition-colors bg-transparent">
+            <span class="material-symbols-outlined text-[16px]">delete_sweep</span>
+            {% if current_lang == 'kor' %}전체 기록 삭제{% elif current_lang == 'eng' %}Clear All Records{% elif current_lang == 'jpn' %}全記録を削除{% elif current_lang == 'chs' %}清除所有记录{% else %}清除所有記錄{% endif %}
         </button>
     </div>
 
-</div>
+</main>
+
+<!-- ====================================================
+     다국어 메타데이터 주입 (JS에서 읽어 사용)
+     ==================================================== -->
+<script>
+    window.RECORD_PAGE_LANG = "{{ current_lang }}";
+</script>
 {% endblock %}

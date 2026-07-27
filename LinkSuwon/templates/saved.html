@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ _('brand_title') }} - {% if current_lang == 'kor' %}즐겨찾기{% elif current_lang == 'eng' %}Saved Places{% elif current_lang == 'jpn' %}お気に入り{% elif current_lang == 'chs' %}收藏景点{% else %}收藏景點{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── 카드 호버 ── */
+    .saved-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .saved-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(18, 48, 74, 0.12);
+    }
+
+    /* ── 썸네일 줌 ── */
+    .saved-card:hover .thumb-img {
+        transform: scale(1.05);
+    }
+    .thumb-img {
+        transition: transform 0.5s ease;
+    }
+
+    /* ── 삭제 확인 ── */
+    .removing {
+        opacity: 0;
+        transform: scale(0.95);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    /* ── 빈 상태 ── */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-10px); }
+    }
+    .float-icon { animation: float 3.5s ease-in-out infinite; }
+
+    /* ── 카테고리 뱃지 ── */
+    .cat-heritage { background:#FDF2EB; color:#8d4e26; }
+    .cat-museum   { background:#EBF2FD; color:#1a4fa0; }
+    .cat-festival { background:#FDF0FF; color:#7a1fa0; }
+    .cat-food     { background:#FFFBEB; color:#92400e; }
+    .cat-nature   { background:#F0FDF4; color:#14532d; }
+    .cat-leisure  { background:#ECFDF5; color:#065f46; }
+    .cat-market   { background:#FFF1F2; color:#9f1239; }
+    .cat-stay     { background:#FFF7ED; color:#92400e; }
+</style>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/saved.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<main class="max-w-[700px] mx-auto w-full pt-20 px-4 pb-28 md:pb-14">
+
+    <!-- 헤더 -->
+    <div class="flex justify-between items-center mb-6">
+        <a href="{{ url_for('main.index', lang=current_lang) }}"
+           class="text-decoration-none text-secondary font-bold flex items-center gap-1 text-sm">
+            <span class="material-symbols-outlined text-[18px]">arrow_back_ios</span>
+            {{ _('btn_back') }}
+        </a>
+        <span id="saved-count-badge"
+              class="text-[10px] text-on-surface-variant bg-surface-container px-3 py-1 rounded-full border border-outline-variant/30">
+            0 {% if current_lang == 'kor' %}곳{% elif current_lang == 'eng' %}places{% elif current_lang == 'jpn' %}件{% elif current_lang == 'chs' %}个景点{% else %}個景點{% endif %}
+        </span>
+    </div>
+
+    <!-- 타이틀 -->
+    <div class="mb-6">
+        <h1 class="font-headline text-2xl font-extrabold text-primary mb-1">
+            ⭐ {% if current_lang == 'kor' %}나의 즐겨찾기{% elif current_lang == 'eng' %}My Saved Places{% elif current_lang == 'jpn' %}お気に入りスポット{% elif current_lang == 'chs' %}我的收藏景点{% else %}我的收藏景點{% endif %}
+        </h1>
+        <p class="text-sm text-on-surface-variant">
+            {% if current_lang == 'kor' %}다시 가고 싶은 수원의 명소를 모아뒀어요{% elif current_lang == 'eng' %}Spots in Suwon you want to revisit{% elif current_lang == 'jpn' %}また行きたい水原のスポット{% elif current_lang == 'chs' %}收藏您想再次游览的水原景点{% else %}收藏您想再次遊覽的水原景點{% endif %}
+        </p>
+    </div>
+
+    <!-- 검색 + 정렬 -->
+    <div class="flex gap-2 mb-5">
+        <div class="flex-1 flex items-center bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-3 gap-2 focus-within:border-secondary focus-within:ring-1 focus-within:ring-secondary transition-all">
+            <span class="material-symbols-outlined text-outline text-[18px]">search</span>
+            <input id="saved-search"
+                   type="text"
+                   class="flex-1 bg-transparent border-0 outline-none py-2.5 text-sm text-on-surface placeholder:text-outline"
+                   placeholder="{% if current_lang == 'kor' %}저장된 장소 검색...{% elif current_lang == 'eng' %}Search saved places...{% elif current_lang == 'jpn' %}保存した場所を検索...{% elif current_lang == 'chs' %}搜索收藏景点...{% else %}搜尋收藏景點...{% endif %}"
+                   oninput="filterSaved()">
+        </div>
+        <button onclick="clearAllSaved()"
+                id="clear-all-btn"
+                class="hidden px-4 py-2.5 rounded-xl border border-red-200 text-red-500 text-xs font-bold hover:bg-red-50 transition-colors bg-transparent flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">delete_sweep</span>
+            {% if current_lang == 'kor' %}전체 삭제{% elif current_lang == 'eng' %}Clear All{% elif current_lang == 'jpn' %}全削除{% elif current_lang == 'chs' %}全部删除{% else %}全部刪除{% endif %}
+        </button>
+    </div>
+
+    <!-- 카드 그리드 -->
+    <div id="saved-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- JS 동적 렌더링 -->
+    </div>
+
+</main>
+
+<!-- 다국어 메타 -->
+<script>
+    window.SAVED_PAGE_LANG = "{{ current_lang }}";
+    window.SAVED_PAGE_SPOT_URL = "{{ url_for('spot.spot_home', lang=current_lang) }}";
+</script>
+{% endblock %}

@@ -15,18 +15,18 @@
         <span class="text-[10px] leading-[12px] font-semibold tracking-wide">{{ _('menu_attractions') }}</span>
     </a>
 
-    <!-- Map (Quick Link to Spot with Map tab) -->
-    <a class="flex flex-col items-center justify-center {% if request.path == '/spot/' and request.args.get('tab') == 'map' %}text-secondary font-bold{% else %}text-on-surface-variant{% endif %} hover:bg-surface-variant/50 w-16 h-14 rounded-xl transition-all duration-200 text-decoration-none" 
-       href="{{ url_for('spot.spot_home', lang=current_lang) }}?tab=map">
-        <span class="material-symbols-outlined mb-0.5 {% if request.path == '/spot/' and request.args.get('tab') == 'map' %}filled-icon{% endif %}">map</span>
-        <span class="text-[10px] leading-[12px] font-semibold tracking-wide">{{ _('menu_map') }}</span>
+    <!-- Saved (Favorites) -->
+    <a class="flex flex-col items-center justify-center {% if request.path == '/saved' %}text-secondary font-bold{% else %}text-on-surface-variant{% endif %} hover:bg-surface-variant/50 w-16 h-14 rounded-xl transition-all duration-200 text-decoration-none" 
+       href="{{ url_for('main.saved', lang=current_lang) }}">
+        <span class="material-symbols-outlined mb-0.5 {% if request.path == '/saved' %}filled-icon{% endif %}">star</span>
+        <span class="text-[10px] leading-[12px] font-semibold tracking-wide">{{ _('menu_saved') }}</span>
     </a>
 
-    <!-- Courses -->
-    <a class="flex flex-col items-center justify-center {% if request.path == '/courses' %}text-secondary font-bold{% else %}text-on-surface-variant{% endif %} hover:bg-surface-variant/50 w-16 h-14 rounded-xl transition-all duration-200 text-decoration-none" 
-       href="{{ url_for('main.courses', lang=current_lang) }}">
-        <span class="material-symbols-outlined mb-0.5 {% if request.path == '/courses' %}filled-icon{% endif %}">route</span>
-        <span class="text-[10px] leading-[12px] font-semibold tracking-wide">{{ _('menu_courses') }}</span>
+    <!-- Profile (My Page) -->
+    <a class="flex flex-col items-center justify-center {% if request.path == '/profile' %}text-secondary font-bold{% else %}text-on-surface-variant{% endif %} hover:bg-surface-variant/50 w-16 h-14 rounded-xl transition-all duration-200 text-decoration-none" 
+       href="{{ url_for('main.profile', lang=current_lang) }}">
+        <span class="material-symbols-outlined mb-0.5 {% if request.path == '/profile' %}filled-icon{% endif %}">person</span>
+        <span class="text-[10px] leading-[12px] font-semibold tracking-wide">{{ _('menu_profile') }}</span>
     </a>
 
     <!-- Records -->

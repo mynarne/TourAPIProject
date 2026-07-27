@@ -10,7 +10,7 @@ class Config:
     애플리케이션 전역 환경변수 및 설정을 관리합니다.
     """
     # Flask 기본 설정
-    DEBUG = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
+    DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
     PORT = int(os.getenv('PORT', 5001))
     HOST = '0.0.0.0'
 
@@ -18,10 +18,11 @@ class Config:
     TOUR_API_KEY = os.getenv('TOUR_API_KEY')
     NAVER_CLIENT_ID = os.getenv('NAVER_CLIENT_ID')
     GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+    GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 
     # Security & SSL settings
-    # SSL 검증 여부를 환경변수 'SSL_VERIFY'로부터 로드 (기본값 False)
-    SSL_VERIFY = os.getenv('SSL_VERIFY', 'False').lower() == 'true'
+    # SSL 검증 여부를 환경변수 'SSL_VERIFY'로부터 로드 (기본값 True)
+    SSL_VERIFY = os.getenv('SSL_VERIFY', 'True').lower() == 'true'
 
     @classmethod
     def check_configs(cls):

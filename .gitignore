@@ -1,6 +1,29 @@
+# Python
 .venv/
-.env
 __pycache__/
 *.pyc
-.gitignore
+*.pyo
+*.pyd
+
+# 환경 변수
+.env
+.env.*
+
+# macOS 메타데이터 (외장 드라이브 마운트 시 생성되는 파일)
+.DS_Store
+.DS_Store?
 ._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.TemporaryItems
+.AppleDouble
+.AppleDesktop
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log

@@ -21,6 +21,8 @@ I18N_DICTS = {
         'menu_map': '지도 · 길찾기',
         'menu_chatbot': 'AI 여행 비서',
         'menu_records': '나만의 기록',
+        'menu_saved': '즐겨찾기',
+        'menu_profile': '마이페이지',
         'menu_courses': '추천 코스',
         'menu_tips': '여행 팁',
         'btn_back': '뒤로 가기',
@@ -55,7 +57,10 @@ I18N_DICTS = {
         'cat_heritage': '문화유산',
         'cat_museum': '박물관/미술관',
         'cat_market': '전통시장',
-        'cat_nature': '자연/공원'
+        'cat_nature': '자연/공원',
+        'cat_food': '음식점',
+        'cat_festival': '축제/행사',
+        'cat_stay': '숙박시설'
     },
     'eng': {
         'brand_title': 'LinkSuwon',
@@ -64,6 +69,8 @@ I18N_DICTS = {
         'menu_map': 'Map & Directions',
         'menu_chatbot': 'AI Guide',
         'menu_records': 'Travel Logs',
+        'menu_saved': 'Favorites',
+        'menu_profile': 'My Page',
         'menu_courses': 'Recommended Courses',
         'menu_tips': 'Travel Tips',
         'btn_back': 'Back',
@@ -98,7 +105,10 @@ I18N_DICTS = {
         'cat_heritage': 'Heritage',
         'cat_museum': 'Museum',
         'cat_market': 'Market',
-        'cat_nature': 'Nature'
+        'cat_nature': 'Nature',
+        'cat_food': 'Food',
+        'cat_festival': 'Festival',
+        'cat_stay': 'Stay'
     },
     'jpn': {
         'brand_title': 'LinkSuwon',
@@ -107,6 +117,8 @@ I18N_DICTS = {
         'menu_map': '地図・道案内',
         'menu_chatbot': 'AI旅行秘書',
         'menu_records': '旅行記録',
+        'menu_saved': 'お気に入り',
+        'menu_profile': 'マイページ',
         'menu_courses': 'おすすめコース',
         'menu_tips': '旅行のヒント',
         'btn_back': '戻る',
@@ -141,7 +153,10 @@ I18N_DICTS = {
         'cat_heritage': '文化遺産',
         'cat_museum': '博物館',
         'cat_market': '市場',
-        'cat_nature': '自然/公園'
+        'cat_nature': '自然/公園',
+        'cat_food': 'グルメ',
+        'cat_festival': 'フェスティバル',
+        'cat_stay': '宿泊'
     },
     'chs': {
         'brand_title': 'LinkSuwon',
@@ -150,6 +165,8 @@ I18N_DICTS = {
         'menu_map': '地图 · 导航',
         'menu_chatbot': 'AI旅行助理',
         'menu_records': '我的记录',
+        'menu_saved': '我的收藏',
+        'menu_profile': '个人中心',
         'menu_courses': '推荐路线',
         'menu_tips': '旅行贴士',
         'btn_back': '返回',
@@ -184,7 +201,10 @@ I18N_DICTS = {
         'cat_heritage': '文化遗产',
         'cat_museum': '博物馆',
         'cat_market': '传统市场',
-        'cat_nature': '自然景区'
+        'cat_nature': '自然景区',
+        'cat_food': '美食',
+        'cat_festival': '节庆活动',
+        'cat_stay': '酒店住宿'
     },
     'cht': {
         'brand_title': 'LinkSuwon',
@@ -193,6 +213,8 @@ I18N_DICTS = {
         'menu_map': '地圖 · 導航',
         'menu_chatbot': 'AI旅行助理',
         'menu_records': '我的記錄',
+        'menu_saved': '我的收藏',
+        'menu_profile': '個人中心',
         'menu_courses': '推薦路線',
         'menu_tips': '旅行貼士',
         'btn_back': '返回',
@@ -227,7 +249,10 @@ I18N_DICTS = {
         'cat_heritage': '文化遺產',
         'cat_museum': '博物館',
         'cat_market': '傳統市場',
-        'cat_nature': '自然景區'
+        'cat_nature': '自然景區',
+        'cat_food': '美食',
+        'cat_festival': '節慶活動',
+        'cat_stay': '酒店住宿'
     }
 }
 

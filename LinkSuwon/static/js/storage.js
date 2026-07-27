@@ -125,11 +125,14 @@ function addVisitRecord(record) {
     if (!record || !record.title) return false;
     
     const records = getVisitRecords();
+    // 밀리초 단위 동시 다발적 생성 충돌을 방지하기 위해 랜덤 접미사를 붙인 고유 ID 부여
+    const randomSuffix = Math.random().toString(36).substr(2, 5);
     const newRecord = {
-        id: 'log_' + Date.now(), // 고유 ID 부여
+        id: 'log_' + Date.now() + '_' + randomSuffix, // 고유 ID 부여
         contentid: record.contentid || '',
         title: sanitizeInput(record.title),
         visit_date: record.visit_date || new Date().toISOString().split('T')[0],
+        firstimage: record.firstimage || '', // 챗봇 일정 저장 및 명소 상세 페이지를 위해 firstimage 필드 보존!
         memo: sanitizeInput(record.memo || ''),
         lang: record.lang || 'kor',
         created_at: new Date().toISOString()
@@ -144,13 +147,18 @@ function addVisitRecord(record) {
 /**
  * 여행 기록의 메모 수정
  */
-function updateVisitRecord(id, newMemo) {
+function updateVisitRecord(id, newMemo, newCustomImage = null) {
     if (!id) return false;
     const records = getVisitRecords();
     const index = records.findIndex(item => item.id === id);
     
     if (index !== -1) {
-        records[index].memo = sanitizeInput(newMemo);
+        if (newMemo !== undefined && newMemo !== null) {
+            records[index].memo = sanitizeInput(newMemo);
+        }
+        if (newCustomImage !== null) {
+            records[index].custom_image = newCustomImage;
+        }
         localStorage.setItem(KEYS.VISIT_RECORDS, JSON.stringify(records));
         if (window.pushDataSyncSilently) { pushDataSyncSilently(); }
         return true;
@@ -206,12 +214,14 @@ function addRecentPlace(place) {
         contentid: place.contentid,
         title: sanitizeInput(place.title),
         firstimage: place.firstimage || '',
-        addr1: sanitizeInput(place.addr1 || '')
+        addr1: sanitizeInput(place.addr1 || ''),
+        mapx: place.mapx || '',
+        mapy: place.mapy || ''
     });
     
-    // 최대 5개 유지
-    if (recent.length > 5) {
-        recent = recent.slice(0, 5);
+    // 최대 10개 유지 (오프라인 캐싱 범위 확대를 위해 10개로 확장)
+    if (recent.length > 10) {
+        recent = recent.slice(0, 10);
     }
     
     localStorage.setItem(KEYS.RECENT_PLACES, JSON.stringify(recent));

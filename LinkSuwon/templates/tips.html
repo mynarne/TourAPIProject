@@ -229,6 +229,29 @@
             </div>
         </div>
 
+        <!-- Tip 7: Overcharge / Scams Guide -->
+        <div class="bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/20 flex flex-col justify-between tip-grid-card">
+            <div>
+                <div class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-950/20 flex items-center justify-center mb-4 text-red-500">
+                    <span class="material-symbols-outlined text-2xl">gavel</span>
+                </div>
+                <h3 class="font-headline text-lg font-bold text-primary mb-2">
+                    {% if current_lang == 'kor' %}7. 바가지요금 예방 및 신고 안내
+                    {% elif current_lang == 'eng' %}7. Anti-Overcharge &amp; Scam Guide
+                    {% elif current_lang == 'jpn' %}7. ぼったくり料金予防と申告
+                    {% elif current_lang == 'chs' %}7. 谨防宰客及维权申报指南
+                    {% else %}7. 謹防宰客及維權申報指南{% endif %}
+                </h3>
+                <p class="font-body text-sm text-on-surface-variant mb-4 leading-relaxed">
+                    {% if current_lang == 'kor' %}택시 탑승 시 반드시 미터기 작동을 요구하고, 지하상가나 시장에서는 카드 결제를 거부하거나 수수료 명목의 부가세 10%를 강요받을 시 단호히 거절하세요. 부당 청구가 의심되면 즉시 영수증이나 택시 번호를 챙겨 <b>1330(관광불편신고센터)</b> 또는 112로 신고해 대처할 수 있습니다.
+                    {% elif current_lang == 'eng' %}Always insist on using the taxi meter. In underground shopping malls or local markets, reject illegal requests for an additional 10% surcharge for card payments. If you suspect an overcharge, keep the receipt/taxi plate number and report it immediately to the **Tourist Complaint Center (1330)** or Police (112).
+                    {% elif current_lang == 'jpn' %}タクシー乗車時は必ずメーターの使用を求め、地下街や市場でカード決済時に手数料名目で10％の追加料金を請求された場合はきっぱり拒否してください。不当な請求が疑われる場合は、領収書やタクシー番号を控え、<b>観光苦情申告センター（1330）</b>または112番に通報してください。
+                    {% elif current_lang == 'chs' %}乘坐出租车时务必坚持打表收费。在地下商业街或传统市场，坚决拒绝商家因刷卡消费而强行加收10%手续费的非法要求。如果怀疑被宰，请保留小票和车牌号，并立即拨打<b>观光投诉申报中心 (1330)</b>或拨打112报警。
+                    {% else %}乘坐計程車時務必堅持打錶收費。在地下商業街或傳統市場，堅決拒絕商家因刷卡消費而強行加收10%手續費的非法要求。如果懷疑被宰，請保留發票和車牌號碼，並立即撥打<b>觀光投訴申報中心 (1330)</b>或撥打112報警。{% endif %}
+                </p>
+            </div>
+        </div>
+
     </div>
 </main>
 

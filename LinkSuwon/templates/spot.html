@@ -48,12 +48,30 @@
                 <input id="spot-search-input" oninput="filterPlaces()" class="flex-1 bg-transparent border-none focus:ring-0 text-sm text-on-surface placeholder:text-outline py-1.5 outline-none" 
                        placeholder="{{ _('placeholder_search') }}" type="text" value="{{ request.args.get('search', '') }}">
             </div>
+            <!-- ✅ GPS 정렬 제어 바 추가 -->
+            <div class="mt-3 flex justify-between items-center text-xs text-on-surface-variant">
+                <button id="gps-sort-btn" onclick="toggleGpsSort()" 
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-outline-variant/30 bg-surface-container hover:bg-outline-variant/30 font-bold transition-all text-on-surface-variant cursor-pointer">
+                    <span class="material-symbols-outlined text-[15px]">my_location</span>
+                    <span id="gps-btn-text">
+                        {% if current_lang == 'kor' %}내 위치 기준 정렬{% elif current_lang == 'eng' %}Sort by Distance{% elif current_lang == 'jpn' %}距離順に整列{% elif current_lang == 'chs' %}按距离排序{% else %}按距離排序{% endif %}
+                    </span>
+                </button>
+                <span id="gps-status" class="italic text-[10px] text-outline"></span>
+            </div>
         </div>
 
         <!-- Category Filters -->
         <div class="px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar border-b border-outline-variant/10 shrink-0 bg-white">
             <button onclick="filterCategory('all')" id="cat-all" class="cat-btn px-4 py-1.5 bg-primary text-on-primary rounded-full text-xs font-bold whitespace-nowrap shadow-sm ring-1 ring-primary transition-all">
                 {{ _('cat_all') }}
+            </button>
+            <button onclick="filterCategory('exchange')" id="cat-exchange" class="cat-btn px-4 py-1.5 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full text-xs font-bold whitespace-nowrap ring-1 ring-outline-variant/30 transition-all">
+                {% if current_lang == 'kor' %}💵 환전/ATM
+                {% elif current_lang == 'eng' %}💵 Exchange & ATM
+                {% elif current_lang == 'jpn' %}💵 両替/ATM
+                {% elif current_lang == 'chs' %}💵 换钱/ATM
+                {% else %}💵 換錢/ATM{% endif %}
             </button>
             <button onclick="filterCategory('heritage')" id="cat-heritage" class="cat-btn px-4 py-1.5 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full text-xs font-bold whitespace-nowrap ring-1 ring-outline-variant/30 transition-all">
                 {{ _('cat_heritage') }}
@@ -66,6 +84,15 @@
             </button>
             <button onclick="filterCategory('nature')" id="cat-nature" class="cat-btn px-4 py-1.5 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full text-xs font-bold whitespace-nowrap ring-1 ring-outline-variant/30 transition-all">
                 {{ _('cat_nature') }}
+            </button>
+            <button onclick="filterCategory('food')" id="cat-food" class="cat-btn px-4 py-1.5 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full text-xs font-bold whitespace-nowrap ring-1 ring-outline-variant/30 transition-all">
+                {{ _('cat_food') }}
+            </button>
+            <button onclick="filterCategory('festival')" id="cat-festival" class="cat-btn px-4 py-1.5 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full text-xs font-bold whitespace-nowrap ring-1 ring-outline-variant/30 transition-all">
+                {{ _('cat_festival') }}
+            </button>
+            <button onclick="filterCategory('stay')" id="cat-stay" class="cat-btn px-4 py-1.5 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full text-xs font-bold whitespace-nowrap ring-1 ring-outline-variant/30 transition-all">
+                {{ _('cat_stay') }}
             </button>
         </div>
 

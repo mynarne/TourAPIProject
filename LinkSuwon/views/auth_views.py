@@ -135,7 +135,7 @@ def sync_data():
     # 2. 여행 기록(visit_records) 병합
     # ==========================================
     # DB에 이미 존재하는 여행 기록들 조회 (비교용)
-    cursor.execute('SELECT contentid, visit_date, memo, lang FROM visit_records WHERE user_id = ?', (user_id,))
+    cursor.execute('SELECT contentid, visit_date, memo, lang, custom_image, firstimage FROM visit_records WHERE user_id = ?', (user_id,))
     db_record_rows = cursor.fetchall()
     db_records_set = {(r['contentid'], r['visit_date'], r['memo']) for r in db_record_rows}
 
@@ -146,21 +146,36 @@ def sync_data():
         visit_date = rec.get('visit_date')
         memo = rec.get('memo')
         lang = rec.get('lang', 'kor')
+        custom_image = rec.get('custom_image')
+        firstimage = rec.get('firstimage')
 
         if contentid and visit_date:
             # 기준: (contentid, visit_date, memo) 조합이 없으면 신규 삽입
             key = (contentid, visit_date, memo)
             if key not in db_records_set:
                 cursor.execute('''
-                    INSERT INTO visit_records (user_id, contentid, title, visit_date, memo, lang)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                ''', (user_id, contentid, title, visit_date, memo, lang))
+                    INSERT INTO visit_records (user_id, contentid, title, visit_date, firstimage, memo, lang, custom_image)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (user_id, contentid, title, visit_date, firstimage, memo, lang, custom_image))
                 db_records_set.add(key)
+            else:
+                # 이미 동일한 키가 존재하되 클라이언트가 이미지 경로를 추가한 경우, DB 이미지 업데이트
+                if custom_image:
+                    cursor.execute('''
+                        UPDATE visit_records SET custom_image = ?
+                        WHERE user_id = ? AND contentid = ? AND visit_date = ? AND memo = ? AND (custom_image IS NULL OR custom_image = '')
+                    ''', (custom_image, user_id, contentid, visit_date, memo))
 
-    # DB의 최종 여행 기록 목록 조회
-    cursor.execute('SELECT contentid, title, visit_date, memo, lang FROM visit_records WHERE user_id = ?', (user_id,))
+    # DB의 최종 여행 기록 목록 조회 (기본 키인 id 포함)
+    cursor.execute('SELECT id, contentid, title, visit_date, firstimage, memo, lang, custom_image FROM visit_records WHERE user_id = ?', (user_id,))
     db_record_final_rows = cursor.fetchall()
-    merged_records = [dict(row) for row in db_record_final_rows]
+    
+    merged_records = []
+    for row in db_record_final_rows:
+        r_dict = dict(row)
+        # 클라이언트 record.js 및 storage.js 구조와의 호환을 위해 id 값을 'log_PK'로 치환해서 뱉어줌!
+        r_dict['id'] = f"log_{row['id']}"
+        merged_records.append(r_dict)
 
     conn.commit()
     conn.close()
@@ -170,3 +185,32 @@ def sync_data():
         'savedPlaces': merged_saved,
         'visitRecords': merged_records
     })
+
+@bp.route('/delete_account', methods=['POST'])
+def delete_account():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+        
+    db_path = current_app.config['DATABASE_PATH']
+    conn = get_db_connection(db_path)
+    cursor = conn.cursor()
+    
+    try:
+        # SQLite CASCADE 제약조건이 작동하지만 안전을 위해 순차 수동 제거 실행
+        cursor.execute('DELETE FROM saved_places WHERE user_id = ?', (user_id,))
+        cursor.execute('DELETE FROM visit_records WHERE user_id = ?', (user_id,))
+        cursor.execute('DELETE FROM users WHERE id = ?', (user_id,))
+        
+        conn.commit()
+        
+        # 세션 초기화
+        session.clear()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        print(f"❌ [Delete Account Error] {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        conn.close()

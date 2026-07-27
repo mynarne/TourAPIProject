@@ -35,10 +35,15 @@ function renderLoggedInUI(user) {
     const container = document.getElementById('google-login-container');
     if (!container) return;
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentLang = urlParams.get('lang') || 'kor';
+
     container.innerHTML = `
         <div class="flex items-center gap-2.5">
-            <img class="w-8 h-8 rounded-full border border-secondary/20 shadow-sm" src="${user.picture}" alt="${user.name}">
-            <span class="hidden md:inline font-bold text-xs text-on-surface-variant">${user.name}</span>
+            <a href="/profile?lang=${currentLang}" class="flex items-center gap-2 text-decoration-none hover:opacity-85">
+                <img class="w-8 h-8 rounded-full border border-secondary/20 shadow-sm" src="${user.picture}" alt="${user.name}">
+                <span class="hidden md:inline font-bold text-xs text-on-surface-variant">${user.name}</span>
+            </a>
             <button onclick="triggerLogout()" class="px-2.5 py-1.5 rounded-lg border border-outline-variant/40 hover:bg-red-50 hover:text-red-600 transition-colors font-bold text-[10px] bg-transparent">
                 Logout
             </button>
@@ -75,8 +80,8 @@ function renderLoggedOutUI() {
  * Google Identity Services 버튼을 이니셜라이즈합니다.
  */
 function initializeGoogleSignIn() {
-    // 임시 클라이언트 ID (실서비스 배포 시 클라우드 콘솔 발급 ID로 대체)
-    const CLIENT_ID = "109848529329-placeholderclientid12345.apps.googleusercontent.com";
+    // 환경변수로부터 로드된 클라이언트 ID 사용 (없을 시 플레이스홀더 fallback)
+    const CLIENT_ID = window.GOOGLE_CLIENT_ID || "109848529329-placeholderclientid12345.apps.googleusercontent.com";
 
     google.accounts.id.initialize({
         client_id: CLIENT_ID,

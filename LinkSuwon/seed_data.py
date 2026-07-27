@@ -7,7 +7,7 @@ SEED_PLACES = {
             'contentid': '126227',
             'title': '방화수류정 (동북각루)',
             'addr1': '경기도 수원시 팔달구 수원천로392번길 44-6',
-            'firstimage': 'https://images.unsplash.com/photo-1627068593444-245781a74d28?q=80&w=600&auto=format&fit=crop',
+            'firstimage': '/static/images/banghwasuryujeong.jpg',
             'mapx': '127.017778',
             'mapy': '37.287222',
             'overview': '수원화성에서 가장 아름다운 장소로 꼽히며, 절벽 아래 연못인 용연과의 조화가 매우 뛰어납니다. 밤에는 야경 명소로 큰 인기를 끌고 있습니다.',
@@ -17,7 +17,7 @@ SEED_PLACES = {
             'contentid': '126228',
             'title': '화성행궁',
             'addr1': '경기도 수원시 팔달구 행궁로 11',
-            'firstimage': 'https://images.unsplash.com/photo-1547900507-248d98d78f94?q=80&w=600&auto=format&fit=crop',
+            'firstimage': '/static/images/hwaseong_haenggung.jpg',
             'mapx': '127.013611',
             'mapy': '37.282778',
             'overview': '정조대왕이 현륭원에 능행차를 올 때 머물던 임시 궁궐로, 한국 행궁 중 가장 규모가 크고 아름답습니다. 대장금 등 다양한 드라마의 촬영지로도 유명합니다.',
@@ -82,6 +82,36 @@ SEED_PLACES = {
             'mapy': '37.283889',
             'overview': '팔달산 정상에 위치하여 수원 시내와 화성 전체를 한눈에 내려다볼 수 있는 군사 지휘소입니다. 일몰과 야경이 특히 아름다운 장소입니다.',
             'pronunciation': ''
+        },
+        {
+            'contentid': '900001',
+            'title': '머니박스 환전소 수원역점',
+            'addr1': '경기도 수원시 팔달구 매산로 6',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0016',
+            'mapy': '37.2657',
+            'overview': '수원역 인근에 위치한 사설 환전소입니다. 은행보다 높은 환율 우대율을 제공하며, 평일 및 주말/공휴일 늦은 시간까지 운영하여 외국인 관광객이 편리하게 이용할 수 있습니다.',
+            'pronunciation': ''
+        },
+        {
+            'contentid': '900002',
+            'title': '하나은행 수원지점 (수수료 면제 ATM)',
+            'addr1': '경기도 수원시 팔달구 덕영대로 905',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0002',
+            'mapy': '37.2664',
+            'overview': '수원역 8번 출구 앞 하나은행 내부에 위치한 ATM 기기입니다. 외국인 관광객들이 대중적으로 사용하는 트래블로그(TravelLog) 및 트래블월렛(TravelWallet) 카드로 원화를 인출할 시 인출 수수료가 전액 면제됩니다.',
+            'pronunciation': ''
+        },
+        {
+            'contentid': '900003',
+            'title': '세븐일레븐 수원행궁점 (롯데 글로벌 ATM)',
+            'addr1': '경기도 수원시 팔달구 신풍로23번길 4',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0135',
+            'mapy': '37.2831',
+            'overview': '수원화성 행궁 광장 인근 세븐일레븐 편의점 내부에 비치된 롯데 글로벌 ATM입니다. 트래블월렛(TravelWallet) 카드로 한화 현금을 인출할 때 수수료 혜택을 적용받을 수 있어 유용합니다.',
+            'pronunciation': ''
         }
     ],
     'eng': [
@@ -89,7 +119,7 @@ SEED_PLACES = {
             'contentid': '126227',
             'title': 'Banghwasuryujeong (Dongbukgarlu)',
             'addr1': '44-6, Suwoncheon-ro 392beon-gil, Paldal-gu, Suwon-si, Gyeonggi-do',
-            'firstimage': 'https://images.unsplash.com/photo-1627068593444-245781a74d28?q=80&w=600&auto=format&fit=crop',
+            'firstimage': '/static/images/banghwasuryujeong.jpg',
             'mapx': '127.017778',
             'mapy': '37.287222',
             'overview': 'One of the most scenic spots of Hwaseong Fortress. It harmonizes beautifully with Yongyeon Pond below the cliff. A popular night view attraction.',
@@ -99,7 +129,7 @@ SEED_PLACES = {
             'contentid': '126228',
             'title': 'Hwaseong Haenggung Palace',
             'addr1': '11, Haenggung-ro, Paldal-gu, Suwon-si, Gyeonggi-do',
-            'firstimage': 'https://images.unsplash.com/photo-1547900507-248d98d78f94?q=80&w=600&auto=format&fit=crop',
+            'firstimage': '/static/images/hwaseong_haenggung.jpg',
             'mapx': '127.013611',
             'mapy': '37.282778',
             'overview': 'A temporary palace where King Jeongjo stayed during his royal processions. It is the largest and most beautiful haenggung in Korea, and a popular filming site.',
@@ -164,6 +194,36 @@ SEED_PLACES = {
             'mapy': '37.283889',
             'overview': 'Located at the peak of Paldal Mountain, this command post offers a panoramic view of Suwon city and the entire fortress. Highly recommended for sunset views.',
             'pronunciation': 'Pronounce: Seo-jang-dae'
+        },
+        {
+            'contentid': '900001',
+            'title': 'Moneybox Currency Exchange (Suwon Station)',
+            'addr1': '6, Maesan-ro, Paldal-gu, Suwon-si, Gyeonggi-do',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0016',
+            'mapy': '37.2657',
+            'overview': 'A private currency exchange office located near Suwon Station. It offers better exchange rates than traditional banks and operates late into the night, even on weekends and holidays.',
+            'pronunciation': ''
+        },
+        {
+            'contentid': '900002',
+            'title': 'Hana Bank Suwon (Fee-Free ATM)',
+            'addr1': '905, Deogyeong-daero, Paldal-gu, Suwon-si, Gyeonggi-do',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0002',
+            'mapy': '37.2664',
+            'overview': 'Located inside Hana Bank right outside Suwon Station Exit 8. Withdrawal fees are fully waived when pulling KRW cash using TravelLog or TravelWallet cards.',
+            'pronunciation': ''
+        },
+        {
+            'contentid': '900003',
+            'title': 'Seven-Eleven Haenggung (Lotte Global ATM)',
+            'addr1': '4, Sinpung-ro 23beon-gil, Paldal-gu, Suwon-si, Gyeonggi-do',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0135',
+            'mapy': '37.2831',
+            'overview': 'A Lotte Global ATM inside the Seven-Eleven convenience store near Hwaseong Haenggung. It provides fee-free KRW withdrawals for TravelWallet card users.',
+            'pronunciation': ''
         }
     ],
     'jpn': [
@@ -171,7 +231,7 @@ SEED_PLACES = {
             'contentid': '126227',
             'title': '訪華随柳亭 (東北閣楼)',
             'addr1': '京畿道 水原市 八達区 水原川路392番ギル 44-6',
-            'firstimage': 'https://images.unsplash.com/photo-1627068593444-245781a74d28?q=80&w=600&auto=format&fit=crop',
+            'firstimage': '/static/images/banghwasuryujeong.jpg',
             'mapx': '127.017778',
             'mapy': '37.287222',
             'overview': '水原華城で最も美しい場所とされ、崖の下にある池「龍池」との調和が素晴らしいです。夜には美しい夜景スポットとして人気です。',
@@ -181,7 +241,7 @@ SEED_PLACES = {
             'contentid': '126228',
             'title': '華城行宮',
             'addr1': '京畿道 水原市 八達区 行宮路 11',
-            'firstimage': 'https://images.unsplash.com/photo-1547900507-248d98d78f94?q=80&w=600&auto=format&fit=crop',
+            'firstimage': '/static/images/hwaseong_haenggung.jpg',
             'mapx': '127.013611',
             'mapy': '37.282778',
             'overview': '正祖大王が父親の陵墓を参拝する際に滞在した臨時の宮殿で、韓国の行宮の中で最も規模が大きく美しいです。「宮廷女官チャングムの誓い」などのロケ地としても有名です。',
@@ -246,6 +306,36 @@ SEED_PLACES = {
             'mapy': '37.283889',
             'overview': '八達山の山頂に位置し、水原市内と華城全体を一望できる軍事指揮所です。特に夕日と夜景が美しい場所です。',
             'pronunciation': '読み方: ソジャンデ'
+        },
+        {
+            'contentid': '900001',
+            'title': 'マネーボックス両替所 水原駅店',
+            'addr1': '京畿道水原市八達区梅山路6',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0016',
+            'mapy': '37.2657',
+            'overview': '水原駅の近くにある私設両替所です。銀行よりも高い優遇レートを提供しており、平日や週末・祝日の遅い時間まで営業しているため、外国人観光客に便利です。',
+            'pronunciation': ''
+        },
+        {
+            'contentid': '900002',
+            'title': 'ハナ銀行 水原支店 (手数料無料ATM)',
+            'addr1': '京畿道水原市八達区徳栄大路905',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0002',
+            'mapy': '37.2664',
+            'overview': '水原駅8番出口前のハナ銀行内にあるATMです。外国人観光客が広く利用するTravelLogやTravelWalletカードでウォン紙幣を引き出す際、手数料が全額免除されます。',
+            'pronunciation': ''
+        },
+        {
+            'contentid': '900003',
+            'title': 'セブンイレブン 水原行宮店 (ロッテグローバルATM)',
+            'addr1': '京畿道水原市八達区新豊路23番ギル4',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0135',
+            'mapy': '37.2831',
+            'overview': '華城行宮広場近くのセブンイレブン店内にあるロッテグローバルATMです。TravelWalletカードで韓国ウォンを現金を引出す際、手数料優待が適用されます。',
+            'pronunciation': ''
         }
     ],
     'chs': [
@@ -253,7 +343,7 @@ SEED_PLACES = {
             'contentid': '126227',
             'title': '访花随柳亭 (东北角楼)',
             'addr1': '京畿道 水原市 八达区 水原川路392番街 44-6',
-            'firstimage': 'https://images.unsplash.com/photo-1627068593444-245781a74d28?q=80&w=600&auto=format&fit=crop',
+            'firstimage': '/static/images/banghwasuryujeong.jpg',
             'mapx': '127.017778',
             'mapy': '37.287222',
             'overview': '被誉为水原华城中最美丽的景点，与悬崖下名为“龙池”的莲花池融为一体，极为迷人。夜景也是深受游客喜爱的观赏圣地。',
@@ -263,7 +353,7 @@ SEED_PLACES = {
             'contentid': '126228',
             'title': '华城行宫',
             'addr1': '京畿道 水原市 八达区 行宫路 11',
-            'firstimage': 'https://images.unsplash.com/photo-1547900507-248d98d78f94?q=80&w=600&auto=format&fit=crop',
+            'firstimage': '/static/images/hwaseong_haenggung.jpg',
             'mapx': '127.013611',
             'mapy': '37.282778',
             'overview': '正祖大王出行到父王陵墓参拜时居住的临时宫殿，是韩国现存规模最大、最精美的行宫。著名电视剧《大长今》也曾在此取景拍摄。',
@@ -328,6 +418,36 @@ SEED_PLACES = {
             'mapy': '37.283889',
             'overview': '坐落在八达山山顶的军事指挥所。在此可以俯瞰整个水原市中心及水原华城全景，夕阳和夜景极其迷人。',
             'pronunciation': '韩语发音: Seojangdae'
+        },
+        {
+            'contentid': '900001',
+            'title': 'Moneybox 私人换钱所 (水原站店)',
+            'addr1': '京畿道水原市八达区梅山路6',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0016',
+            'mapy': '37.2657',
+            'overview': '位于水原站附近的私人换钱所。提供比传统银行更优惠的汇率，且在周末和节假日也营业至深夜，非常方便外国游客使用。',
+            'pronunciation': ''
+        },
+        {
+            'contentid': '900002',
+            'title': '韩亚银行 水原支行 (免手续费 ATM)',
+            'addr1': '京畿道水原市八达区德荣大路905',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0002',
+            'mapy': '37.2664',
+            'overview': '位于水原站8号出口前的韩亚银行内。使用外国游客常用的 TravelLog 或 TravelWallet 卡提取韩币现金时，免除全部ATM手续费。',
+            'pronunciation': ''
+        },
+        {
+            'contentid': '900003',
+            'title': '7-Eleven 水原行宫店 (乐天全球 ATM)',
+            'addr1': '京畿道水原市八达区新丰路23街4',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0135',
+            'mapy': '37.2831',
+            'overview': '位于华城行宫广场附近的7-Eleven便利店内。使用 TravelWallet 卡提取韩币现金时，可享受免手续费优惠。',
+            'pronunciation': ''
         }
     ],
     'cht': [
@@ -335,7 +455,7 @@ SEED_PLACES = {
             'contentid': '126227',
             'title': '訪花隨柳亭 (東北角樓)',
             'addr1': '京畿道 水原市 八達區 水原川路392番街 44-6',
-            'firstimage': 'https://images.unsplash.com/photo-1627068593444-245781a74d28?q=80&w=600&auto=format&fit=crop',
+            'firstimage': '/static/images/banghwasuryujeong.jpg',
             'mapx': '127.017778',
             'mapy': '37.287222',
             'overview': '被譽為水原華城中最美麗的景點，與懸崖下名為“龍池”的蓮花池融為一體，極為迷人。夜景也是深受遊客喜愛的觀賞聖地。',
@@ -345,7 +465,7 @@ SEED_PLACES = {
             'contentid': '126228',
             'title': '華城行宮',
             'addr1': '京畿道 水原市 八達區 行宮路 11',
-            'firstimage': 'https://images.unsplash.com/photo-1547900507-248d98d78f94?q=80&w=600&auto=format&fit=crop',
+            'firstimage': '/static/images/hwaseong_haenggung.jpg',
             'mapx': '127.013611',
             'mapy': '37.282778',
             'overview': '正祖大王出行到父王陵墓參拜時居住的臨時宮殿，是韓國現存規模最大、最精美的行宮。著名電視劇《大長今》也曾在此取景拍攝。',
@@ -410,6 +530,36 @@ SEED_PLACES = {
             'mapy': '37.283889',
             'overview': '坐落在八達山山頂的軍事指揮所。在此可以俯瞰整個水原市中心及水原華城全景，夕陽和夜景極其迷人。',
             'pronunciation': '韓語發音: Seojangdae'
+        },
+        {
+            'contentid': '900001',
+            'title': 'Moneybox 私人換錢所 (水原站店)',
+            'addr1': '京畿道水原市八達區梅山路6',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0016',
+            'mapy': '37.2657',
+            'overview': '位於水原站附近的私人換錢所。提供比傳統銀行更優惠的匯率，且在週末和節假日也營業至深夜，非常方便外國遊客使用。',
+            'pronunciation': ''
+        },
+        {
+            'contentid': '900002',
+            'title': '韓亞銀行 水原分行 (免手續費 ATM)',
+            'addr1': '京畿道水原市八達區德榮大路905',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0002',
+            'mapy': '37.2664',
+            'overview': '位於水原站8號出口前的韓亞銀行內。使用外國遊客常用的 TravelLog 或 TravelWallet 卡提取韓幣現金時，免除全部ATM手續費。',
+            'pronunciation': ''
+        },
+        {
+            'contentid': '900003',
+            'title': '7-Eleven 水原行宮店 (樂天全球 ATM)',
+            'addr1': '京畿道水原市八達區新豐路23街4',
+            'firstimage': '/static/images/default.png',
+            'mapx': '127.0135',
+            'mapy': '37.2831',
+            'overview': '位於華城行宮廣場附近的7-Eleven便利店內。使用 TravelWallet 卡提取韓幣現金時，可享受免手續費優惠。',
+            'pronunciation': ''
         }
     ]
 }

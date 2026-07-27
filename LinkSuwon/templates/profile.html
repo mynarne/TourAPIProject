@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ _('brand_title') }} - {{ _('menu_profile') }}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .profile-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(18, 48, 74, 0.08);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/profile.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<main class="max-w-[600px] mx-auto w-full pt-20 px-4 pb-28 md:pb-14">
+
+    <!-- 상단 헤더 -->
+    <div class="flex justify-between items-center mb-6">
+        <a href="{{ url_for('main.index', lang=current_lang) }}"
+           class="text-decoration-none text-secondary font-bold flex items-center gap-1 text-sm">
+            <span class="material-symbols-outlined text-[18px]">arrow_back_ios</span>
+            {{ _('btn_back') }}
+        </a>
+    </div>
+
+    <!-- 타이틀 -->
+    <div class="mb-6">
+        <h1 class="font-headline text-2xl font-extrabold text-primary mb-1">
+            👤 {{ _('menu_profile') }}
+        </h1>
+        <p class="text-sm text-on-surface-variant">
+            {% if current_lang == 'kor' %}내 계정 관리 및 데이터 동기화{% elif current_lang == 'eng' %}Manage account and data synchronization{% elif current_lang == 'jpn' %}アカウント管理とデータ同期{% elif current_lang == 'chs' %}管理我的账号与数据同步{% else %}管理我的帳號與數據同步{% endif %}
+        </p>
+    </div>
+
+    <!-- 1. 계정 카드 (로그인 상태에 따라 분기) -->
+    <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-md ring-1 ring-outline-variant/15 mb-6 profile-card">
+        <div id="profile-account-section">
+            <!-- JS 동적 바인딩 -->
+            <div class="flex items-center justify-center py-6">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 여행 요약 통계 (즐겨찾기, 기록) -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <!-- 즐겨찾기 통계 -->
+        <a href="{{ url_for('main.saved', lang=current_lang) }}"
+           class="bg-surface-container-lowest rounded-2xl p-5 shadow-md ring-1 ring-outline-variant/15 text-decoration-none flex flex-col items-center text-center profile-card group">
+            <div class="w-10 h-10 rounded-full bg-[#FFFBEB] text-[#92400e] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-[20px] filled-icon">star</span>
+            </div>
+            <p class="text-2xl font-extrabold text-primary" id="profile-stat-saved">0</p>
+            <p class="text-xs text-on-surface-variant mt-1 font-semibold">
+                {{ _('menu_saved') }}
+            </p>
+        </a>
+        
+        <!-- 여행 기록 통계 -->
+        <a href="{{ url_for('record.record_home', lang=current_lang) }}"
+           class="bg-surface-container-lowest rounded-2xl p-5 shadow-md ring-1 ring-outline-variant/15 text-decoration-none flex flex-col items-center text-center profile-card group">
+            <div class="w-10 h-10 rounded-full bg-[#EBF2FD] text-[#1a4fa0] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-[20px] filled-icon">bookmark</span>
+            </div>
+            <p class="text-2xl font-extrabold text-primary" id="profile-stat-records">0</p>
+            <p class="text-xs text-on-surface-variant mt-1 font-semibold">
+                {{ _('menu_records') }}
+            </p>
+        </a>
+    </div>
+
+    <!-- 3. 데이터 클라우드 동기화 관리 -->
+    <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-md ring-1 ring-outline-variant/15 mb-6 profile-card">
+        <h3 class="font-headline text-base font-bold text-primary mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px]">sync</span>
+            {% if current_lang == 'kor' %}클라우드 동기화{% elif current_lang == 'eng' %}Cloud Synchronization{% elif current_lang == 'jpn' %}クラウド同期{% elif current_lang == 'chs' %}云端数据同步{% else %}雲端數據同步{% endif %}
+        </h3>
+        <p class="text-xs text-on-surface-variant leading-relaxed mb-4">
+            {% if current_lang == 'kor' %}구글 계정으로 로그인하면 기기를 변경해도 즐겨찾기와 여행 기록이 클라우드에 안전하게 보존되며 양방향 동기화됩니다.{% elif current_lang == 'eng' %}Sign in with Google to safely back up and sync your favorites and travel logs across all devices.{% elif current_lang == 'jpn' %}Googleアカウントでログインすると、お気に入りや旅行記録がクラウドに安全にバックアップされ、すべてのデバイスで同期されます。{% elif current_lang == 'chs' %}登录谷歌账号即可将您的收藏与旅行记录安全地备份至云端，并在不同设备间双向同步。{% else %}登入谷歌帳號即可將您的收藏與旅行記錄安全地備份至雲端，並在不同設備間雙向同步。{% endif %}
+        </p>
+        
+        <div class="flex flex-col gap-2">
+            <button onclick="handleManualSync()"
+                    id="manual-sync-btn"
+                    class="w-full py-3 bg-primary text-on-primary font-bold text-xs rounded-xl border-0 flex items-center justify-center gap-1.5 hover:opacity-95 disabled:opacity-50 transition-opacity">
+                <span class="material-symbols-outlined text-[16px]" id="sync-btn-icon">sync</span>
+                <span id="sync-btn-text">
+                    {% if current_lang == 'kor' %}지금 동기화하기{% elif current_lang == 'eng' %}Sync Now{% elif current_lang == 'jpn' %}今すぐ同期{% elif current_lang == 'chs' %}立即同步{% else %}立即同步{% endif %}
+                </span>
+            </button>
+            <p id="sync-status-msg" class="text-[11px] text-center text-outline mt-1 hidden"></p>
+        </div>
+    </div>
+
+    <!-- 4. 고유 디바이스 ID 정보 -->
+    <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-md ring-1 ring-outline-variant/15 mb-6 profile-card">
+        <h3 class="font-headline text-sm font-bold text-primary mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">screenshot_monitor</span>
+            {% if current_lang == 'kor' %}고유 장치 식별 번호 (Device ID){% elif current_lang == 'eng' %}Unique Device ID{% elif current_lang == 'jpn' %}固有デバイスID{% elif current_lang == 'chs' %}唯一设备 ID{% else %}唯一設備 ID{% endif %}
+        </h3>
+        <p class="text-[11px] text-on-surface-variant leading-relaxed mb-4">
+            {% if current_lang == 'kor' %}로그인하지 않고 브라우저에 임시 저장된 데이터를 식별하기 위한 고유 코드입니다.{% elif current_lang == 'eng' %}A unique code used to identify locally cached data in this browser when not signed in.{% elif current_lang == 'jpn' %}ログインしていない状態で、このブラウザにローカル保存されたデータを識別するための固有コードです。{% elif current_lang == 'chs' %}用于在未登录状态下识别当前浏览器本地缓存数据的唯一代码。{% else %}用於在未登入狀態下識別當前瀏覽器本地快取資料的唯一代碼。{% endif %}
+        </p>
+        
+        <div class="flex gap-2 items-center bg-background border border-outline-variant/30 rounded-xl px-3.5 py-3">
+            <code class="flex-1 font-mono text-xs text-on-surface select-all" id="profile-uuid-code">LS-LOADING...</code>
+            <button onclick="copyDeviceID()"
+                    class="p-1 text-primary hover:text-secondary bg-transparent border-0 flex items-center justify-center">
+                <span class="material-symbols-outlined text-[18px]" id="copy-icon">content_copy</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 2.5. 수원화성 탐험 스탬프 투어 도장판 -->
+    <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-md ring-1 ring-outline-variant/15 mb-6 profile-card">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="font-headline text-base font-bold text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined text-[20px] text-amber-500" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                {% if current_lang == 'kor' %}수원화성 탐험 스탬프 투어{% elif current_lang == 'eng' %}Hwaseong Fortress Stamp Tour{% elif current_lang == 'jpn' %}水原華城スタンプラリー{% elif current_lang == 'chs' %}水原华城印章收集之旅{% else %}水原華城印章收集之旅{% endif %}
+            </h3>
+            <span class="text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-950/20 px-2 py-0.5 rounded-full" id="stamp-count-badge">0 / 8</span>
+        </div>
+        <p class="text-[11px] text-on-surface-variant leading-relaxed mb-4">
+            {% if current_lang == 'kor' %}수원화성 8대 명소를 방문하여 스탬프를 모두 모으고 "🏆 수원화성 탐험가" 뱃지를 획득하세요!{% elif current_lang == 'eng' %}Visit 8 iconic Hwaseong landmarks to collect stamps and earn the "🏆 Fortress Explorer" badge!{% elif current_lang == 'jpn' %}水原華城の8大名所を訪問してスタンプを集め、「🏆華城探検家」バッジを獲得しましょう！{% elif current_lang == 'chs' %}游览水原华城8大标志性景点以收集印章，赢取“🏆 华城探险家”荣誉徽章！{% else %}遊覽水原華城8大標誌性景點以收集印章，贏取“🏆 華城冒險家”榮譽徽章！{% endif %}
+        </p>
+
+        <!-- 8칸 도장 그리드 -->
+        <div class="grid grid-cols-4 gap-3 mb-4" id="stamp-grid-container">
+            <!-- JS에서 동적으로 도장 도식 바인딩 -->
+        </div>
+
+        <!-- 획득 뱃지 영역 -->
+        <div id="explorer-badge-card" class="hidden flex items-center gap-3 p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20 animate-bounce [animation-duration:2s]">
+            <span class="text-2xl shrink-0">🏆</span>
+            <div class="flex flex-col">
+                <span class="text-xs font-bold text-amber-800 dark:text-amber-300">
+                    {% if current_lang == 'kor' %}수원화성 탐험가 칭호 획득!{% else %}Fortress Explorer Achieved!{% endif %}
+                </span>
+                <span class="text-[10px] text-amber-700/80 dark:text-amber-400/80 leading-tight">
+                    {% if current_lang == 'kor' %}8대 명소 도장을 모두 완성하여 수원을 완전히 지배했습니다.{% else %}Collected all 8 stamps and achieved the ultimate explorer status.{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4.5. 오프라인 데이터 백업 & 복원 -->
+    <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-md ring-1 ring-outline-variant/15 mb-6 profile-card">
+        <h3 class="font-headline text-base font-bold text-primary mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px] text-primary">save</span>
+            {% if current_lang == 'kor' %}로컬 데이터 백업 및 복원{% elif current_lang == 'eng' %}Local Data Backup &amp; Restore{% elif current_lang == 'jpn' %}ローカルデータのバックアップと復元{% elif current_lang == 'chs' %}本地数据备份与恢复{% else %}本地數據備份與恢復{% endif %}
+        </h3>
+        <p class="text-[11px] text-on-surface-variant leading-relaxed mb-4">
+            {% if current_lang == 'kor' %}로그인하지 않은 상태에서도 현재 브라우저에 저장된 즐겨찾기, 방문 기록 및 스탬프 정보를 파일로 내보내거나 가져와 복원할 수 있습니다.{% elif current_lang == 'eng' %}Export or import your saved places, visit logs, and stamps as a JSON file even when not signed in.{% elif current_lang == 'jpn' %}ログインしていない状態でも、このブラウザに保存されたお気に入り、旅行記録、スタンプラリー情報をファイルに保存したり復元できます。{% elif current_lang == 'chs' %}即使在未登录状态下，您也可以将当前浏览器中保存的收藏、旅行记录及印章数据导出为文件，或导入进行恢复。{% else %}即使在未登入狀態下，您也可以將當前瀏覽器中保存的收藏、旅行記錄及印章數據匯出為檔案，或匯入進行恢復。{% endif %}
+        </p>
+
+        <div class="grid grid-cols-2 gap-2">
+            <!-- 백업 내보내기 -->
+            <button onclick="exportLocalData()" 
+                    class="py-3 bg-secondary text-white font-bold text-xs rounded-xl border-0 flex items-center justify-center gap-1.5 hover:opacity-95 transition-opacity">
+                <span class="material-symbols-outlined text-[16px]">download</span>
+                {% if current_lang == 'kor' %}백업 내보내기{% elif current_lang == 'eng' %}Export Backup{% elif current_lang == 'jpn' %}バックアップの書き出し{% elif current_lang == 'chs' %}导出备份{% else %}匯出備份{% endif %}
+            </button>
+            <!-- 백업 가져오기 -->
+            <button onclick="document.getElementById('import-file-input').click()" 
+                    class="py-3 bg-surface-container-high text-on-surface font-bold text-xs rounded-xl border border-outline-variant/30 flex items-center justify-center gap-1.5 hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined text-[16px]">upload</span>
+                {% if current_lang == 'kor' %}백업 가져오기{% elif current_lang == 'eng' %}Import Backup{% elif current_lang == 'jpn' %}バックアップの読み込み{% elif current_lang == 'chs' %}导入备份{% else %}匯入備份{% endif %}
+            </button>
+            <input type="file" id="import-file-input" class="hidden" accept=".json" onchange="importLocalData(event)">
+        </div>
+    </div>
+
+    <!-- 4.7. 개발자 시뮬레이터 (Dev Simulator) -->
+    <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-md ring-1 ring-amber-100/50 mb-6 profile-card border border-amber-100/20">
+        <h3 class="font-headline text-base font-bold text-amber-600 mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px] text-amber-500">construction</span>
+            {% if current_lang == 'kor' %}데모 및 개발 시뮬레이터{% else %}Demo &amp; Dev Simulator{% endif %}
+        </h3>
+        <p class="text-[11px] text-on-surface-variant leading-relaxed mb-4">
+            {% if current_lang == 'kor' %}GPS 투어를 직접 돌지 않고도 8대 명소 스탬프의 전체 활성화 및 초기화 상태를 테스트해 볼 수 있습니다.{% else %}Directly toggle all 8 stamps on or off to test the ultimate explorer badge popups and UI states.{% endif %}
+        </p>
+
+        <div class="grid grid-cols-2 gap-2">
+            <!-- 8대 스탬프 일괄 획득 -->
+            <button onclick="cheatAllStamps()" 
+                    class="py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl border-0 flex items-center justify-center gap-1.5 active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-[16px]">done_all</span>
+                {% if current_lang == 'kor' %}스탬프 일괄 획득{% else %}Complete All Stamps{% endif %}
+            </button>
+            <!-- 스탬프만 초기화 -->
+            <button onclick="resetStampsOnly()" 
+                    class="py-3 bg-surface-container-high text-on-surface font-bold text-xs rounded-xl border border-outline-variant/30 flex items-center justify-center gap-1.5 hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined text-[16px]">refresh</span>
+                {% if current_lang == 'kor' %}스탬프 초기화{% else %}Reset Stamps Only{% endif %}
+            </button>
+        </div>
+    </div>
+
+    <!-- 5. Danger Zone (초기화 및 계정 탈퇴) -->
+    <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-md ring-1 ring-red-100/50 dark:ring-red-900/20 mb-6 profile-card border border-red-100/30 dark:border-red-950/10">
+        <h3 class="font-headline text-sm font-bold text-red-500 mb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">warning</span>
+            {% if current_lang == 'kor' %}위험 구역 (Danger Zone){% elif current_lang == 'eng' %}Danger Zone{% elif current_lang == 'jpn' %}危険区域{% elif current_lang == 'chs' %}危险区域{% else %}危險區域{% endif %}
+        </h3>
+        <p class="text-[11px] text-on-surface-variant leading-relaxed mb-4">
+            {% if current_lang == 'kor' %}이 기기에 저장된 명소, 여행 기록 및 총평, 그리고 구글 클라우드 동기화 데이터를 영구적으로 파기합니다.{% elif current_lang == 'eng' %}Permanently erase saved places, logs, overall review, and linked cloud backup.{% elif current_lang == 'jpn' %}この端末の保存スポット、旅行記録、およびクラウド同期データを永久に削除します。{% elif current_lang == 'chs' %}永久清除在此设备上缓存的景点、旅行记录及云端同步备份。{% else %}永久清除在此設備上快取的景點、旅行記錄及雲端同步備份。{% endif %}
+        </p>
+        
+        <button onclick="handleDeleteAccount()"
+                class="w-full py-3 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 text-red-500 font-bold text-xs rounded-xl border border-red-200 dark:border-red-900/30 flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+            <span class="material-symbols-outlined text-[16px]">no_accounts</span>
+            {% if current_lang == 'kor' %}계정 탈퇴 및 데이터 파기{% elif current_lang == 'eng' %}Delete Account &amp; Data{% elif current_lang == 'jpn' %}アカウントとデータの削除{% elif current_lang == 'chs' %}注销账号并销毁数据{% else %}註銷帳號並銷毀數據{% endif %}
+        </button>
+    </div>
+
+</main>
+
+<script>
+    window.PROFILE_PAGE_LANG = "{{ current_lang }}";
+</script>
+{% endblock %}

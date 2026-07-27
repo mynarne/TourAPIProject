@@ -2,8 +2,34 @@
 <html lang="{{ 'ko' if current_lang == 'kor' else 'en' if current_lang == 'eng' else 'ja' if current_lang == 'jpn' else 'zh-CN' if current_lang == 'chs' else 'zh-TW' }}">
 <head>
     <meta charset="UTF-8">
+    <script>
+        // FOUC(깜빡임) 방지: HTML 파싱 즉시 테마 속성을 바인딩합니다.
+        (function() {
+            const savedTheme = localStorage.getItem('linksuwon:theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %} LinkSuwon {% endblock %}</title>
+
+    <!-- SEO 및 다국어 OpenGraph 소셜 공유 카드 설정 -->
+    <meta name="description" content="{% if current_lang == 'kor' %}인공지능 추천과 GPS 위치 기반 기술로 수원의 숨은 명소와 여행 일정을 관리하는 프리미엄 스마트 가이드 서비스입니다.{% elif current_lang == 'eng' %}A premium smart guide that maps hidden tourist spots and schedules in Suwon using AI recommendations and GPS.{% elif current_lang == 'jpn' %}AI推薦とGPS位置情報を活用し、水原の隠れた名所や旅行日程をスマートに管理するプレミアム観光ガイド。{% elif current_lang == 'chs' %}结合AI推荐与GPS定位技术，帮您轻松管理水原小众景点与行程的优质智能向导。{% else %}結合AI推薦與GPS定位技術，幫您輕鬆管理水原私房景點與行程的優質智能導覽。{% endif %}">
+    
+    <meta property="og:title" content="LinkSuwon - {% if current_lang == 'kor' %}수원 AI 스마트 가이드{% elif current_lang == 'eng' %}Suwon AI Smart Guide{% elif current_lang == 'jpn' %}水原 AI スマートガイド{% elif current_lang == 'chs' %}水原 AI 智能向导{% else %}水原 AI 智能導覽{% endif %}">
+    <meta property="og:description" content="{% if current_lang == 'kor' %}수원의 8대 랜드마크, 맞춤형 AI 챗봇 추천, 내 위치 기준 거리 정렬과 여행 타임라인을 경험해 보세요!{% elif current_lang == 'eng' %}Discover Suwon's landmarks, get custom AI recommendations, sort by distance, and save your travel logs!{% elif current_lang == 'jpn' %}水原のランドマーク、AIチャットボット推薦、現在地からの距離ソート、旅行のタイムラインを体験しましょう！{% elif current_lang == 'chs' %}探索水原标志性景点，获取AI个性化推荐、距离排序并记录您的精彩行程！{% else %}探索水原指標性景點，獲取AI個人化推薦、距離排序並記錄您的精彩行程！{% endif %}">
+    <meta property="og:image" content="{{ url_for('static', filename='pwa/icons/icon-512.png', _external=True) }}">
+    <meta property="og:type" content="website">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="LinkSuwon">
+    <meta name="twitter:description" content="Suwon AI Smart Guide & Travel Timeline">
 
     <link rel="manifest" href="{{ url_for('static', filename='pwa/manifest.json') }}">
     <meta name="theme-color" content="#001b31">
@@ -20,28 +46,28 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#001b31",
-                        "on-primary": "#ffffff",
-                        "primary-container": "#12304a",
-                        "on-primary-container": "#7d98b7",
-                        "secondary": "#8d4e26",
-                        "on-secondary": "#ffffff",
-                        "secondary-container": "#feab7b",
-                        "on-secondary-container": "#783d17",
-                        "background": "#f7f9ff",
-                        "on-background": "#121d26",
-                        "surface": "#f7f9ff",
-                        "on-surface": "#121d26",
-                        "on-surface-variant": "#43474d",
-                        "outline": "#73777e",
-                        "outline-variant": "#c3c7ce",
-                        "surface-variant": "#d9e3f1",
-                        "surface-container": "#e4effd",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-container-low": "#edf4ff",
-                        "surface-container-high": "#dfe9f7",
-                        "surface-container-highest": "#d9e3f1",
-                        "tertiary": "#1b1a15"
+                        "primary": "var(--color-primary)",
+                        "on-primary": "var(--color-on-primary)",
+                        "primary-container": "var(--color-primary-container)",
+                        "on-primary-container": "var(--color-on-primary-container)",
+                        "secondary": "var(--color-secondary)",
+                        "on-secondary": "var(--color-on-secondary)",
+                        "secondary-container": "var(--color-secondary-container)",
+                        "on-secondary-container": "var(--color-on-secondary-container)",
+                        "background": "var(--color-background)",
+                        "on-background": "var(--color-on-background)",
+                        "surface": "var(--color-surface)",
+                        "on-surface": "var(--color-on-surface)",
+                        "on-surface-variant": "var(--color-on-surface-variant)",
+                        "outline": "var(--color-outline)",
+                        "outline-variant": "var(--color-outline-variant)",
+                        "surface-variant": "var(--color-surface-variant)",
+                        "surface-container": "var(--color-surface-container)",
+                        "surface-container-lowest": "var(--color-surface-container-lowest)",
+                        "surface-container-low": "var(--color-surface-container-low)",
+                        "surface-container-high": "var(--color-surface-container-high)",
+                        "surface-container-highest": "var(--color-surface-container-highest)",
+                        "tertiary": "var(--color-tertiary)"
                     },
                     spacing: {
                         "stack-sm": "8px",
@@ -71,6 +97,9 @@
     
     <!-- LocalStorage 및 공통 스토리지 모듈 로드 -->
     <script src="{{ url_for('static', filename='js/storage.js') }}"></script>
+    <script>
+        window.GOOGLE_CLIENT_ID = "{{ google_client_id or '' }}";
+    </script>
     <script src="{{ url_for('static', filename='js/sync.js') }}" defer></script>
     
     {% block scripts %}{% endblock %}
@@ -92,13 +121,120 @@
     {% include 'includes/bottom_nav.html' %}
     {% include 'includes/footer.html' %}
 
+    <!-- PWA 설치 유도 스마트 배너 (A2HS) -->
+    <div id="pwa-install-banner" class="fixed bottom-20 left-4 right-4 md:left-auto md:right-4 md:w-[350px] bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-4 shadow-xl z-[2000] flex flex-col gap-3 transition-all duration-300 translate-y-[200%] hidden">
+        <div class="flex items-start justify-between">
+            <div class="flex gap-3">
+                <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-sm">
+                    <span class="material-symbols-outlined text-on-primary text-xl" style="font-variation-settings: 'FILL' 1;">explore</span>
+                </div>
+                <div>
+                    <h4 class="font-headline text-xs font-extrabold text-primary mb-0.5">LinkSuwon App</h4>
+                    <p class="text-[10px] text-on-surface-variant leading-tight">
+                        {% if current_lang == 'kor' %}홈 화면에 추가하여 앱으로 편리하게 수원 관광을 즐기세요!{% elif current_lang == 'eng' %}Add to Home Screen to explore Suwon as an app!{% elif current_lang == 'jpn' %}ホーム画面に追加してアプリとして快適に水原を探索しましょう！{% elif current_lang == 'chs' %}添加到主屏幕，像使用应用一样便捷探索水原！{% else %}新增至主畫面，像使用應用程式一樣便捷探索水原！{% endif %}
+                    </p>
+                </div>
+            </div>
+            <button onclick="dismissPwaBanner()" class="text-outline hover:text-primary bg-transparent border-0 flex items-center justify-center cursor-pointer">
+                <span class="material-symbols-outlined text-[16px]">close</span>
+            </button>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="dismissPwaBanner()" class="flex-1 py-2 bg-surface border border-outline-variant/30 text-on-surface-variant font-bold text-[11px] rounded-lg transition-colors hover:bg-surface-variant/30 cursor-pointer">
+                {% if current_lang == 'kor' %}나중에{% elif current_lang == 'eng' %}Maybe Later{% elif current_lang == 'jpn' %}あとで{% elif current_lang == 'chs' %}以后再说{% else %}以後再說{% endif %}
+            </button>
+            <button onclick="installPwaApp()" class="flex-1 py-2 bg-primary text-on-primary font-bold text-[11px] rounded-lg transition-opacity hover:opacity-95 cursor-pointer">
+                {% if current_lang == 'kor' %}앱 설치하기{% elif current_lang == 'eng' %}Install App{% elif current_lang == 'jpn' %}インストール{% elif current_lang == 'chs' %}安装应用{% else %}安裝應用程式{% endif %}
+            </button>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
 
     <script>
+        // 전역 다크모드/라이트모드 테마 스위칭 제어
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', targetTheme);
+            if (targetTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('linksuwon:theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('linksuwon:theme', 'light');
+            }
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const icon = document.getElementById('theme-toggle-icon');
+            if (icon) {
+                icon.textContent = currentTheme === 'dark' ? 'dark_mode' : 'light_mode';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', updateThemeIcon);
+
+        // ── PWA 앱 설치 유도 스마트 배너 (A2HS) ──
+        let deferredPrompt = null;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // 브라우저의 기본 설치 안내 팝업을 저지합니다.
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // 이미 거부했거나 설치되었는지 이력 체크
+            const dismissedTime = localStorage.getItem('linksuwon:pwa_banner_dismissed');
+            const now = new Date().getTime();
+            
+            // 거부한 지 3일(259200000ms)이 경과했거나 기록이 없다면 노출
+            if (!dismissedTime || (dismissedTime !== 'installed' && (now - parseInt(dismissedTime) > 259200000))) {
+                const banner = document.getElementById('pwa-install-banner');
+                if (banner) {
+                    banner.classList.remove('hidden');
+                    setTimeout(() => {
+                        banner.classList.remove('translate-y-[200%]');
+                    }, 80);
+                }
+            }
+        });
+        
+        function dismissPwaBanner() {
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) {
+                banner.classList.add('translate-y-[200%]');
+                setTimeout(() => {
+                    banner.classList.add('hidden');
+                }, 300);
+            }
+            // 거절 시각 기록
+            localStorage.setItem('linksuwon:pwa_banner_dismissed', new Date().getTime().toString());
+        }
+        
+        async function installPwaApp() {
+            if (!deferredPrompt) return;
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`PWA 설치 결정: ${outcome}`);
+            
+            deferredPrompt = null;
+            dismissPwaBanner();
+        }
+        
+        window.addEventListener('appinstalled', () => {
+            console.log('LinkSuwon PWA 설치 완료');
+            localStorage.setItem('linksuwon:pwa_banner_dismissed', 'installed');
+            dismissPwaBanner();
+        });
+
         // PWA 서비스 워커 등록
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register("{{ url_for('static', filename='pwa/service-worker.js') }}")
+                navigator.serviceWorker.register("{{ url_for('static', filename='pwa/service-worker.js') }}?v=1.0.2")
                     .then(registration => {
                         console.log('서비스 워커 등록 성공:', registration.scope);
                     })
@@ -124,5 +260,6 @@
         window.addEventListener('offline', updateNetworkStatus);
         document.addEventListener('DOMContentLoaded', updateNetworkStatus);
     </script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
