@@ -46,46 +46,39 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # 기존 운영 인프라를 재사용합니다. 서비스명은 기존 workflow 이력의 linksuwon을 기본값으로 둡니다.
-      LINKSUWON_SERVICE_NAME: ${{ vars.LINKSUWON_SERVICE_NAME || 'linksuwon' }}
-      LINKSUWON_WEB_ROOT: ${{ vars.LINKSUWON_WEB_ROOT }}
-      LINKSUWON_API_HEALTH_URL: ${{ vars.LINKSUWON_API_HEALTH_URL || 'http://127.0.0.1:5002/api/v1/health' }}
+      LINKSUWON_SERVICE_NAME: linksuwon
+      LINKSUWON_WEB_ROOT: /var/www/linksuwon
+      LINKSUWON_API_HEALTH_URL: http://127.0.0.1:5002/api/v1/health
 
     steps:
-      - name: Deploy via SSH
+      - name: Deploy to LinkSuwon server
         uses: appleboy/ssh-action@v1.0.3
-
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           envs: LINKSUWON_SERVICE_NAME,LINKSUWON_WEB_ROOT,LINKSUWON_API_HEALTH_URL
-
           script: |
             set -euo pipefail
-            cd /home/ubuntu/services/linksuwon
 
-            test -n "$LINKSUWON_WEB_ROOT" || {
-              echo "LINKSUWON_WEB_ROOT GitHub Actions variable is required after checking the existing Nginx root."
-              exit 1
-            }
-            test -d "$LINKSUWON_WEB_ROOT" || {
-              echo "Configured React web root does not exist: $LINKSUWON_WEB_ROOT"
-              exit 1
-            }
+            cd /home/ubuntu/services/linksuwon
 
             git fetch origin main
             git reset --hard origin/main
 
-            cd backend
-            /home/ubuntu/services/linksuwon/.venv/bin/python -m pip install -r requirements.txt
+            .venv/bin/python -m pip install -r requirements.txt
+            .venv/bin/python -m pip install -r backend/requirements.txt
 
-            cd ../frontend
+            cd frontend
             npm ci
             npm run build
+
             sudo rsync -a --delete dist/ "$LINKSUWON_WEB_ROOT/"
 
             sudo systemctl restart "$LINKSUWON_SERVICE_NAME"
 
+            sleep 2
+
             curl --fail --silent --show-error "$LINKSUWON_API_HEALTH_URL"
-            curl --fail --silent --show-error https://linksuwon.everytriplog.com/api/v1/health
+            curl --fail --silent --show-error \
+              https://linksuwon.everytriplog.com/api/v1/health
