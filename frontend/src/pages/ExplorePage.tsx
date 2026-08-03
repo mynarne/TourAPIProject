@@ -10,14 +10,15 @@ export function ExplorePage() {
   const { items, state, error, retry } = useTourSpots(params);
 
   return (
-    <section className="mx-auto max-w-6xl px-5 py-12">
-      <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+    <section className="page-shell">
+      <div className="flex flex-col justify-between gap-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-end sm:p-8">
         <div>
-          <p className="font-semibold text-suwon">Explore Suwon</p>
-          <h1 className="mt-2 text-4xl font-black">수원 명소 둘러보기</h1>
+          <p className="eyebrow">Explore Suwon</p>
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">수원 명소 둘러보기</h1>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500">수원화성부터 행궁동의 작은 공간까지, 지금 가고 싶은 장소를 찾아보세요.</p>
         </div>
         <input
-          className="rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-suwon"
+          className="field w-full sm:max-w-xs"
           value={keyword}
           onChange={(event) => setKeyword(event.target.value)}
           placeholder="명소 검색"

@@ -23,9 +23,9 @@ export function ChatbotPage() {
   }, []);
 
   return (
-    <section className="mx-auto flex min-h-[calc(100vh-73px)] max-w-4xl flex-col px-5 py-8">
-      <header className="mb-6 flex items-center justify-between"><div><p className="font-semibold text-suwon">LinkSuwon AI Guide</p><h1 className="mt-1 text-3xl font-black text-slate-900">수원 여행 도우미</h1></div><Link className="text-sm font-bold text-suwon" to="/">홈으로</Link></header>
-      <div className="flex-1 rounded-3xl bg-slate-50 p-4 sm:p-6"><ChatMessageList messages={messages} />{messages.length === 1 && state === 'idle' && <ChatEmptyState onSelect={(question) => void send(question)} />}{state === 'loading' && <div className="mt-4"><ChatLoadingMessage /></div>}{state === 'error' && <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">답변을 불러오지 못했습니다. <button className="font-bold underline" type="button" onClick={() => void retry()}>다시 시도</button></div>}</div>
+    <section className="mx-auto flex min-h-[calc(100vh-64px)] max-w-4xl flex-col px-4 py-8 sm:px-6 sm:py-12">
+      <header className="mb-6 flex items-end justify-between gap-4"><div><p className="eyebrow">LinkSuwon AI Guide</p><h1 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">수원 여행 도우미</h1><p className="mt-2 text-sm text-slate-500">관광지, 교통, 여행 코스를 수원에 맞춰 안내해 드려요.</p></div><Link className="shrink-0 rounded-lg px-3 py-2 text-sm font-bold text-suwon hover:bg-suwon-soft" to="/">홈으로</Link></header>
+      <div className="flex-1 rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-6"><ChatMessageList messages={messages} />{messages.length === 1 && state === 'idle' && <ChatEmptyState onSelect={(question) => void send(question)} />}{state === 'loading' && <div className="mt-4"><ChatLoadingMessage /></div>}{state === 'error' && <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">답변을 불러오지 못했습니다. <button className="font-bold underline" type="button" onClick={() => void retry()}>다시 시도</button></div>}</div>
       <div className="mt-4"><ChatInput disabled={state === 'loading'} onSend={(message) => void send(message)} /></div>
     </section>
   );

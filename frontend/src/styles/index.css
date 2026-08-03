@@ -1,6 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-suwon: #1464d2;
+  --color-suwon-dark: #0f4fae;
+  --color-suwon-soft: #eaf2ff;
+  --color-ink: #0f172a;
+}
 
 :root {
   font-family: Inter, Pretendard, system-ui, sans-serif;
@@ -17,9 +22,54 @@
 body {
   margin: 0;
   min-width: 320px;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgb(20 100 210 / 28%);
+  outline-offset: 2px;
 }
 
 .label { display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700; color: #334155; }
 .label em { margin-left: 0.25rem; font-size: 0.75rem; font-weight: 400; font-style: normal; color: #94a3b8; }
-.field { width: 100%; border: 1px solid #e2e8f0; border-radius: 0.75rem; background: #f8fafc; padding: 0.75rem 1rem; font-size: 0.875rem; outline: none; transition: 150ms ease; }
+.field { width: 100%; border: 1px solid #dbe4f0; border-radius: 0.875rem; background: #f8fafc; padding: 0.8rem 1rem; font-size: 0.875rem; color: #0f172a; outline: none; transition: 150ms ease; }
+.field::placeholder { color: #94a3b8; }
 .field:focus { border-color: #1464d2; background: #fff; box-shadow: 0 0 0 4px rgb(219 234 254); }
+
+.page-shell {
+  width: min(100% - 2rem, 72rem);
+  margin-inline: auto;
+  padding-block: 3.5rem;
+}
+
+.eyebrow {
+  color: #1464d2;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 640px) {
+  .page-shell {
+    width: min(100% - 3rem, 72rem);
+  }
+}

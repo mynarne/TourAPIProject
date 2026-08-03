@@ -1,12 +1,7 @@
-/** @type {import('tailwindcss').Config} */
+/**
+ * Tailwind v4 loads the design tokens from src/styles/index.css.
+ * This file remains intentionally minimal for tools that still look for a JS config.
+ */
 export default {
-  content: ['./index.html', './src/**/*.{ts,tsx}'],
-  theme: {
-    extend: {
-      colors: {
-        suwon: '#1464d2',
-      },
-    },
-  },
   plugins: [],
 };

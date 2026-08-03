@@ -33,11 +33,11 @@ export function TrafficPage() {
   const mapTitle = location.coordinates ? '현재 위치' : '수원역';
 
   return (
-    <section className="mx-auto max-w-6xl px-5 py-12">
-      <Link className="mb-8 inline-block text-sm font-bold text-suwon" to="/">← 홈으로</Link>
+    <section className="page-shell">
+      <Link className="mb-8 inline-flex rounded-lg px-2 py-2 text-sm font-bold text-suwon hover:bg-suwon-soft" to="/">← 홈으로</Link>
       <header className="mb-8">
-        <p className="font-semibold text-suwon">LinkSuwon Transit</p>
-        <h1 className="mt-2 text-4xl font-black text-slate-900">수원 교통 안내</h1>
+        <p className="eyebrow">LinkSuwon Transit</p>
+        <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">수원 교통 안내</h1>
         <p className="mt-3 text-slate-500">교통카드, 대중교통 이용 팁과 네이버 지도 길찾기를 한곳에서 확인하세요.</p>
       </header>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(300px,.8fr)]">
