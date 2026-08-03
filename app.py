@@ -11,8 +11,11 @@ def create_app():
     # 플라스크 앱 객체 생성
     app = Flask(__name__, static_folder='LinkSuwon/static', template_folder='LinkSuwon/templates')
     
-    # 세션 사용을 위한 비밀키 설정
-    app.secret_key = os.environ.get('SECRET_KEY', 'linksuwon_secure_session_key_123987')
+    # 운영에서는 SECRET_KEY가 없으면 세션을 시작하지 않습니다.
+    secret_key = os.environ.get('SECRET_KEY')
+    if not secret_key and os.environ.get('FLASK_ENV') == 'production':
+        raise RuntimeError('운영 환경에서는 SECRET_KEY가 필요합니다.')
+    app.secret_key = secret_key or 'local-development-only-session-key'
 
     # 환경설정 로드 및 검증
     app.config.from_object(Config)

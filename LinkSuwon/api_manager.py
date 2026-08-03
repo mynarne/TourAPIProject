@@ -2,6 +2,7 @@ import os
 import requests
 import re
 import urllib3
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import unquote
 
 # SSL Verification 비활성화 시 터미널 경고 메세지 억제
@@ -19,6 +20,7 @@ class TourAPIManager():
         self.base_url = 'https://apis.data.go.kr/B551011'
         self.gemini_api_key = Config.GEMINI_API_KEY
         self.ssl_verify = Config.SSL_VERIFY
+        self.catalog_cache = {}
 
         # 일본어 변환기 설정
         self.kks = pykakasi.kakasi()
@@ -39,11 +41,11 @@ class TourAPIManager():
             return url_str.replace('http://', 'https://', 1)
         return url_str
 
-    def get_suwon_data(self, lang='kor'):
+    def get_suwon_data(self, lang='kor', content_type_id=None):
         service_map = self.service_map.get(lang, 'KorService2')
         url = f'{self.base_url}/{service_map}/areaBasedList2'
 
-        content_type = '12' if lang == 'kor' else '76'
+        content_type = content_type_id or ('12' if lang == 'kor' else '76')
 
         params = {
             'serviceKey': self.api_key,
@@ -60,7 +62,7 @@ class TourAPIManager():
         # API 호출 실패 또는 오류 발생 시 사용될 Fallback 생성 헬퍼
         def make_fallback_response():
             print(f"--- [DEBUG] API 장애 감지. {lang} 언어용 로컬 Seed Data를 로드합니다. ---")
-            local_items = get_seed_places(lang)
+            local_items = get_seed_places(lang) if content_type_id is None else []
             return {
                 "response": {
                     "header": {
@@ -102,46 +104,17 @@ class TourAPIManager():
                     if isinstance(items, dict):
                         items = [items]
                         items_wrapper['item'] = items
-
-                    # [이미지 수혈] 외국어 환경(lang != 'kor')이고 API 호출 성공 시 국문 이미지 사전 구축
-                    kor_images = {}
-                    if lang != 'kor':
-                        try:
-                            # 1. 로컬 국문 시드 데이터에서 이미지 수집
-                            for seed in get_seed_places('kor'):
-                                c_id = seed.get('contentid')
-                                img = seed.get('firstimage')
-                                img2 = seed.get('firstimage2')
-                                if c_id and img:
-                                    kor_images[c_id] = (img, img2)
-                            
-                            # 2. 국문 API 목록에서 이미지 수집 (1회 호출)
-                            kor_res = self.get_suwon_data(lang='kor')
-                            if kor_res:
-                                kor_items = kor_res.get('response', {}).get('body', {}).get('items', {}).get('item', [])
-                                if isinstance(kor_items, dict):
-                                    kor_items = [kor_items]
-                                for k_item in kor_items:
-                                    c_id = k_item.get('contentid')
-                                    img = k_item.get('firstimage')
-                                    img2 = k_item.get('firstimage2')
-                                    if c_id and img:
-                                        kor_images[c_id] = (img, img2)
-                        except Exception as img_err:
-                            print(f"--- [DEBUG] 국문 이미지 수집 실패 (무시): {img_err} ---")
+                    elif isinstance(items, list):
+                        items = [item for item in items if isinstance(item, dict)]
+                        items_wrapper['item'] = items
+                    elif not isinstance(items, list):
+                        items = []
+                        items_wrapper['item'] = items
 
                     for item in items:
                         title = item.get('title', '')
                         ko_name = title.split('(')[-1].replace(')', '').strip() if '(' in title else title
                         c_id = item.get('contentid')
-
-                        # 만약 해당 명소의 외국어 이미지가 누락된 경우 국문 이미지 수혈
-                        if lang != 'kor' and c_id in kor_images:
-                            if not item.get('firstimage'):
-                                item['firstimage'] = kor_images[c_id][0]
-                                print(f"--- [DEBUG] 리스트 이미지 수혈 완료 (firstimage): {title} ({c_id}) ---")
-                            if not item.get('firstimage2') and kor_images[c_id][1]:
-                                item['firstimage2'] = kor_images[c_id][1]
 
                         # 발음 변환 (영문 로마자 위주)
                         if lang == 'eng':
@@ -191,7 +164,151 @@ class TourAPIManager():
             print(f"--- [DEBUG] 예외 발생: {str(e)} ---")
             return make_fallback_response()
         
+    def get_suwon_catalog(self, lang='kor'):
+        """수원 관광 카탈로그를 콘텐츠 유형별로 수집하고 하나의 목록으로 합칩니다."""
+        korean_types = {
+            '12': 'heritage', '14': 'museum', '15': 'festival', '25': 'course',
+            '28': 'leisure', '32': 'stay', '38': 'market', '39': 'food'
+        }
+        foreign_types = {
+            '76': 'heritage', '78': 'museum', '79': 'festival', '80': 'leisure',
+            '75': 'stay', '82': 'market', '83': 'food'
+        }
+        type_map = korean_types if lang == 'kor' else foreign_types
+
+        if not self.api_key:
+            return get_seed_places(lang)
+
+        collected = []
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            future_map = {
+                executor.submit(self.get_suwon_data, lang, content_type_id): (content_type_id, category)
+                for content_type_id, category in type_map.items()
+            }
+            for future in as_completed(future_map):
+                content_type_id, category = future_map[future]
+                try:
+                    for item in self._extract_items(future.result()):
+                        item['contenttypeid'] = str(item.get('contenttypeid') or content_type_id)
+                        item['cat'] = category
+                        collected.append(item)
+                except Exception as api_error:
+                    print(f"--- [DEBUG] 콘텐츠 유형 {content_type_id} 수집 실패: {api_error} ---")
+
+        unique_items = {}
+        for item in collected:
+            content_id = str(item.get('contentid') or '')
+            if content_id and content_id not in unique_items:
+                unique_items[content_id] = item
+        items = list(unique_items.values())
+
+        for item in items:
+            self.catalog_cache[(lang, str(item.get('contentid')))] = item
+
+        if lang != 'kor':
+            korean_items = self.get_suwon_catalog('kor')
+            korean_images = {
+                str(item.get('contentid')): (item.get('firstimage'), item.get('firstimage2'))
+                for item in korean_items
+                if item.get('contentid') and item.get('firstimage')
+            }
+            for item in items:
+                image_pair = korean_images.get(str(item.get('contentid')))
+                if image_pair:
+                    item['firstimage'] = item.get('firstimage') or image_pair[0]
+                    item['firstimage2'] = item.get('firstimage2') or image_pair[1]
+
+        self._enrich_missing_images(items, lang)
+        return items
+
+    @staticmethod
+    def _extract_items(response):
+        if not isinstance(response, dict):
+            return []
+        items = response.get('response', {}).get('body', {}).get('items', {}).get('item', [])
+        if isinstance(items, dict):
+            return [items] if items else []
+        if isinstance(items, list):
+            return [item for item in items if isinstance(item, dict)]
+        return []
+
+    def _enrich_missing_images(self, items, lang):
+        """목록 API에서 이미지가 빠진 항목을 상세 API로 제한적으로 보강합니다."""
+        targets = [item for item in items if not item.get('firstimage') and item.get('contentid')][:30]
+        if not targets:
+            return
+
+        def fetch_image(item):
+            detail = self.get_detail_info(
+                str(item['contentid']), lang, content_type_id=item.get('contenttypeid')
+            )
+            detail_items = self._extract_items(detail)
+            detail_item = detail_items[0] if detail_items else {}
+            image = detail_item.get('firstimage')
+            image2 = detail_item.get('firstimage2')
+            if not image:
+                image, image2 = self._fetch_gallery_image(
+                    str(item['contentid']), lang, item.get('contenttypeid')
+                )
+            return item, image, image2
+
+        with ThreadPoolExecutor(max_workers=6) as executor:
+            futures = [executor.submit(fetch_image, item) for item in targets]
+            for future in as_completed(futures):
+                try:
+                    item, image, image2 = future.result()
+                    if image:
+                        item['firstimage'] = self.force_https(image)
+                    if image2:
+                        item['firstimage2'] = self.force_https(image2)
+                except Exception as image_error:
+                    print(f"--- [DEBUG] 상세 이미지 보강 실패: {image_error} ---")
+
+    def _fetch_gallery_image(self, content_id, lang, content_type_id=None):
+        """상세 공통 API에 이미지가 없을 때 이미지 목록 API에서 대표 이미지를 찾습니다."""
+        if not self.api_key:
+            return None, None
+        service_map = self.service_map.get(lang, 'KorService2')
+        content_type = content_type_id or ('12' if lang == 'kor' else '76')
+        params = {
+            'serviceKey': self.api_key,
+            'contentId': content_id,
+            'contentTypeId': content_type,
+            'imageYN': 'Y',
+            'MobileOS': 'ETC',
+            'MobileApp': 'LinkSuwon',
+            '_type': 'json',
+            'numOfRows': 10,
+            'pageNo': 1,
+        }
+        try:
+            url = f'{self.base_url}/{service_map}/detailImage2'
+            response = requests.get(url, params=params, timeout=8, verify=self.ssl_verify)
+            payload = response.json() if response.status_code == 200 else {}
+            images = payload.get('response', {}).get('body', {}).get('items', {}).get('item', [])
+            if isinstance(images, dict):
+                images = [images]
+            images = images if isinstance(images, list) else []
+            first = next((image for image in images if image.get('originimgurl')), None)
+            if first:
+                return self.force_https(first.get('originimgurl')), self.force_https(first.get('smallimageurl'))
+        except Exception as image_error:
+            print(f"--- [DEBUG] 이미지 목록 API 보강 실패: {image_error} ---")
+        return None, None
+
     def get_detail_info(self, content_id, lang='kor', content_type_id=None):
+        cached_item = self.catalog_cache.get((lang, str(content_id)))
+
+        def cached_response():
+            if not cached_item:
+                return None
+            return {
+                "response": {
+                    "header": {"resultCode": "0000", "resultMsg": "SUCCESS (CATALOG CACHE)"},
+                    "body": {"items": {"item": [cached_item]}}
+                }
+            }
+
         # content_id가 로컬 Seed Data에 해당하는 경우 로컬에서 즉시 리턴
         if str(content_id) in ['126227', '126228', '126229', '126230', '126231', '126232', '126233', '126234']:
             local_items = get_seed_places(lang)
@@ -237,7 +354,7 @@ class TourAPIManager():
         }
 
         if not self.api_key:
-            return None
+            return cached_response()
 
         try:
             # 1차: detailCommon2 — overview, 주소, 이미지
@@ -250,22 +367,30 @@ class TourAPIManager():
             common_res = requests.get(common_url, params=common_params, timeout=10, verify=self.ssl_verify)
 
             if common_res.status_code != 200:
-                return None
+                return cached_response()
 
             res_data = common_res.json()
             header = res_data.get('response', {}).get('header', {})
             if header.get('resultCode') != '0000':
                 print(f"--- [DEBUG] detailCommon2 API 응답 에러: {header.get('resultMsg')} (코드: {header.get('resultCode')}) ---")
-                return None
+                return cached_response()
 
             # item 추출
             body = res_data.get('response', {}).get('body', {})
             items_container = body.get('items', {})
             if not items_container or 'item' not in items_container:
-                return res_data
+                return cached_response() or res_data
 
             item_list = items_container['item']
             item = item_list[0] if isinstance(item_list, list) else item_list
+
+            if not isinstance(item, dict):
+                return cached_response()
+
+            if isinstance(cached_item, dict):
+                for key in ('overview', 'addr1', 'firstimage', 'firstimage2', 'mapx', 'mapy'):
+                    if not item.get(key) and cached_item.get(key):
+                        item[key] = cached_item[key]
 
             # [이미지 수혈] 외국어 환경에서 상세 정보의 이미지가 누락된 경우 국문 상세 API를 동기식으로 찔러서 이미지 수혈
             if lang != 'kor' and not item.get('firstimage'):
@@ -330,10 +455,10 @@ class TourAPIManager():
         except requests.exceptions.SSLError as ssl_err:
             print(f"🚨 [SSL ERROR] get_detail_info HTTPS 인증서 검증 실패: {ssl_err}")
             print("   (자가 서명 개발 환경인 경우 .env에 SSL_VERIFY=False 설정을 적용하고 재시도하십시오.)")
-            return None
+            return cached_response()
         except Exception as e:
             print(f"--- [DEBUG] 상세정보 예외 발생: {str(e)} ---")
-            return None
+            return cached_response()
 
     # 제미나이 호출 함수
     def ask_gemini_multilingual(self, user_input: str, target_language: str, user_name: str = None) -> str:
@@ -432,4 +557,3 @@ class TourAPIManager():
         except Exception as e:
             print(f"--- [DEBUG] 예외 발생: {str(e)} ---")
             return f"에러 발생: {str(e)}"
-

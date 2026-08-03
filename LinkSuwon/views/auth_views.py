@@ -1,6 +1,6 @@
 import urllib.request
 import json
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, current_app
 from LinkSuwon.database import get_db_connection
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -192,8 +192,7 @@ def delete_account():
     if not user_id:
         return jsonify({'success': False, 'message': 'Not logged in'}), 401
         
-    db_path = current_app.config['DATABASE_PATH']
-    conn = get_db_connection(db_path)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
     try:

@@ -13,6 +13,14 @@ class Config:
     DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
     PORT = int(os.getenv('PORT', 5001))
     HOST = '0.0.0.0'
+    PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    DATABASE_PATH = os.getenv('DATABASE_PATH') or os.path.join(PROJECT_ROOT, 'LinkSuwon', 'linksuwon.db')
+    UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER') or os.path.join(PROJECT_ROOT, 'LinkSuwon', 'static', 'uploads')
+    UPLOAD_URL_PREFIX = os.getenv('UPLOAD_URL_PREFIX', '/static/uploads')
+    MAX_CONTENT_LENGTH = 10 * 1024 * 1024
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+    SESSION_COOKIE_SAMESITE = 'Lax'
 
     # API Keys
     TOUR_API_KEY = os.getenv('TOUR_API_KEY')

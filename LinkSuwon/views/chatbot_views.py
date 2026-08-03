@@ -1,10 +1,15 @@
 from flask import Blueprint, request, render_template, session
-from LinkSuwon.api_manager import TourAPIManager
+
+from backend.app.services.chatbot_service import (
+    ChatbotConfigurationError,
+    ChatbotProviderError,
+    ChatbotService,
+)
 
 # 블루프린트 객체 생성 (이름: chatbot)
 bp = Blueprint('chatbot', __name__)
 
-api_manager = TourAPIManager()
+chatbot_service = ChatbotService()
 
 # 챗봇 전용 화면을 렌더링하는 라우트
 @bp.route('/chat')
@@ -23,12 +28,17 @@ def ask_chatbot():
     lat = request.form.get('lat')
     lng = request.form.get('lng')
     
-    # 위치 정보가 연동된 경우 프롬프트에 힌트 컨텍스트 주입
-    if lat and lng:
-        user_input = f"[사용자 실시간 현재 위치 위경도: {lat}, {lng}. 사용자가 근처 맛집이나 주변 명소를 물어본다면 이 좌표와 가장 가까운 명소를 최우선 추천하고 도보/교통 거리를 감안하여 답변해줘.] {user_input}"
-    
-    # api_manager에 추가한 제미나이 호출 함수 사용
-    bot_response = api_manager.ask_gemini_multilingual(user_input, lang, user_name)
-    
-    # 텍스트 그대로 반환
-    return bot_response
+    try:
+        result = chatbot_service.answer(
+            user_input,
+            language=lang,
+            location={'latitude': float(lat), 'longitude': float(lng)} if lat and lng else None,
+            user_name=user_name,
+        )
+        response = result['message']
+        if result.get('course'):
+            import json
+            response += f"\n[COURSE_DATA: {json.dumps(result['course'], ensure_ascii=False)}]"
+        return response
+    except (ValueError, ChatbotConfigurationError, ChatbotProviderError):
+        return '챗봇 응답을 생성하지 못했습니다.'

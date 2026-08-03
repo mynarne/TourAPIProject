@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, Pretendard, system-ui, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+.label { display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700; color: #334155; }
+.label em { margin-left: 0.25rem; font-size: 0.75rem; font-weight: 400; font-style: normal; color: #94a3b8; }
+.field { width: 100%; border: 1px solid #e2e8f0; border-radius: 0.75rem; background: #f8fafc; padding: 0.75rem 1rem; font-size: 0.875rem; outline: none; transition: 150ms ease; }
+.field:focus { border-color: #1464d2; background: #fff; box-shadow: 0 0 0 4px rgb(219 234 254); }

@@ -1,5 +1,7 @@
 # Python
 .venv/
+node_modules/
+frontend/dist/
 __pycache__/
 *.pyc
 *.pyo
@@ -27,3 +29,20 @@ __pycache__/
 
 # Logs
 *.log
+
+# Runtime data. Existing tracked files require a separate, verified migration
+# before they can be removed from Git tracking.
+*.db
+*.sqlite
+*.sqlite3
+**/uploads/
+
+# 예시 환경변수 파일은 저장소에 포함
+!.env.example
+!frontend/.env.example
+!backend/.env.example
+
+# Local development / handoff documents
+*.md
+!/README.md
+docs/

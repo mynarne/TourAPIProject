@@ -6,8 +6,50 @@ on:
       - main
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r backend/requirements.txt pytest
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          PYTHONPATH=.. python -m pytest tests -q
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    env:
+      # 기존 운영 인프라를 재사용합니다. 서비스명은 기존 workflow 이력의 linksuwon을 기본값으로 둡니다.
+      LINKSUWON_SERVICE_NAME: ${{ vars.LINKSUWON_SERVICE_NAME || 'linksuwon' }}
+      LINKSUWON_WEB_ROOT: ${{ vars.LINKSUWON_WEB_ROOT }}
+      LINKSUWON_API_HEALTH_URL: ${{ vars.LINKSUWON_API_HEALTH_URL || 'http://127.0.0.1:5002/api/v1/health' }}
 
     steps:
       - name: Deploy via SSH
@@ -17,17 +59,33 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: LINKSUWON_SERVICE_NAME,LINKSUWON_WEB_ROOT,LINKSUWON_API_HEALTH_URL
 
           script: |
+            set -euo pipefail
             cd /home/ubuntu/services/linksuwon
+
+            test -n "$LINKSUWON_WEB_ROOT" || {
+              echo "LINKSUWON_WEB_ROOT GitHub Actions variable is required after checking the existing Nginx root."
+              exit 1
+            }
+            test -d "$LINKSUWON_WEB_ROOT" || {
+              echo "Configured React web root does not exist: $LINKSUWON_WEB_ROOT"
+              exit 1
+            }
 
             git fetch origin main
             git reset --hard origin/main
 
-            source .venv/bin/activate
+            cd backend
+            /home/ubuntu/services/linksuwon/.venv/bin/python -m pip install -r requirements.txt
 
-            pip install -r requirements.txt
+            cd ../frontend
+            npm ci
+            npm run build
+            sudo rsync -a --delete dist/ "$LINKSUWON_WEB_ROOT/"
 
-            sudo systemctl restart linksuwon
+            sudo systemctl restart "$LINKSUWON_SERVICE_NAME"
 
-            sudo systemctl status linksuwon --no-pager
+            curl --fail --silent --show-error "$LINKSUWON_API_HEALTH_URL"
+            curl --fail --silent --show-error https://linksuwon.everytriplog.com/api/v1/health

@@ -94,6 +94,12 @@
             <button onclick="filterCategory('stay')" id="cat-stay" class="cat-btn px-4 py-1.5 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full text-xs font-bold whitespace-nowrap ring-1 ring-outline-variant/30 transition-all">
                 {{ _('cat_stay') }}
             </button>
+            <button onclick="filterCategory('leisure')" id="cat-leisure" class="cat-btn px-4 py-1.5 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full text-xs font-bold whitespace-nowrap ring-1 ring-outline-variant/30 transition-all">
+                {{ _('cat_leisure') if _('cat_leisure') != 'cat_leisure' else '레저' }}
+            </button>
+            <button onclick="filterCategory('course')" id="cat-course" class="cat-btn px-4 py-1.5 bg-surface hover:bg-surface-variant/50 text-on-surface rounded-full text-xs font-bold whitespace-nowrap ring-1 ring-outline-variant/30 transition-all">
+                {{ _('cat_course') if _('cat_course') != 'cat_course' else '여행 코스' }}
+            </button>
         </div>
 
         <!-- Scrollable Cards List -->

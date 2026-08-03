@@ -60,7 +60,9 @@ I18N_DICTS = {
         'cat_nature': '자연/공원',
         'cat_food': '음식점',
         'cat_festival': '축제/행사',
-        'cat_stay': '숙박시설'
+        'cat_stay': '숙박시설',
+        'cat_leisure': '레저',
+        'cat_course': '여행 코스'
     },
     'eng': {
         'brand_title': 'LinkSuwon',
@@ -108,7 +110,9 @@ I18N_DICTS = {
         'cat_nature': 'Nature',
         'cat_food': 'Food',
         'cat_festival': 'Festival',
-        'cat_stay': 'Stay'
+        'cat_stay': 'Stay',
+        'cat_leisure': 'Leisure',
+        'cat_course': 'Travel Courses'
     },
     'jpn': {
         'brand_title': 'LinkSuwon',
@@ -156,7 +160,9 @@ I18N_DICTS = {
         'cat_nature': '自然/公園',
         'cat_food': 'グルメ',
         'cat_festival': 'フェスティバル',
-        'cat_stay': '宿泊'
+        'cat_stay': '宿泊',
+        'cat_leisure': 'レジャー',
+        'cat_course': '旅行コース'
     },
     'chs': {
         'brand_title': 'LinkSuwon',
@@ -204,7 +210,9 @@ I18N_DICTS = {
         'cat_nature': '自然景区',
         'cat_food': '美食',
         'cat_festival': '节庆活动',
-        'cat_stay': '酒店住宿'
+        'cat_stay': '酒店住宿',
+        'cat_leisure': '休闲娱乐',
+        'cat_course': '旅游路线'
     },
     'cht': {
         'brand_title': 'LinkSuwon',
@@ -252,7 +260,9 @@ I18N_DICTS = {
         'cat_nature': '自然景區',
         'cat_food': '美食',
         'cat_festival': '節慶活動',
-        'cat_stay': '酒店住宿'
+        'cat_stay': '酒店住宿',
+        'cat_leisure': '休閒娛樂',
+        'cat_course': '旅遊路線'
     }
 }
 

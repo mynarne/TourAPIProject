@@ -1,0 +1,17 @@
+# 기존 linksuwon.service를 새 backend 실행 대상으로 전환할 때 비교하는 참고본입니다.
+# 이 파일명은 운영 서버에 linksuwon-api.service를 새로 만들라는 의미가 아닙니다.
+
+[Unit]
+Description=LinkSuwon Flask REST API
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/services/linksuwon/backend
+EnvironmentFile=/home/ubuntu/services/linksuwon/backend/.env
+Environment=PYTHONPATH=/home/ubuntu/services/linksuwon
+ExecStart=/home/ubuntu/services/linksuwon/.venv/bin/gunicorn --workers 2 --bind 127.0.0.1:5002 wsgi:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

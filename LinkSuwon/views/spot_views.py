@@ -17,34 +17,36 @@ def spot_home():
     if lang not in valid_lang:
         lang = 'kor'
 
-    data = api_manager.get_suwon_data(lang)
     items = []
 
     try:
-        if data and isinstance(data, dict):
-            response = data.get('response', {})
-            body = response.get('body', {})
-            items_container = body.get('items')
-            
-            if items_container and isinstance(items_container, dict):
-                items = items_container.get('item', [])
-                if isinstance(items, dict):
-                    items = [items]
-            elif not items_container:
-                print("--- [DEBUG] 검색 결과가 존재하지 않습니다. ---")
+        items = api_manager.get_suwon_catalog(lang)
+        if not items:
+            print("--- [DEBUG] 검색 결과가 존재하지 않습니다. ---")
 
         # 언제나 로컬 시드 데이터를 로드하고, TourAPI 데이터가 있으면 중복되지 않는 것만 병합
         from LinkSuwon.seed_data import get_seed_places
         seed_items = get_seed_places(lang)
-        seed_ids = {str(x.get('contentid', '')) for x in seed_items}
-        
+
         if items:
-            api_filtered = [
-                item for item in items 
-                if str(item.get('contentid', '')) not in seed_ids
-            ]
-            items = seed_items + api_filtered
-            print(f"--- [데이터 병합] 로컬 시드 명소 {len(seed_items)}개 + TourAPI 추가 명소 {len(api_filtered)}개 로드 완료 ---")
+            def normalize_title(value):
+                return ''.join(str(value or '').lower().split())
+
+            api_ids = {str(item.get('contentid', '')) for item in items}
+            api_titles = [normalize_title(item.get('title')) for item in items]
+            seed_only = []
+            for seed in seed_items:
+                seed_id = str(seed.get('contentid', ''))
+                seed_title = normalize_title(seed.get('title'))
+                title_exists = any(
+                    seed_title and (seed_title in api_title or api_title in seed_title)
+                    for api_title in api_titles
+                    if api_title
+                )
+                if seed_id not in api_ids and not title_exists:
+                    seed_only.append(seed)
+            items = items + seed_only
+            print(f"--- [데이터 병합] TourAPI {len(items) - len(seed_only)}개 + 로컬 보완 데이터 {len(seed_only)}개 로드 완료 ---")
         else:
             items = seed_items
             print(f"--- [데이터 로드] TourAPI 결손으로 로컬 시드 명소 {len(items)}개 단독 로드 ---")
@@ -92,6 +94,9 @@ def api_detail(content_id):
 
     # [오프라인 폴백] API 호출 실패 시 로컬 시드 데이터 우선 매핑
     if not item:
+        item = api_manager.catalog_cache.get((lang, str(content_id)))
+
+    if not item:
         from LinkSuwon.seed_data import get_seed_places
         seed_items = get_seed_places(lang)
         item = next((x for x in seed_items if str(x['contentid']) == str(content_id)), None)
@@ -99,8 +104,8 @@ def api_detail(content_id):
     # 시드 데이터조차 없는 경우 (기타 명소 등) 플레이스홀더 폴백
     if not item:
         item = {
-            'title': 'Offline Info',
-            'overview': '현재 오프라인 상태이거나 API 호출이 불가능합니다. 네트워크가 복구되면 실시간 가이드를 읽어옵니다.',
+            'title': '상세 정보를 준비 중입니다.',
+            'overview': '이 장소의 상세 설명을 불러오는 중입니다. 잠시 후 다시 시도해 주세요.',
             'addr1': '',
             'homepage': '',
             'infocenter': '',
@@ -154,6 +159,8 @@ def detail(content_id):
     from LinkSuwon.seed_data import get_seed_places
     seed_items = get_seed_places(lang)
     matched_seed = next((x for x in seed_items if str(x['contentid']) == str(content_id)), None)
+    if not matched_seed:
+        matched_seed = api_manager.catalog_cache.get((lang, str(content_id)))
     if matched_seed:
         print("--- [오프라인 폴백] 시드 데이터 매핑 성공 ---")
         return render_template('detail.html', item=matched_seed, current_lang=lang, ncp_id=NCP_CLIENT_ID)
@@ -161,10 +168,10 @@ def detail(content_id):
     # 시드 데이터조차 없는 기타 장소(예: 추가된 맛집)인 경우, 프론트엔드가 LocalStorage에서 복구하도록 가짜 뼈대 전송
     placeholder_item = {
         'contentid': content_id,
-        'title': 'Offline Guide',
+        'title': '상세 정보를 준비 중입니다.',
         'addr1': '',
         'firstimage': '',
-        'overview': '오프라인 상태입니다. 저장된 장소 정보를 로드하고 있습니다...',
+        'overview': '이 장소의 상세 설명을 불러오는 중입니다. 잠시 후 다시 시도해 주세요.',
         'mapx': '127.014',
         'mapy': '37.282',
         'is_offline_placeholder': True

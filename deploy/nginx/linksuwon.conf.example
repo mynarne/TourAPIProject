@@ -1,0 +1,48 @@
+# 기존 linksuwon.everytriplog.com server block에 적용할 최소 diff를 설명하는 참고본입니다.
+# 신규 server block, SSL, Certbot 구성을 자동으로 만들거나 교체하지 않습니다.
+# 실제 적용 전 기존 root·proxy·HTTPS 설정과 비교해야 합니다.
+
+server {
+    listen 80;
+    server_name linksuwon.everytriplog.com;
+
+    # 실제 기존 Nginx root를 확인한 뒤에만 치환합니다.
+    root <EXISTING_LINKSUWON_WEB_ROOT>;
+    index index.html;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:5002;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+    }
+
+    location = /sw.js {
+        try_files $uri =404;
+        add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+    }
+
+    location = /manifest.webmanifest {
+        try_files $uri =404;
+        add_header Cache-Control "no-cache" always;
+    }
+
+    # 운영 데이터는 Git 저장소 밖에서 Nginx가 직접 제공합니다.
+    location /uploads/ {
+        alias /home/ubuntu/data/linksuwon/uploads/;
+        add_header Cache-Control "public, max-age=86400";
+    }
+
+    # 기존에 저장된 /static/uploads URL의 호환 경로입니다.
+    location /static/uploads/ {
+        alias /home/ubuntu/data/linksuwon/uploads/;
+        add_header Cache-Control "public, max-age=86400";
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
