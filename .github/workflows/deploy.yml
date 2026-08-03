@@ -69,6 +69,15 @@ jobs:
             .venv/bin/python -m pip install -r requirements.txt
             .venv/bin/python -m pip install -r backend/requirements.txt
 
+            # GitHub Actions SSH는 비대화형 셸이라 nvm을 직접 로드해야 함
+            export NVM_DIR="/home/ubuntu/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+            nvm use 22
+
+            echo "Node: $(node --version)"
+            echo "npm: $(npm --version)"
+
             cd frontend
             npm ci
             npm run build
@@ -77,8 +86,10 @@ jobs:
 
             sudo systemctl restart "$LINKSUWON_SERVICE_NAME"
 
-            sleep 2
+            sleep 3
 
             curl --fail --silent --show-error "$LINKSUWON_API_HEALTH_URL"
+            echo
             curl --fail --silent --show-error \
               https://linksuwon.everytriplog.com/api/v1/health
+            echo
