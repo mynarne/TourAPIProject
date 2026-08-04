@@ -7,7 +7,7 @@ export function HomePage() {
         <div className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full bg-blue-200/40 blur-3xl" />
         <div className="relative grid items-center gap-12 lg:grid-cols-[1.08fr_.92fr]">
           <div className="max-w-2xl">
-            <p className="eyebrow">Frog Lab · Suwon Travel Guide</p>
+            <p className="eyebrow">Suwon Travel Guide</p>
             <h1 className="mt-5 text-4xl font-black leading-[1.12] tracking-tight text-slate-950 sm:text-6xl">
               수원을 더 깊게,
               <br />

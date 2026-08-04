@@ -16,7 +16,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <div className="mx-auto flex min-h-16 max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <Link className="flex items-center gap-2.5 no-underline" to="/">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-suwon text-sm font-black text-white shadow-sm">LS</span>
-            <span><span className="block text-base font-black leading-none text-slate-900">LinkSuwon</span><span className="mt-1 block text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">Frog Lab</span></span>
+            <span className="block text-base font-black leading-none text-slate-900">LinkSuwon</span>
           </Link>
           <nav className="flex items-center gap-1 text-sm font-semibold" aria-label="주요 메뉴">
             <Link to="/explore" className="rounded-lg px-2.5 py-2 text-slate-600 transition hover:bg-suwon-soft hover:text-suwon">탐색</Link>

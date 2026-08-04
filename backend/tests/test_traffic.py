@@ -19,6 +19,19 @@ class TrafficApiTestCase(unittest.TestCase):
         self.assertEqual(payload['data']['destinations'][0]['name'], 'Suwon Station')
         self.assertIn('cards', payload['data']['guides'])
 
+    def test_traffic_restores_legacy_detail_sections_and_languages(self):
+        korean = self.client.get('/api/v1/traffic?language=kor').get_json()['data']
+        for section in ('arrival', 'card_details', 'traveler_guides'):
+            self.assertIn(section, korean['guides'])
+            self.assertGreaterEqual(len(korean['guides'][section]['items']), 3)
+
+        japanese = self.client.get('/api/v1/traffic?language=jpn').get_json()['data']
+        self.assertIn('水原', japanese['guides']['arrival']['title'])
+        self.assertNotEqual(
+            japanese['guides']['card_details']['items'][0]['description'],
+            korean['guides']['card_details']['items'][0]['description'],
+        )
+
     def test_invalid_language_returns_400(self):
         response = self.client.get('/api/v1/traffic?language=fr')
         self.assertEqual(response.status_code, 400)
