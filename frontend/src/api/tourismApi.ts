@@ -5,6 +5,9 @@ export type TourCategory =
   | 'all'
   | 'heritage'
   | 'museum'
+  | 'art_gallery'
+  | 'library'
+  | 'cultural_facility'
   | 'festival'
   | 'course'
   | 'leisure'
@@ -25,8 +28,18 @@ export type TourSpot = {
   overview: string;
   contentTypeId: string;
   category: TourCategory;
+  eventStartDate?: string;
+  eventEndDate?: string;
   pronunciation: string;
   homepage: string;
+  imageSource?: string | null;
+  imageSourceUrl?: string | null;
+  imageAuthor?: string | null;
+  imageLicense?: string | null;
+  imageLicenseUrl?: string | null;
+  imageAttributionRequired?: boolean | null;
+  sourceUrl?: string | null;
+  enrichmentSource?: string | null;
 };
 
 export type TourSpotsResponse = {
