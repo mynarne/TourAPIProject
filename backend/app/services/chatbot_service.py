@@ -31,14 +31,29 @@ class ChatbotProviderError(Exception):
     """AI 공급자 호출 또는 응답 처리 오류입니다."""
 
 
+_UNSET = object()
+
+
 class ChatbotService:
     """NVIDIA GPT-OSS-20B와 수원 관광 도구를 연결합니다."""
 
-    def __init__(self, client=None, tourism_service=None, traffic_service=None):
+    def __init__(self, client=_UNSET, tourism_service=None, traffic_service=None):
         self.api_key = Config.NVIDIA_API_KEY
         self.model = Config.NVIDIA_MODEL
-        self.client = client or (OpenAI(base_url=Config.NVIDIA_BASE_URL, api_key=self.api_key) if self.api_key else None)
-        self.tourism_service = tourism_service or TourismService()
+        if client is _UNSET:
+            self.client = OpenAI(
+                base_url=Config.NVIDIA_BASE_URL,
+                api_key=self.api_key,
+                timeout=30.0,
+                max_retries=0,
+            ) if self.api_key else None
+        else:
+            self.client = client
+        if tourism_service is None:
+            from ..api.tourism import tourism_service as shared_tourism_service
+            self.tourism_service = shared_tourism_service
+        else:
+            self.tourism_service = tourism_service
         self.traffic_service = traffic_service or TrafficService()
 
     def answer(self, message, language='kor', location=None, user_name=None):
@@ -46,6 +61,8 @@ class ChatbotService:
         if not self.client:
             raise ChatbotConfigurationError('NVIDIA_API_KEY가 설정되지 않았습니다.')
 
+        degraded = False
+        tool_status = None
         messages = [
             {'role': 'system', 'content': self._system_prompt(language, user_name)},
             {'role': 'user', 'content': self._user_context(message, location)},
@@ -69,10 +86,17 @@ class ChatbotService:
 
                 if not tool_calls:
                     content = getattr(assistant, 'content', None) or ''
-                    return self._normalize_response(content)
+                    response = self._normalize_response(content)
+                    response['model'] = self.model
+                    response['degraded'] = degraded
+                    response['toolStatus'] = tool_status
+                    return response
 
                 for tool_call in tool_calls:
                     result = self._run_tool(tool_call.function.name, tool_call.function.arguments, language)
+                    if result.get('degraded'):
+                        degraded = True
+                        tool_status = result.get('toolStatus') or tool_status
                     messages.append({
                         'role': 'tool',
                         'tool_call_id': tool_call.id,
@@ -139,24 +163,45 @@ class ChatbotService:
         except json.JSONDecodeError:
             return {'error': '도구 인자가 올바른 JSON이 아닙니다.'}
 
-        if name == 'search_suwon_spots':
-            query = str(args.get('query') or '').strip()[:100]
-            category = args.get('category', 'all')
-            if not query:
-                return {'items': []}
-            data = self.tourism_service.get_spots(language=language, page=1, page_size=8, category=category, keyword=query)
-            return {'items': [self._compact_spot(item) for item in data['items']]}
+        try:
+            if name == 'search_suwon_spots':
+                query = str(args.get('query') or '').strip()[:100]
+                category = args.get('category', 'all')
+                if not query:
+                    return {'items': []}
+                data = self.tourism_service.get_spots(language=language, page=1, page_size=8, category=category, keyword=query)
+                result = {'items': [self._compact_spot(item) for item in data['items']]}
+                return self._mark_tourism_degraded(result)
 
-        if name == 'get_suwon_spot_detail':
-            content_id = str(args.get('content_id') or '').strip()
-            detail = self.tourism_service.get_spot_detail(content_id, language=language)
-            return {'spot': self._compact_spot(detail, detail=True)}
+            if name == 'get_suwon_spot_detail':
+                content_id = str(args.get('content_id') or '').strip()
+                detail = self.tourism_service.get_spot_detail(content_id, language=language)
+                return self._mark_tourism_degraded({'spot': self._compact_spot(detail, detail=True)})
 
-        if name == 'get_suwon_transport_guide':
-            data = self.traffic_service.get_traffic_data(language)
-            return {'topic': str(args.get('topic') or '')[:100], 'transport': data['guides'], 'destinations': data['destinations']}
+            if name == 'get_suwon_transport_guide':
+                data = self.traffic_service.get_traffic_data(language)
+                return {'topic': str(args.get('topic') or '')[:100], 'transport': data['guides'], 'destinations': data['destinations']}
+        except Exception:
+            logger.warning('관광/교통 도구를 사용할 수 없습니다: tool=%s', name, exc_info=True)
+            return {
+                'degraded': True,
+                'toolStatus': 'tourapi_unavailable' if name != 'get_suwon_transport_guide' else 'transport_unavailable',
+                'message': '현재 외부 관광정보를 확인할 수 없습니다. 검증되지 않은 최신 정보를 추측하지 마십시오.',
+                'items': [],
+            }
 
         return {'error': '지원하지 않는 도구입니다.'}
+
+    def _mark_tourism_degraded(self, result):
+        manager = getattr(self.tourism_service, 'manager', None)
+        circuit_open = bool(manager and manager._tour_api_circuit_open())
+        if circuit_open:
+            result.update({
+                'degraded': True,
+                'toolStatus': 'tourapi_unavailable',
+                'message': '현재 외부 관광정보 조회가 제한되어 저장된 검증 데이터만 제공됩니다. 최신 정보는 확인할 수 없습니다.',
+            })
+        return result
 
     @staticmethod
     def _compact_spot(item, detail=False):
@@ -180,7 +225,7 @@ class ChatbotService:
     def _normalize_response(content):
         text = str(content).strip()
         course = None
-        match = re.search(r'\[COURSE_DATA:\s*(\{.*?\})\]\s*$', text, re.DOTALL)
+        match = re.search(r'(?:```(?:markdown|json)?\s*)?\[COURSE_DATA:\s*(\{.*?\})\]\s*(?:```)?\s*$', text, re.DOTALL)
         if match:
             try:
                 candidate = json.loads(match.group(1))
@@ -215,16 +260,16 @@ class ChatbotService:
         language_name = LANGUAGE_NAMES[language]
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         name_instruction = f'사용자 이름은 {user_name}입니다. 자연스러울 때만 이름을 사용하세요.' if user_name else ''
-        return f'''너는 LinkSuwon의 수원 전문 여행 도우미다. 현재 시각은 {now}이다.
+        return f'''너는 LinkSuwon의 수원 전문 AI 여행 도우미다. 현재 시각은 {now}이다.
 
-핵심 역할:
-- 수원 관광지, 음식점, 전통시장, 박물관, 숙박, 교통, 여행 일정만 안내한다.
-- 수원에 오는 방법, 수원에서 서울·인천공항·김포공항으로 가는 방법, 수원역 이용법, 지하철·버스·택시·교통카드 발급과 충전 방법을 친절히 설명한다.
-- 답변은 반드시 {language_name}으로 작성한다.
-- 확인이 필요한 관광지 정보는 search_suwon_spots 또는 get_suwon_spot_detail 도구를 사용한다.
-- 교통 질문은 get_suwon_transport_guide 도구를 먼저 사용한다. 도구에 없는 실시간 도착·운행 정보는 추측하지 말고 네이버 지도 확인을 안내한다.
-- 도구 결과에 없는 가격, 운영시간, 거리, 소요시간을 지어내지 않는다. 불확실하면 확인 방법과 주의사항을 함께 말한다.
-- 사용자가 수원과 무관한 질문을 하면 정중히 수원 관광과 교통 안내만 가능하다고 답한다.
-- 답변은 읽기 쉬운 Markdown을 사용하되, HTML 태그나 스크립트는 작성하지 않는다.
-- 일정·코스를 추천할 때는 장소 순서와 이동 팁을 설명하고, 답변 마지막에 반드시 한 줄짜리 [COURSE_DATA: {{"title":"...", "places":["..."]}}]를 추가한다.
+핵심 원칙 및 사실 기준:
+- 수원 관광지, 문화유산, 맛집, 시장, 숙박, 교통카드, 대중교통 정보만 정확하게 안내한다.
+- 관광지의 역사, 주소, 운영시간, 요금 등 확인 가능한 사실은 내부 도구 결과를 우선하고, 도구에 없는 사실은 추측하지 않는다.
+- 관광지 정보(주소, 운영시간, 요금, 설명 등)는 반드시 search_suwon_spots 또는 get_suwon_spot_detail 도구를 먼저 호출하여 획득한 데이터에 기반(Grounding)하여 답변한다.
+- 교통 질문(공항/서울 ➡️ 수원 이동, T-money, WOWPASS, NAMANE, 1회용 카드 등)은 get_suwon_transport_guide 도구를 우선 호출한다.
+- 도구 결과에 없는 가격, 운영시간, 소요시간을 거짓으로 지어내지 말고, 불확실하면 네이버 지도 등 공식 확인 방법을 안내한다.
+- 도구 결과에 `degraded` 또는 `unavailable` 상태가 포함되면 최신 관광정보를 확인할 수 없다고 명확히 알리고, 검증되지 않은 축제·운영시간·요금·교통 상태를 추측하지 않는다.
+- 답변은 반드시 사용자가 요청한 언어({language_name})로 작성한다.
+- 가독성이 좋은 마크다운(Markdown) 포맷으로 작성한다.
+- 여행 코스나 일정을 추천할 때는 답변 맨 마지막 줄에 [COURSE_DATA: {{"title":"...", "places":["..."]}}] 형태의 메타데이터를 추가한다.
 {name_instruction}'''

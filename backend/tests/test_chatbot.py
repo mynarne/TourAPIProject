@@ -5,6 +5,7 @@ from unittest.mock import patch
 from app import create_app
 from app.api import chatbot as chatbot_api
 from app.services.chatbot_service import ChatbotService
+from LinkSuwon.api_manager import TourAPIManager
 
 
 def completion(message):
@@ -35,9 +36,17 @@ class FakeTrafficService:
         return {'guides': {'cards': {'title': '교통카드', 'items': []}}, 'destinations': []}
 
 
+class FailingTourismService:
+    def get_spots(self, **kwargs):
+        raise RuntimeError('TourAPI daily limit')
+
+    def get_spot_detail(self, content_id, **kwargs):
+        raise RuntimeError('TourAPI daily limit')
+
+
 class ChatbotApiTestCase(unittest.TestCase):
     def setUp(self):
-        self.app = create_app({'TESTING': True})
+        self.app = create_app({'TESTING': True, 'SECRET_KEY': 'chatbot-test-secret'})
         self.client = self.app.test_client()
 
     def test_successful_gpt_response(self):
@@ -47,6 +56,7 @@ class ChatbotApiTestCase(unittest.TestCase):
             response = self.client.post('/api/v1/chatbot/messages', json={'message': '수원화성 알려줘', 'language': 'kor'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()['data']['provider'], 'nvidia')
+        self.assertEqual(response.get_json()['data']['model'], service.model)
         self.assertEqual(len(client.calls), 1)
 
     def test_tool_call_is_executed_before_final_response(self):
@@ -81,6 +91,34 @@ class ChatbotApiTestCase(unittest.TestCase):
         result = service.answer('하루 코스 짜줘', 'kor')
         self.assertEqual(result['course']['title'], '수원 코스')
         self.assertNotIn('COURSE_DATA', result['message'])
+
+    def test_fenced_course_metadata_is_removed(self):
+        client = FakeClient([completion(SimpleNamespace(content='코스입니다.\n```markdown\n[COURSE_DATA: {"title":"수원 코스","places":["화성행궁"]}]\n```', tool_calls=None))])
+        service = ChatbotService(client=client, tourism_service=FakeTourismService(), traffic_service=FakeTrafficService())
+        result = service.answer('코스 짜줘', 'kor')
+        self.assertEqual(result['course']['title'], '수원 코스')
+        self.assertNotIn('```', result['message'])
+
+    def test_tourism_tool_failure_returns_degraded_nvidia_response(self):
+        tool_call = SimpleNamespace(id='call-degraded', function=SimpleNamespace(name='search_suwon_spots', arguments='{"query":"수원화성","category":"heritage"}'))
+        client = FakeClient([
+            completion(SimpleNamespace(content=None, tool_calls=[tool_call])),
+            completion(SimpleNamespace(content='현재 최신 관광정보를 확인할 수 없습니다.', tool_calls=None)),
+        ])
+        service = ChatbotService(client=client, tourism_service=FailingTourismService(), traffic_service=FakeTrafficService())
+        result = service.answer('수원화성 알려줘', 'kor')
+        self.assertEqual(result['provider'], 'nvidia')
+        self.assertTrue(result['degraded'])
+        self.assertEqual(result['toolStatus'], 'tourapi_unavailable')
+        self.assertEqual(len(client.calls), 2)
+
+    def test_tourism_circuit_reason_22_blocks_until_expiry(self):
+        manager = TourAPIManager()
+        manager._open_tour_api_circuit('22')
+        self.assertTrue(manager._tour_api_circuit_open())
+        self.assertEqual(manager.tour_api_unavailable_reason, '22')
+        manager.tour_api_unavailable_until = 0
+        self.assertFalse(manager._tour_api_circuit_open())
 
 
 if __name__ == '__main__':

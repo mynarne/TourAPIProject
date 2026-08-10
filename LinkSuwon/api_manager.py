@@ -2,6 +2,9 @@ import os
 import requests
 import re
 import urllib3
+import logging
+import json
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import unquote
 
@@ -13,14 +16,18 @@ import pykakasi
 from LinkSuwon.config import Config
 from LinkSuwon.seed_data import get_seed_places
 
+logger = logging.getLogger(__name__)
+
 class TourAPIManager():
     def __init__(self):
         # Config 클래스로부터 설정값 주입
         self.api_key = unquote(Config.TOUR_API_KEY) if Config.TOUR_API_KEY else None
         self.base_url = 'https://apis.data.go.kr/B551011'
-        self.gemini_api_key = Config.GEMINI_API_KEY
         self.ssl_verify = Config.SSL_VERIFY
         self.catalog_cache = {}
+        self.catalog_last_good = {}
+        self.tour_api_unavailable_until = 0.0
+        self.tour_api_unavailable_reason = None
 
         # 일본어 변환기 설정
         self.kks = pykakasi.kakasi()
@@ -61,7 +68,7 @@ class TourAPIManager():
 
         # API 호출 실패 또는 오류 발생 시 사용될 Fallback 생성 헬퍼
         def make_fallback_response():
-            print(f"--- [DEBUG] API 장애 감지. {lang} 언어용 로컬 Seed Data를 로드합니다. ---")
+            logger.warning('TourAPI 장애로 로컬 seed data를 사용합니다: language=%s content_type=%s', lang, content_type_id)
             local_items = get_seed_places(lang) if content_type_id is None else []
             return {
                 "response": {
@@ -83,35 +90,42 @@ class TourAPIManager():
         if not self.api_key:
             return make_fallback_response()
 
+        if self._tour_api_circuit_open():
+            return make_fallback_response()
+
         try:
             # [보안 적용] 전역 SSL 검증 옵션 바인딩
             response = requests.get(url, params=params, timeout=10, verify=self.ssl_verify)
             
             if response.status_code == 200:
                 res_data = response.json()
-                
+
                 # API 응답 헤더 확인
-                header = res_data.get('response', {}).get('header', {})
+                if not isinstance(res_data, dict):
+                    logger.warning('TourAPI 응답 형식 오류: language=%s content_type=%s', lang, content_type)
+                    return make_fallback_response()
+                envelope = res_data.get('response')
+                if not isinstance(envelope, dict):
+                    envelope = {}
+                    res_data['response'] = envelope
+                header = envelope.get('header')
+                if not isinstance(header, dict):
+                    header = {}
                 if header.get('resultCode') != '0000':
-                    print(f"--- [DEBUG] API 응답 에러 코드: {header.get('resultCode')} ---")
+                    logger.warning('TourAPI 응답 오류: language=%s content_type=%s code=%s message=%s', lang, content_type, header.get('resultCode'), header.get('resultMsg'))
                     return make_fallback_response()
 
                 # 아이템별 발음 및 설명(Seed) 주입
-                items_wrapper = res_data.get('response', {}).get('body', {}).get('items')
-                if items_wrapper and 'item' in items_wrapper:
-                    items = items_wrapper['item']
-                    # 단일 아이템일 경우 리스트화
-                    if isinstance(items, dict):
-                        items = [items]
-                        items_wrapper['item'] = items
-                    elif isinstance(items, list):
-                        items = [item for item in items if isinstance(item, dict)]
-                        items_wrapper['item'] = items
-                    elif not isinstance(items, list):
-                        items = []
-                        items_wrapper['item'] = items
+                body = envelope.get('body') if isinstance(envelope, dict) else None
+                if not isinstance(body, dict):
+                    body = {}
+                    envelope['body'] = body
+                items_container = body.get('items')
+                raw_items = items_container.get('item') if isinstance(items_container, dict) else items_container
+                items = self._normalize_items(raw_items)
+                body['items'] = {'item': items}
 
-                    for item in items:
+                for item in items:
                         title = item.get('title', '')
                         ko_name = title.split('(')[-1].replace(')', '').strip() if '(' in title else title
                         c_id = item.get('contentid')
@@ -139,29 +153,31 @@ class TourAPIManager():
                                 item['overview'] = item.get('addr1', '수원의 정취를 느낄 수 있는 멋진 장소!')
 
                 # 최종 반환 전 혼합 콘텐츠(Mixed Content) 대응을 위한 모든 이미지 URL https 강제 전환
-                if items_wrapper and 'item' in items_wrapper:
-                    for item in items_wrapper['item']:
-                        if item.get('firstimage'):
-                            item['firstimage'] = self.force_https(item['firstimage'])
-                        if item.get('firstimage2'):
-                            item['firstimage2'] = self.force_https(item['firstimage2'])
+                for item in items:
+                    if item.get('firstimage'):
+                        item['firstimage'] = self.force_https(item['firstimage'])
+                    if item.get('firstimage2'):
+                        item['firstimage2'] = self.force_https(item['firstimage2'])
 
                 # 데이터 개수 로그로 확인
-                body = res_data.get('response', {}).get('body', {})
+                body = envelope.get('body') if isinstance(envelope, dict) else None
+                if not isinstance(body, dict):
+                    body = {}
                 total = body.get('totalCount', 0)
-                print(f"--- [DEBUG] 수원 데이터 수신 성공! 총 {total}개 ---")
+                logger.debug('수원 관광 데이터 수신: language=%s content_type=%s total=%s', lang, content_type, total)
                 
                 return res_data
             else:
-                print(f"--- [DEBUG] HTTP 에러 발생: {response.status_code} ---")
+                reason_code = self._log_http_error(response, lang, content_type)
+                if reason_code == '22':
+                    self._open_tour_api_circuit(reason_code)
                 return make_fallback_response()
                 
         except requests.exceptions.SSLError as ssl_err:
-            print(f"🚨 [SSL ERROR] get_suwon_data HTTPS 인증서 검증 실패: {ssl_err}")
-            print("   (자가 서명 개발 환경인 경우 .env에 SSL_VERIFY=False 설정을 적용하고 재시도하십시오.)")
+            logger.error('TourAPI SSL 검증 실패: language=%s content_type=%s', lang, content_type)
             return make_fallback_response()
         except Exception as e:
-            print(f"--- [DEBUG] 예외 발생: {str(e)} ---")
+            logger.exception('TourAPI 요청 처리 실패: language=%s content_type=%s', lang, content_type)
             return make_fallback_response()
         
     def get_suwon_catalog(self, lang='kor'):
@@ -179,21 +195,24 @@ class TourAPIManager():
         if not self.api_key:
             return get_seed_places(lang)
 
+        if self._tour_api_circuit_open():
+            if self.catalog_last_good.get(lang):
+                return [dict(item) for item in self.catalog_last_good[lang]]
+            return self._merge_seed_items([], lang)
+
         collected = []
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            future_map = {
-                executor.submit(self.get_suwon_data, lang, content_type_id): (content_type_id, category)
-                for content_type_id, category in type_map.items()
-            }
-            for future in as_completed(future_map):
-                content_type_id, category = future_map[future]
-                try:
-                    for item in self._extract_items(future.result()):
-                        item['contenttypeid'] = str(item.get('contenttypeid') or content_type_id)
-                        item['cat'] = category
-                        collected.append(item)
-                except Exception as api_error:
-                    print(f"--- [DEBUG] 콘텐츠 유형 {content_type_id} 수집 실패: {api_error} ---")
+        for content_type_id, category in type_map.items():
+            # 일일 호출 제한이 확인되면 다음 콘텐츠 유형을 요청하지 않고 즉시 fallback으로 전환합니다.
+            if self._tour_api_circuit_open():
+                break
+            try:
+                response = self.get_suwon_data(lang, content_type_id)
+                for item in self._extract_items(response):
+                    item['contenttypeid'] = str(item.get('contenttypeid') or content_type_id)
+                    item['cat'] = category
+                    collected.append(item)
+            except Exception:
+                logger.exception('TourAPI 콘텐츠 유형 수집 실패: content_type=%s', content_type_id)
 
         unique_items = {}
         for item in collected:
@@ -201,6 +220,12 @@ class TourAPIManager():
             if content_id and content_id not in unique_items:
                 unique_items[content_id] = item
         items = list(unique_items.values())
+
+        # 외부 API가 일시적으로 제한되더라도 직전 정상 카탈로그를 유지합니다.
+        # 첫 실행에서 정상 수집 이력이 없을 때만 로컬 seed로 내려갑니다.
+        if not items and self.catalog_last_good.get(lang):
+            logger.warning('TourAPI 결과가 비어 직전 정상 카탈로그를 사용합니다: language=%s', lang)
+            return [dict(item) for item in self.catalog_last_good[lang]]
 
         for item in items:
             self.catalog_cache[(lang, str(item.get('contentid')))] = item
@@ -218,38 +243,130 @@ class TourAPIManager():
                     item['firstimage'] = item.get('firstimage') or image_pair[0]
                     item['firstimage2'] = item.get('firstimage2') or image_pair[1]
 
+        items = self._merge_seed_items(items, lang)
         self._enrich_missing_images(items, lang)
+        if collected:
+            self.catalog_last_good[lang] = [dict(item) for item in items]
         return items
+
+    @staticmethod
+    def _log_http_error(response, lang, content_type):
+        """TourAPI 오류 구조를 비밀정보 없이 기록합니다."""
+        result_code = None
+        result_message = None
+        error_reason = None
+        try:
+            payload = response.json()
+            service_response = payload.get('OpenAPI_ServiceResponse', {}) if isinstance(payload, dict) else {}
+            header = service_response.get('cmmMsgHeader', {}) if isinstance(service_response, dict) else {}
+            result_message = header.get('errMsg')
+            error_reason = header.get('returnReasonCode')
+            response_header = payload.get('response', {}).get('header', {}) if isinstance(payload, dict) else {}
+            if isinstance(response_header, dict):
+                result_code = response_header.get('resultCode') or result_code
+                result_message = response_header.get('resultMsg') or result_message
+        except (ValueError, json.JSONDecodeError):
+            logger.warning('TourAPI 오류 응답 JSON 파싱 실패: language=%s content_type=%s', lang, content_type)
+        logger.error(
+            'TourAPI HTTP 오류: language=%s content_type=%s status=%s content_type_header=%s '
+            'resultCode=%s resultMsg=%s reasonCode=%s retryAfter=%s',
+            lang,
+            content_type,
+            response.status_code,
+            response.headers.get('Content-Type'),
+            result_code,
+            result_message,
+            error_reason,
+            response.headers.get('Retry-After'),
+        )
+        return str(error_reason) if error_reason is not None else None
+
+    def _open_tour_api_circuit(self, reason_code):
+        self.tour_api_unavailable_reason = str(reason_code)
+        self.tour_api_unavailable_until = time.time() + 86400
+        logger.warning('TourAPI circuit open: reasonCode=%s', reason_code)
+
+    def _tour_api_circuit_open(self):
+        if self.tour_api_unavailable_until <= time.time():
+            self.tour_api_unavailable_until = 0.0
+            self.tour_api_unavailable_reason = None
+            return False
+        return True
+
+    @staticmethod
+    def _merge_seed_items(items, lang):
+        """TourAPI 결과에 로컬 큐레이션 명소를 보완하고 contentId로 중복 제거합니다."""
+        seed_items = get_seed_places(lang)
+        merged = {}
+        title_index = {}
+
+        def normalize_title(value):
+            return ''.join(str(value or '').lower().split())
+
+        for item in items if isinstance(items, list) else []:
+            if not isinstance(item, dict):
+                continue
+            content_id = str(item.get('contentid') or '')
+            if content_id:
+                merged[content_id] = dict(item)
+                normalized_title = normalize_title(item.get('title'))
+                if normalized_title:
+                    title_index.setdefault(normalized_title, content_id)
+
+        for seed in seed_items:
+            if not isinstance(seed, dict):
+                continue
+            content_id = str(seed.get('contentid') or '')
+            if not content_id:
+                continue
+            normalized_title = normalize_title(seed.get('title'))
+            existing_id = content_id if content_id in merged else title_index.get(normalized_title)
+            if not existing_id:
+                merged[content_id] = dict(seed)
+                if normalized_title:
+                    title_index[normalized_title] = content_id
+                continue
+            for key, value in seed.items():
+                if key in {'overview', 'description', 'firstimage', 'firstimage2'} and value:
+                    merged[existing_id][key] = value
+                elif not merged[existing_id].get(key) and value:
+                    merged[existing_id][key] = value
+
+        return list(merged.values())
 
     @staticmethod
     def _extract_items(response):
         if not isinstance(response, dict):
             return []
-        items = response.get('response', {}).get('body', {}).get('items', {}).get('item', [])
-        if isinstance(items, dict):
-            return [items] if items else []
-        if isinstance(items, list):
-            return [item for item in items if isinstance(item, dict)]
+        envelope = response.get('response')
+        body = envelope.get('body') if isinstance(envelope, dict) else None
+        if not isinstance(body, dict):
+            return []
+        items_container = body.get('items')
+        items = items_container.get('item') if isinstance(items_container, dict) else items_container
+        return TourAPIManager._normalize_items(items)
+
+    @staticmethod
+    def _normalize_items(value):
+        """TourAPI의 단일 객체·배열·빈 응답을 list[dict]로 통일합니다."""
+        if value is None or value == '' or value == {}:
+            return []
+        if isinstance(value, dict):
+            return [value]
+        if isinstance(value, list):
+            return [item for item in value if isinstance(item, dict)]
+        logger.warning('예상하지 못한 TourAPI items 형식: type=%s', type(value).__name__)
         return []
 
     def _enrich_missing_images(self, items, lang):
         """목록 API에서 이미지가 빠진 항목을 상세 API로 제한적으로 보강합니다."""
-        targets = [item for item in items if not item.get('firstimage') and item.get('contentid')][:30]
+        # 목록 요청마다 전체 항목을 상세 이미지 API로 조회하지 않고 소수만 보강합니다.
+        targets = [item for item in items if not item.get('firstimage') and item.get('contentid')][:6]
         if not targets:
             return
 
         def fetch_image(item):
-            detail = self.get_detail_info(
-                str(item['contentid']), lang, content_type_id=item.get('contenttypeid')
-            )
-            detail_items = self._extract_items(detail)
-            detail_item = detail_items[0] if detail_items else {}
-            image = detail_item.get('firstimage')
-            image2 = detail_item.get('firstimage2')
-            if not image:
-                image, image2 = self._fetch_gallery_image(
-                    str(item['contentid']), lang, item.get('contenttypeid')
-                )
+            image, image2 = self._fetch_gallery_image(str(item['contentid']), lang, item.get('contenttypeid'))
             return item, image, image2
 
         with ThreadPoolExecutor(max_workers=6) as executor:
@@ -262,11 +379,11 @@ class TourAPIManager():
                     if image2:
                         item['firstimage2'] = self.force_https(image2)
                 except Exception as image_error:
-                    print(f"--- [DEBUG] 상세 이미지 보강 실패: {image_error} ---")
+                    logger.warning('상세 이미지 보강 실패: content_id=%s', item.get('contentid'))
 
     def _fetch_gallery_image(self, content_id, lang, content_type_id=None):
         """상세 공통 API에 이미지가 없을 때 이미지 목록 API에서 대표 이미지를 찾습니다."""
-        if not self.api_key:
+        if not self.api_key or self._tour_api_circuit_open():
             return None, None
         service_map = self.service_map.get(lang, 'KorService2')
         content_type = content_type_id or ('12' if lang == 'kor' else '76')
@@ -285,15 +402,12 @@ class TourAPIManager():
             url = f'{self.base_url}/{service_map}/detailImage2'
             response = requests.get(url, params=params, timeout=8, verify=self.ssl_verify)
             payload = response.json() if response.status_code == 200 else {}
-            images = payload.get('response', {}).get('body', {}).get('items', {}).get('item', [])
-            if isinstance(images, dict):
-                images = [images]
-            images = images if isinstance(images, list) else []
+            images = self._extract_items(payload)
             first = next((image for image in images if image.get('originimgurl')), None)
             if first:
                 return self.force_https(first.get('originimgurl')), self.force_https(first.get('smallimageurl'))
         except Exception as image_error:
-            print(f"--- [DEBUG] 이미지 목록 API 보강 실패: {image_error} ---")
+            logger.warning('TourAPI 이미지 목록 보강 실패: content_id=%s', content_id)
         return None, None
 
     def get_detail_info(self, content_id, lang='kor', content_type_id=None):
@@ -309,6 +423,9 @@ class TourAPIManager():
                 }
             }
 
+        if self._tour_api_circuit_open():
+            return cached_response()
+
         # content_id가 로컬 Seed Data에 해당하는 경우 로컬에서 즉시 리턴
         if str(content_id) in ['126227', '126228', '126229', '126230', '126231', '126232', '126233', '126234']:
             local_items = get_seed_places(lang)
@@ -323,9 +440,9 @@ class TourAPIManager():
                             matched['firstimage'] = k_matched.get('firstimage')
                             if k_matched.get('firstimage2'):
                                 matched['firstimage2'] = k_matched.get('firstimage2')
-                            print(f"--- [DEBUG] 시드 명소 이미지 수혈 완료: {content_id} ---")
+                            logger.debug('시드 명소 이미지 보강 완료: content_id=%s', content_id)
                     except Exception as seed_img_err:
-                        print(f"--- [DEBUG] 시드 명소 이미지 수혈 실패: {seed_img_err} ---")
+                        logger.warning('시드 명소 이미지 보강 실패: content_id=%s', content_id)
                 if matched.get('firstimage'):
                     matched['firstimage'] = self.force_https(matched['firstimage'])
                 if matched.get('firstimage2'):
@@ -355,7 +472,6 @@ class TourAPIManager():
 
         if not self.api_key:
             return cached_response()
-
         try:
             # 1차: detailCommon2 — overview, 주소, 이미지
             common_url = f'{self.base_url}/{service_map}/detailCommon2'
@@ -370,19 +486,28 @@ class TourAPIManager():
                 return cached_response()
 
             res_data = common_res.json()
-            header = res_data.get('response', {}).get('header', {})
-            if header.get('resultCode') != '0000':
-                print(f"--- [DEBUG] detailCommon2 API 응답 에러: {header.get('resultMsg')} (코드: {header.get('resultCode')}) ---")
+            envelope = res_data.get('response') if isinstance(res_data, dict) else None
+            header = envelope.get('header') if isinstance(envelope, dict) else {}
+            if not isinstance(header, dict):
+                header = {}
+            result_code = header.get('resultCode')
+            if result_code is None:
+                logger.warning('detailCommon2 응답 형식 오류: content_id=%s', content_id)
+                return cached_response() or res_data
+            if result_code != '0000':
+                logger.warning('detailCommon2 응답 오류: content_id=%s code=%s message=%s', content_id, header.get('resultCode'), header.get('resultMsg'))
                 return cached_response()
 
             # item 추출
-            body = res_data.get('response', {}).get('body', {})
-            items_container = body.get('items', {})
-            if not items_container or 'item' not in items_container:
+            body = envelope.get('body') if isinstance(envelope, dict) else None
+            if not isinstance(body, dict):
                 return cached_response() or res_data
-
-            item_list = items_container['item']
-            item = item_list[0] if isinstance(item_list, list) else item_list
+            items_container = body.get('items')
+            raw_items = items_container.get('item') if isinstance(items_container, dict) else items_container
+            item_list = self._normalize_items(raw_items)
+            if not item_list:
+                return cached_response() or res_data
+            item = item_list[0]
 
             if not isinstance(item, dict):
                 return cached_response()
@@ -401,16 +526,16 @@ class TourAPIManager():
                     kor_common_res = requests.get(kor_common_url, params=kor_common_params, timeout=10, verify=self.ssl_verify)
                     if kor_common_res.status_code == 200:
                         kor_res_data = kor_common_res.json()
-                        kor_item_list = kor_res_data.get('response', {}).get('body', {}).get('items', {}).get('item', [])
+                        kor_item_list = self._extract_items(kor_res_data)
                         if kor_item_list:
-                            kor_item = kor_item_list[0] if isinstance(kor_item_list, list) else kor_item_list
+                            kor_item = kor_item_list[0]
                             if kor_item.get('firstimage'):
                                 item['firstimage'] = kor_item.get('firstimage')
                                 if kor_item.get('firstimage2'):
                                     item['firstimage2'] = kor_item.get('firstimage2')
-                                print(f"--- [DEBUG] 외국어 상세 정보 이미지 수혈 완료 (detailCommon2): {content_id} ---")
+                                logger.debug('외국어 상세 이미지 보강 완료: content_id=%s', content_id)
                 except Exception as detail_img_err:
-                    print(f"--- [DEBUG] 국문 상세 정보 이미지 수혈 실패: {detail_img_err} ---")
+                    logger.warning('국문 상세 이미지 보강 실패: content_id=%s', content_id)
 
             # 2차: detailIntro2 — 한국어 서비스인 경우에만 전화번호, 영업시간, 휴무일, 주차, 입장료 등 추가 병합
             if lang == 'kor':
@@ -419,24 +544,29 @@ class TourAPIManager():
                     intro_res = requests.get(intro_url, params=base_params, timeout=8, verify=self.ssl_verify)
                     if intro_res.status_code == 200:
                         intro_data = intro_res.json()
-                        intro_header = intro_data.get('response', {}).get('header', {})
+                        intro_envelope = intro_data.get('response') if isinstance(intro_data, dict) else None
+                        intro_header = intro_envelope.get('header') if isinstance(intro_envelope, dict) else {}
+                        if not isinstance(intro_header, dict):
+                            intro_header = {}
                         if intro_header.get('resultCode') == '0000':
-                            intro_items = intro_data.get('response', {}).get('body', {}).get('items', {})
-                            if intro_items and 'item' in intro_items:
-                                intro_item_list = intro_items['item']
-                                intro_item = intro_item_list[0] if isinstance(intro_item_list, list) else intro_item_list
-                                # intro 정보를 main item에 병합
-                                item.update({
-                                    'infocenter': intro_item.get('infocenter', intro_item.get('infocenterfood', intro_item.get('infocenterculture', ''))),
-                                    'usetime': intro_item.get('usetime', intro_item.get('usetimefood', intro_item.get('usetimeculture', ''))),
-                                    'restdate': intro_item.get('restdate', intro_item.get('restdatefood', intro_item.get('restdateculture', ''))),
-                                    'parking': intro_item.get('parking', intro_item.get('parkingfood', intro_item.get('parkingculture', ''))),
-                                    'usefee': intro_item.get('usefee', intro_item.get('usefeeculture', '')),
-                                    'accomcount': intro_item.get('accomcount', ''),
-                                })
-                                print(f"--- [DEBUG] detailIntro2 병합 성공: {content_id} ---")
-                except Exception as intro_err:
-                    print(f"--- [DEBUG] detailIntro2 병합 실패 (무시): {intro_err} ---")
+                            intro_body = intro_envelope.get('body') if isinstance(intro_envelope, dict) else None
+                            intro_items = intro_body.get('items') if isinstance(intro_body, dict) else None
+                            if intro_items:
+                                intro_item_list = self._normalize_items(intro_items.get('item') if isinstance(intro_items, dict) else intro_items)
+                                intro_item = intro_item_list[0] if intro_item_list else {}
+                                if intro_item:
+                                    # intro 정보를 main item에 병합
+                                    item.update({
+                                        'infocenter': intro_item.get('infocenter', intro_item.get('infocenterfood', intro_item.get('infocenterculture', ''))),
+                                        'usetime': intro_item.get('usetime', intro_item.get('usetimefood', intro_item.get('usetimeculture', ''))),
+                                        'restdate': intro_item.get('restdate', intro_item.get('restdatefood', intro_item.get('restdateculture', ''))),
+                                        'parking': intro_item.get('parking', intro_item.get('parkingfood', intro_item.get('parkingculture', ''))),
+                                        'usefee': intro_item.get('usefee', intro_item.get('usefeeculture', '')),
+                                        'accomcount': intro_item.get('accomcount', ''),
+                                    })
+                                    logger.debug('detailIntro2 병합 성공: content_id=%s', content_id)
+                except Exception:
+                    logger.warning('detailIntro2 병합 실패: content_id=%s', content_id, exc_info=True)
 
             # 최종 반환 전 혼합 콘텐츠(Mixed Content) 대응을 위한 이미지 URL https 강제 전환
             if item.get('firstimage'):
@@ -445,115 +575,13 @@ class TourAPIManager():
                 item['firstimage2'] = self.force_https(item['firstimage2'])
 
             # 병합된 item을 원래 구조에 다시 넣어서 반환
-            if isinstance(items_container.get('item'), list):
-                items_container['item'][0] = item
-            else:
-                items_container['item'] = item
+            body['items'] = {'item': [item]}
 
             return res_data
 
         except requests.exceptions.SSLError as ssl_err:
-            print(f"🚨 [SSL ERROR] get_detail_info HTTPS 인증서 검증 실패: {ssl_err}")
-            print("   (자가 서명 개발 환경인 경우 .env에 SSL_VERIFY=False 설정을 적용하고 재시도하십시오.)")
+            logger.error('TourAPI 상세 SSL 검증 실패: content_id=%s', content_id)
             return cached_response()
         except Exception as e:
-            print(f"--- [DEBUG] 상세정보 예외 발생: {str(e)} ---")
+            logger.exception('TourAPI 상세 요청 처리 실패: content_id=%s', content_id)
             return cached_response()
-
-    # 제미나이 호출 함수
-    def ask_gemini_multilingual(self, user_input: str, target_language: str, user_name: str = None) -> str:
-        if not self.gemini_api_key:
-            return "API key is missing. Please check your .env file."
-
-        from datetime import datetime
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # 시스템 프롬프트: 챗봇의 정체성을 '수원 관광 가이드'로 강제 고정
-        system_instruction = (
-            "너는 수원시 공식 관광 가이드 AI야. "
-            "오직 수원 관광, 대중교통, 여행 팁에 관한 질문에만 답변해. "
-            "만약 사용자가 수원 관광과 관련 없는 질문(정치, 사회, 개인적인 잡담 등)을 하면, "
-            "정중하게 '수원 관광에 대해서만 도와드릴 수 있습니다'라고 해당 언어로 답변하고 대화를 종료해. "
-            f"현재 기준 날짜와 시간은 {current_time} 이며, 모든 날짜/시간 관련 답변은 이 기준을 바탕으로 처리해야 해.\n\n"
-            "[중요] 만약 사용자가 수원 여행 일정 추천, 코스 설계, 경로 등을 요청하는 질문을 한다면, "
-            "친절히 마크다운으로 일정을 정리한 뒤, 답변의 '가장 마지막 줄'에 반드시 아래 규격의 코스 메타데이터를 덧붙여줘. "
-            "단, JSON 포맷은 한 줄로 표현해야 하며 양 끝의 괄호와 문법이 완벽해야 해. "
-            "포맷 예시: [COURSE_DATA: {\"title\": \"수원 핵심 1박 2일 코스\", \"places\": [\"화성행궁\", \"방화수류정\", \"수원화성박물관\", \"수원통닭거리\"]}]"
-        )
-
-        if user_name:
-            system_instruction += (
-                f" The user's name is '{user_name}'. Greet them or refer to them by name naturally in the target language "
-                f"(e.g., '{user_name}님' in Korean, or '{user_name}' in English)."
-            )
-
-        # 언어 코드에 따른 시스템 지시문 정의
-        lang_map = {
-            'kor': "You must answer in Korean.",
-            'eng': "You must answer in English.",
-            'jpn': "You must answer in Japanese.",
-            'chs': "You must answer in Simplified Chinese.",
-            'cht': "You must answer in Traditional Chinese."
-        }
-        
-        system_prompt = lang_map.get(target_language, "You must answer in Korean.")
-        
-        # [보안 강화] 악성 프롬프트 인젝션 및 개행 필터링
-        safe_input = re.sub(r'[\r\n\t]+', ' ', user_input).strip()
-        if len(safe_input) > 1000:
-            safe_input = safe_input[:1000]
-
-        # REST API 직접 호출 — gemini-2.5-flash (최신 고성능 모델)
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
-        headers = {
-            "Content-Type": "application/json"
-        }
-        params = {
-            "key": self.gemini_api_key
-        }
-        
-        full_system = f"{system_instruction}\n{system_prompt}"
-        
-        payload = {
-            "systemInstruction": {
-                "parts": [{"text": full_system}]
-            },
-            "contents": [
-                {
-                    "role": "user",
-                    "parts": [{"text": safe_input}]
-                }
-            ],
-            "generationConfig": {
-                "temperature": 0.7,
-                "maxOutputTokens": 2048
-            }
-        }
-
-        
-        try:
-            # [보안 적용] 전역 SSL 검증 옵션 바인딩
-            response = requests.post(url, headers=headers, params=params, json=payload, timeout=15, verify=self.ssl_verify)
-            
-            if response.status_code == 200:
-                res_data = response.json()
-                candidates = res_data.get("candidates", [])
-                if candidates:
-                    parts = candidates[0].get("content", {}).get("parts", [])
-                    if parts:
-                        return parts[0].get("text", "답변을 생성하지 못했습니다.")
-                return "답변을 생성하지 못했습니다."
-            else:
-                print(f"--- [DEBUG] Gemini API 오류 {response.status_code}: {response.text} ---")
-                lang_err = {
-                    'kor': "죄송합니다. AI 응답에 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
-                    'eng': "Sorry, a temporary error occurred. Please try again shortly.",
-                    'jpn': "申し訳ありません。一時的なエラーが発生しました。しばらくしてから再試行してください。",
-                    'chs': "抱歉，发生了临时错误。请稍后再试。",
-                    'cht': "抱歉，發生了臨時錯誤。請稍後再試。"
-                }
-                return lang_err.get(target_language, lang_err['eng'])
-                
-        except Exception as e:
-            print(f"--- [DEBUG] 예외 발생: {str(e)} ---")
-            return f"에러 발생: {str(e)}"

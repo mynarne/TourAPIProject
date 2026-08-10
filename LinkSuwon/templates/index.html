@@ -265,14 +265,13 @@
             }
         };
 
-        // 날씨 폴백 렌더러
+        // 날씨 정보 없음 상태 렌더러
         const renderDefaultWeather = () => {
-            tempEl.textContent = "18";
-            descEl.textContent = "Sunny (Offline)";
-            iconContainer.className = "w-11 h-11 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0";
-            iconContainer.innerHTML = '<span class="material-symbols-outlined text-2xl">wb_sunny</span>';
-            const tips = tipsMap.sunny;
-            tipEl.textContent = tips[currentLang] || tips.eng;
+            tempEl.textContent = "--";
+            descEl.textContent = "Weather unavailable";
+            iconContainer.className = "w-11 h-11 rounded-full bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0";
+            iconContainer.innerHTML = '<span class="material-symbols-outlined text-2xl">cloud_off</span>';
+            tipEl.textContent = "Weather information is currently unavailable.";
         };
 
         // 환율 폴백 렌더러
@@ -285,24 +284,25 @@
                 document.getElementById('exchange-single-container').classList.add('hidden');
                 document.getElementById('exchange-multi-container').classList.remove('hidden');
                 titleEl.textContent = '오늘의 주요 환율';
-                document.getElementById('exchange-usd-badge').textContent = `USD ${formatter.format(1350)}`;
-                document.getElementById('exchange-jpy-badge').textContent = `100 JPY ${formatter.format(900)}`;
-                document.getElementById('exchange-cny-badge').textContent = `CNY ${formatter.format(190)}`;
+                titleEl.textContent = 'Exchange rate unavailable';
+                document.getElementById('exchange-usd-badge').textContent = 'USD --';
+                document.getElementById('exchange-jpy-badge').textContent = '100 JPY --';
+                document.getElementById('exchange-cny-badge').textContent = 'CNY --';
             } else {
                 document.getElementById('exchange-single-container').classList.remove('hidden');
                 document.getElementById('exchange-multi-container').classList.add('hidden');
                 
                 if (currentLang === 'jpn') {
-                    valueEl.textContent = `100 JPY = ${formatter.format(900)} KRW`;
+                    valueEl.textContent = '100 JPY = -- KRW';
                     titleEl.textContent = '日本円の為替レート';
                 } else if (currentLang === 'chs') {
-                    valueEl.textContent = `1 CNY = ${formatter.format(190)} KRW`;
+                    valueEl.textContent = '1 CNY = -- KRW';
                     titleEl.textContent = '人民币汇率';
                 } else if (currentLang === 'cht') {
-                    valueEl.textContent = `1 TWD = ${formatter.format(42)} KRW`;
+                    valueEl.textContent = '1 TWD = -- KRW';
                     titleEl.textContent = '新台幣匯率';
                 } else {
-                    valueEl.textContent = `1 USD = ${formatter.format(1350)} KRW`;
+                    valueEl.textContent = '1 USD = -- KRW';
                     titleEl.textContent = 'USD Exchange Rate';
                 }
             }
@@ -317,8 +317,8 @@
                 const data = await response.json();
                 console.log("🛠️ [WEATHER] Data received:", data);
                 
-                tempEl.textContent = data.temp || "18";
-                descEl.textContent = data.desc || "Sunny";
+                tempEl.textContent = data.temp || "--";
+                descEl.textContent = data.desc || "Weather unavailable";
 
                 let condition = data.condition || 'cloudy';
                 let iconText = 'filter_drama';
@@ -429,7 +429,7 @@
             <p class="font-body text-xs text-on-surface-variant leading-relaxed">
                 로컬 환경변수 파일(<code>.env</code>)에 일부 필수 API 키가 누락되었습니다.<br>
                 <span class="font-semibold text-amber-600">결손 항목: {{ missing_keys | join(', ') }}</span><br><br>
-                챗봇 가이드(Gemini) 또는 실시간 정보 호출을 위해 루트 디렉토리에 <code>.env</code> 파일을 배치하고 키를 설정해 주세요.
+                챗봇 가이드(NVIDIA AI) 또는 실시간 정보 호출을 위해 루트 디렉토리에 <code>.env</code> 파일을 배치하고 키를 설정해 주세요.
             </p>
         </div>
 

@@ -1,18 +1,17 @@
 import time
 import requests
 import re
-from LinkSuwon.config import Config
+from ..config import Config
 
-# 환율 메모리 캐시 변수
 _exchange_cache = None
 _last_fetch_time = 0
 CACHE_DURATION = 600  # 10분 캐싱
 
-def get_exchange_rates():
+
+def get_suwon_exchange_rates():
     global _exchange_cache, _last_fetch_time
     current_time = time.time()
-    
-    # 캐시 만료 시에만 새로 요청
+
     if not _exchange_cache or (current_time - _last_fetch_time > CACHE_DURATION):
         try:
             url = "https://finance.naver.com/marketindex/exchangeList.naver"
@@ -22,33 +21,28 @@ def get_exchange_rates():
             response = requests.get(url, headers=headers, timeout=3, verify=Config.SSL_VERIFY)
             if response.status_code == 200:
                 html = response.text
-                
-                # 정규식으로 통화 코드와 매매기준율 일괄 획득
                 pattern = r'marketindexCd=(FX_[A-Z]{6})"[^>]*>.*?<td class="sale">([^<]+)</td>'
                 matches = re.findall(pattern, html, re.DOTALL)
-                
+
                 rates = {}
                 for code, val in matches:
                     rates[code] = val.strip().replace(',', '')
-                
-                if rates:
-                    required_codes = ('FX_USDKRW', 'FX_JPYKRW', 'FX_CNYKRW', 'FX_TWDKRW')
-                    if all(code in rates for code in required_codes):
-                        _exchange_cache = {
-                            'status': 'fresh',
-                            'USD': rates['FX_USDKRW'],
-                            'JPY': rates['FX_JPYKRW'],
-                            'CNY': rates['FX_CNYKRW'],
-                            'TWD': rates['FX_TWDKRW'],
-                            'units': {'USD': '1 USD', 'JPY': '100 JPY', 'CNY': '1 CNY', 'TWD': '1 TWD'},
-                            'fetched_at': current_time
-                        }
-                    else:
-                        raise ValueError('필수 환율 데이터가 누락되었습니다.')
-            _last_fetch_time = current_time
-        except Exception:
-            print('환율 정보 조회에 실패했습니다.')
-            _last_fetch_time = current_time  # 실패 시에도 캐시 갱신하여 10분 동안 무의미한 연속 차단 방지
+
+                required_codes = ('FX_USDKRW', 'FX_JPYKRW', 'FX_CNYKRW', 'FX_TWDKRW')
+                if all(code in rates for code in required_codes):
+                    _exchange_cache = {
+                        'status': 'fresh',
+                        'USD': rates['FX_USDKRW'],
+                        'JPY': rates['FX_JPYKRW'],
+                        'CNY': rates['FX_CNYKRW'],
+                        'TWD': rates['FX_TWDKRW'],
+                        'units': {'USD': '1 USD', 'JPY': '100 JPY', 'CNY': '1 CNY', 'TWD': '1 TWD'},
+                        'fetched_at': current_time,
+                    }
+                    _last_fetch_time = current_time
+                else:
+                    raise ValueError('필수 환율 데이터가 누락되었습니다.')
+        except Exception as e:
             if _exchange_cache:
                 _exchange_cache['status'] = 'stale'
             else:
@@ -59,7 +53,16 @@ def get_exchange_rates():
                     'CNY': None,
                     'TWD': None,
                     'units': {'USD': '1 USD', 'JPY': '100 JPY', 'CNY': '1 CNY', 'TWD': '1 TWD'},
-                    'fetched_at': current_time
+                    'fetched_at': current_time,
                 }
-                
-    return _exchange_cache
+            _last_fetch_time = current_time
+
+    return _exchange_cache or {
+        'status': 'unavailable',
+        'USD': None,
+        'JPY': None,
+        'CNY': None,
+        'TWD': None,
+        'units': {'USD': '1 USD', 'JPY': '100 JPY', 'CNY': '1 CNY', 'TWD': '1 TWD'},
+        'fetched_at': current_time,
+    }

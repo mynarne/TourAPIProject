@@ -48,6 +48,13 @@ class AuthApiTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.get_json()['data']['authenticated'])
 
+    def test_missing_secret_key_fails_fast(self):
+        class MissingSecretConfig:
+            SECRET_KEY = None
+
+        with self.assertRaisesRegex(RuntimeError, 'SECRET_KEY'):
+            create_app(MissingSecretConfig)
+
     def test_login_session_logout_and_me(self):
         login = self.client.post('/api/v1/auth/login', json={'credential': 'valid'})
         self.assertEqual(login.status_code, 200)

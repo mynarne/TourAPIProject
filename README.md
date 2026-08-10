@@ -1,20 +1,16 @@
-# LinkSuwon (링크수원)
+# LinkSuwon
 
-> **수원을 여행하는 국내외 관광객을 위한 다국어 스마트 관광 플랫폼**
+> 수원을 방문하는 국내외 여행자를 위한 다국어 스마트 관광 플랫폼
 
-LinkSuwon은 수원시를 방문하는 관광객이 **관광지 탐색부터 이동, AI 여행 추천, 여행 기록까지 하나의 서비스에서 이용할 수 있도록** 만든 관광 정보 플랫폼입니다.
+LinkSuwon은 수원 관광지를 탐색하고, 이동 방법을 확인하고, AI 여행 비서에게 질문하고, 여행 기록까지 남길 수 있도록 만든 지역 관광 서비스입니다.
 
-한국관광공사 TourAPI 기반의 다국어 관광 정보와 네이버 지도, GPS 기반 교통 안내를 제공하며, NVIDIA GPT-OSS 기반 AI 여행 비서는 서비스 내부 관광 데이터를 Function Calling으로 조회하여 수원 여행에 특화된 답변을 제공합니다.
+한국관광공사 TourAPI와 수원 지역 큐레이션 데이터를 결합하고, 네이버 지도·GPS·Google Identity Services·NVIDIA Build GPT-OSS를 하나의 여행 흐름으로 연결합니다. 프론트엔드는 React + TypeScript PWA, 백엔드는 Flask REST API로 구성되어 있습니다.
 
-React + TypeScript 기반의 모바일 우선 UI와 Flask REST API 구조로 구성되어 있으며 PWA 설치와 제한적인 오프라인 이용을 지원합니다.
+## 주요 기능
 
----
+### 다국어 관광 정보
 
-## ✨ 주요 기능
-
-### 🌏 5개 언어 관광 정보
-
-한국어, 영어, 일본어, 중국어 간체, 중국어 번체를 지원합니다.
+다음 5개 언어를 지원합니다.
 
 - 한국어 (`kor`)
 - 영어 (`eng`)
@@ -22,311 +18,145 @@ React + TypeScript 기반의 모바일 우선 UI와 Flask REST API 구조로 구
 - 중국어 간체 (`chs`)
 - 중국어 번체 (`cht`)
 
-한국관광공사 TourAPI를 통해 수원 관광지의 목록과 상세 정보를 제공합니다.
+관광지 목록, 상세 설명, 교통 안내, 챗봇 UI와 주요 상태 메시지에 동일한 언어 체계를 적용합니다.
 
----
+### 수원 관광지 탐색
 
-### 🏯 수원 관광지 탐색
+- 관광지 검색 및 카테고리 필터
+- 페이지네이션과 전체 결과 수 표시
+- 관광지 이미지·주소·상세 설명
+- 종료된 축제의 최종 날짜 검증
+- TourAPI 장애 시 로컬 큐레이션 및 최근 정상 데이터 fallback
+- 관광지 목록 지도와 상세 위치 지도
 
-관광지 목록에서 원하는 장소를 검색하고 상세 정보를 확인할 수 있습니다.
+TourAPI 데이터는 로컬 데이터와 병합한 뒤 중복 제거, 카테고리 필터, 현재성 검증을 거쳐 사용자에게 제공합니다. 과거 축제는 최종 응답 단계에서 다시 걸러냅니다.
 
-- 관광지 검색
-- 카테고리 탐색
-- 다국어 정보
-- 관광지 이미지
-- 주소 및 위치 정보
-- 상세 설명
-- 네이버 지도 연동
-
-관광지의 좌표 정보가 존재하는 경우 상세 화면에서 실제 위치를 지도와 함께 확인할 수 있습니다.
-
----
-
-### 🗺️ 네이버 지도 & 교통 안내
+### 지도와 여행자 교통 안내
 
 Naver Maps JavaScript SDK와 브라우저 Geolocation API를 활용합니다.
 
-- 관광지 위치 지도 표시
-- 현재 GPS 위치 확인
-- 목적지 선택
-- 네이버 지도 대중교통 길찾기 연결
-- 수원역 중심 fallback
-- WOWPASS · NAMANE · T-money 안내
-- 교통카드 및 일회용 지하철 카드 사용 안내
-- 수원 여행자를 위한 대중교통 팁
+- 관광지 위치와 마커 표시
+- 현재 위치 기반 거리순 탐색
+- 위치 권한 거부 시 수원역 기준 안내
+- 네이버 대중교통 길찾기 연결
+- 인천공항·서울역·수원역에서 수원으로 이동하는 방법
+- WOWPASS, NAMANE, T-money, 일회용 지하철 카드 안내
+- 환승·택시·교통카드 발급 및 충전 안내
 
-실시간 버스·지하철 도착정보 API가 아닌 **GPS + 지도 + 정적 교통 안내를 결합한 여행자용 교통 기능**으로 구성되어 있습니다.
+실시간 버스·지하철 도착 API가 아닌, 여행자에게 필요한 정적 교통 안내와 지도·GPS 기능을 결합한 구조입니다.
 
----
+### NVIDIA GPT-OSS 여행 비서
 
-### 🤖 AI 여행 비서
+AI 챗봇은 NVIDIA Build의 OpenAI 호환 API와 `openai/gpt-oss-20b` 모델을 사용합니다. Gemini를 사용하거나 자동 fallback으로 호출하지 않습니다.
 
-NVIDIA Build의 OpenAI 호환 API를 통해 `openai/gpt-oss-20b` 모델을 사용합니다.
+Function Calling 도구:
 
-단순한 자유 대화형 챗봇이 아니라 LinkSuwon 내부 기능을 AI 도구로 연결했습니다.
+- `search_suwon_spots` — 수원 관광지 검색
+- `get_suwon_spot_detail` — 관광지 상세 정보 조회
+- `get_suwon_transport_guide` — 수원 교통 및 교통카드 안내
 
-지원 Function Calling:
+챗봇은 도구 결과를 우선하여 답변하며, TourAPI가 일시적으로 제한되면 NVIDIA 응답 자체를 실패시키지 않고 저장된 검증 데이터와 제한 안내를 활용하는 degraded mode로 동작합니다. 외부 관광정보를 확인할 수 없는 최신 축제·운영시간·요금은 추측하지 않습니다.
 
-- `search_suwon_spots`
-  - 수원 관광지 검색
-- `get_suwon_spot_detail`
-  - 관광지 상세 정보 조회
-- `get_suwon_transport_guide`
-  - 수원 교통 및 교통카드 안내
+### 여행 기록 아카이브
 
-예를 들어 다음과 같은 질문을 할 수 있습니다.
+Google 로그인 사용자는 Travel Memory Archive에 여행 기록을 저장할 수 있습니다.
 
-```text
-인천공항에서 수원으로 가서 부모님과 하루 여행하려는데 코스를 추천해줘.
-```
-
-AI는 필요한 경우 관광지 및 교통 도구를 호출한 뒤 결과를 바탕으로 답변을 생성합니다.
-
-한국어, 영어, 일본어, 중국어 간체, 중국어 번체 질문을 지원합니다.
-
----
-
-### 📸 Travel Memory Archive
-
-Google 로그인 사용자는 자신의 여행 기록을 저장하고 관리할 수 있습니다.
-
-- 여행 기록 목록
-- 기록 상세
-- 기록 작성
-- 기록 수정
-- 개별 기록 삭제
+- 기록 작성·조회·수정·삭제
+- 방문 날짜, 장소, 메모, 태그
 - 대표 이미지 업로드
-- 방문 날짜
-- 장소 및 메모
-- 관광지 위치 기반 지도 연결
+- 장소 좌표 기반 지도 연결
+- 사진 중심 반응형 아카이브 카드
+- 서버 측 사용자 소유권 검증
 
-이미지는 확장자와 MIME 타입을 검증하며 UUID 기반 파일명으로 저장합니다.
+업로드 파일은 확장자·MIME 타입·용량을 검증하고 서버에서 생성한 UUID 파일명으로 저장합니다.
 
-다른 사용자의 기록을 조회하거나 수정·삭제할 수 없도록 서버에서 사용자 소유권을 검증합니다.
+### Google 로그인과 PWA
 
----
+Google Identity Services credential은 백엔드에서 검증하고 Flask Session을 생성합니다. 인증 토큰을 LocalStorage나 SessionStorage에 저장하지 않습니다.
 
-### 🔐 Google 로그인 & Flask Session
+PWA는 앱 셸과 제한적인 관광·교통 GET 데이터만 캐시합니다. 인증, 기록, 챗봇, 업로드, 상태 변경 요청은 Service Worker 캐시에서 제외합니다.
 
-Google Identity Services에서 발급한 credential을 Flask 백엔드에서 검증합니다.
+## 기술 스택
 
-```text
-Google Identity Services
-        ↓
-React
-        ↓ credential
-Flask REST API
-        ↓
-Google token 검증
-        ↓
-User Upsert
-        ↓
-Flask Session
-```
+| 영역 | 기술 |
+| --- | --- |
+| Frontend | React, TypeScript, Vite, React Router, Zustand |
+| Styling | Tailwind CSS v4, 반응형 UI, Web App Manifest |
+| Backend | Python, Flask, Flask Blueprint, REST API |
+| Data | SQLite, Repository/Service 계층 |
+| AI | NVIDIA Build, `openai/gpt-oss-20b`, OpenAI-compatible API, Function Calling |
+| Tourism | 한국관광공사 TourAPI, 로컬 큐레이션, 검증된 enrichment 데이터 |
+| Map | Naver Maps JavaScript SDK, Browser Geolocation API |
+| Auth | Google Identity Services, Flask Session |
+| Deployment | Oracle Cloud, Nginx, Gunicorn, systemd, GitHub Actions |
 
-브라우저 새로고침 이후에도 서버의 `/api/v1/auth/me`를 통해 실제 로그인 상태를 다시 확인합니다.
-
-Google credential이나 인증 토큰을 LocalStorage에 저장하지 않습니다.
-
----
-
-### 📱 PWA
-
-LinkSuwon은 모바일 홈 화면에 설치 가능한 Progressive Web App입니다.
-
-Service Worker를 통해 다음 데이터를 제한적으로 캐시합니다.
-
-- 애플리케이션 셸
-- 정적 JS/CSS
-- PWA 아이콘
-- 이미 조회한 관광지 GET 데이터
-- 교통 안내 GET 데이터
-
-보안 또는 사용자 데이터와 관련된 다음 요청은 캐시하지 않습니다.
-
-- 인증
-- 여행 기록
-- AI 챗봇
-- 이미지 업로드
-- POST / PATCH / DELETE 요청
-
-네트워크가 없는 환경에서는 앱 셸과 캐시된 관광·교통 정보를 제한적으로 이용할 수 있습니다.
-
----
-
-## 🧱 Architecture
+## 아키텍처
 
 ```text
-                         ┌──────────────────────┐
-                         │       Browser        │
-                         │ React + TypeScript   │
-                         │       + PWA          │
-                         └──────────┬───────────┘
-                                    │
-                          Same-Origin /api/v1
-                                    │
-                         ┌──────────▼───────────┐
-                         │        Nginx         │
-                         └──────┬────────┬──────┘
-                                │        │
-                         React Static    │
-                                         │
-                              ┌──────────▼──────────┐
-                              │ Flask REST API     │
-                              │     Gunicorn       │
-                              └──────────┬─────────┘
-                                         │
-               ┌─────────────────────────┼─────────────────────────┐
-               │                         │                         │
-        ┌──────▼──────┐           ┌──────▼──────┐          ┌──────▼──────┐
-        │   TourAPI   │           │   SQLite    │          │ NVIDIA Build│
-        │ 관광 공공데이터 │           │ Users/Records│          │ GPT-OSS-20B │
-        └─────────────┘           └─────────────┘          └─────────────┘
-
-                         ┌──────────────────────┐
-                         │     Naver Maps       │
-                         │ Maps SDK / GPS Link  │
-                         └──────────────────────┘
-
-                         ┌──────────────────────┐
-                         │ Google Identity     │
-                         │      Services       │
-                         └──────────────────────┘
+Browser
+  ├── React + TypeScript + PWA
+  └── Google Identity Services / Naver Maps SDK
+          │ same-origin /api/v1
+          ▼
+Nginx
+  ├── React static assets
+  └── /api/v1/*
+          ▼
+Flask REST API + Gunicorn
+  ├── Tourism Service ── TourAPI + local catalog + enrichment
+  ├── Traffic Service
+  ├── Chatbot Service ── NVIDIA GPT-OSS-20B + tools
+  ├── Auth / Session
+  ├── Records Repository ── SQLite
+  └── Upload validation
 ```
 
----
+기존 Flask + Jinja 서비스에서 출발하여 기능 단위의 수직 마이그레이션 방식으로 React 프론트엔드와 Flask REST API 구조를 구축했습니다. 기존 서비스와 데이터 호환성을 고려하면서 관광지, 상세, 지도, 교통, 챗봇, 기록, 인증, PWA 순서로 기능을 이전했습니다.
 
-## 🛠️ Tech Stack
-
-### Frontend
-
-- React
-- TypeScript
-- Vite
-- React Router
-- Zustand
-- Tailwind CSS
-- Service Worker / Web App Manifest
-
-### Backend
-
-- Python
-- Flask
-- Gunicorn
-- REST API
-- SQLite
-
-### AI
-
-- NVIDIA Build
-- `openai/gpt-oss-20b`
-- OpenAI-compatible API
-- Function Calling
-
-### External Services
-
-- 한국관광공사 TourAPI
-- Naver Maps JavaScript SDK
-- Google Identity Services
-- Browser Geolocation API
-
-### Infrastructure
-
-- Oracle Cloud
-- Nginx
-- Gunicorn
-- systemd
-- GitHub Actions
-
----
-
-## 📂 Project Structure
+## 프로젝트 구조
 
 ```text
 TourProject/
 ├── frontend/
 │   ├── public/
-│   │   ├── manifest.webmanifest
-│   │   ├── sw.js
-│   │   └── offline.html
 │   └── src/
 │       ├── api/
 │       ├── components/
 │       ├── features/
-│       ├── hooks/
 │       ├── pages/
-│       ├── pwa/
-│       └── stores/
-│
+│       ├── stores/
+│       ├── i18n/
+│       └── styles/
 ├── backend/
 │   ├── app/
 │   │   ├── api/
 │   │   ├── repositories/
-│   │   └── services/
-│   ├── tests/
-│   ├── run.py
-│   └── wsgi.py
-│
-├── LinkSuwon/
-│   └── Legacy Flask application
-│
-├── deploy/
-│   └── Deployment configuration
-│
-├── .github/
-│   └── workflows/
-│
-├── app.py
+│   │   ├── services/
+│   │   └── data/
+│   └── tests/
+├── LinkSuwon/          # 기존 Flask/Jinja 호환 영역
+├── deploy/             # 배포 설정 참고 파일
+├── .github/workflows/  # CI/CD
+├── app.py              # 기존 Flask 진입점
 ├── requirements.txt
 └── README.md
 ```
 
-`LinkSuwon/`에는 기존 Flask 기반 구현이 보존되어 있으며, 주요 기능을 React + Flask REST API 구조로 점진적으로 리팩터링했습니다.
+## REST API
 
----
-
-## 🔌 REST API
-
-주요 API는 `/api/v1` 아래에서 제공됩니다.
-
-### System
+주요 API는 `/api/v1` 아래에서 제공합니다.
 
 ```http
-GET /api/v1/health
-```
-
-### Tourism
-
-```http
-GET /api/v1/tour/spots
-GET /api/v1/tour/spots/:contentId
-```
-
-### Traffic
-
-```http
-GET /api/v1/traffic
-```
-
-### AI Chatbot
-
-```http
-POST /api/v1/chatbot/messages
-```
-
-### Authentication
-
-```http
+GET    /api/v1/health
+GET    /api/v1/tour/spots
+GET    /api/v1/tour/spots/:contentId
+GET    /api/v1/traffic
+GET    /api/v1/weather
+GET    /api/v1/exchange
+POST   /api/v1/chatbot/messages
 GET    /api/v1/auth/me
 POST   /api/v1/auth/login
 POST   /api/v1/auth/logout
-POST   /api/v1/auth/sync
-DELETE /api/v1/auth/account
-```
-
-### Travel Records
-
-```http
 GET    /api/v1/records
 GET    /api/v1/records/:id
 POST   /api/v1/records
@@ -335,280 +165,135 @@ DELETE /api/v1/records/:id
 POST   /api/v1/records/upload
 ```
 
----
+공통 응답 형식:
 
-## 🚀 Local Development
+```json
+{
+  "success": true,
+  "data": {},
+  "message": null
+}
+```
 
-### Requirements
+## 로컬 실행
+
+### 요구 사항
 
 - Python 3.12 권장
 - Node.js 22 이상
 - npm
 
-### 1. Clone
+### 설치
 
 ```bash
 git clone <repository-url>
 cd TourProject
-```
 
-### 2. Python 환경 구성
-
-```bash
 python3 -m venv .venv
-
 source .venv/bin/activate
-```
-
-Windows:
-
-```powershell
-.venv\Scripts\activate
-```
-
-의존성 설치:
-
-```bash
 pip install -r requirements.txt
 pip install -r backend/requirements.txt
-```
 
-### 3. Frontend 설치
-
-```bash
 cd frontend
 npm ci
 cd ..
 ```
 
----
+### 환경변수
 
-## 🔑 Environment Variables
+실제 `.env` 파일과 API 키는 Git에 커밋하지 않습니다. 예시 파일을 복사하여 로컬 값을 입력합니다.
 
-실제 API Key와 Secret은 Git에 커밋하지 않습니다.
-
-### Backend
+Backend `.env`:
 
 ```env
 TOUR_API_KEY=
 NVIDIA_API_KEY=
 NVIDIA_BASE_URL=https://integrate.api.nvidia.com/v1
 NVIDIA_MODEL=openai/gpt-oss-20b
-
 GOOGLE_CLIENT_ID=
-
 SECRET_KEY=
 SESSION_COOKIE_SECURE=False
-
 DATABASE_PATH=
 UPLOAD_FOLDER=
-UPLOAD_URL_PREFIX=/uploads
+UPLOAD_URL_PREFIX=/static/uploads
 ```
 
-### Frontend
+Frontend `.env`:
 
 ```env
+VITE_API_BASE_URL=/api/v1
 VITE_GOOGLE_CLIENT_ID=
 VITE_NAVER_MAP_CLIENT_ID=
-VITE_API_BASE_URL=/api/v1
 ```
 
-`VITE_*` 변수에는 브라우저에서 사용할 수 있는 공개 식별자만 사용합니다.
+NVIDIA, TourAPI, Google Client Secret, Flask `SECRET_KEY`는 백엔드에만 둡니다. 프론트엔드의 `VITE_*`에는 브라우저에 공개되어도 되는 식별자만 사용합니다.
 
-`NVIDIA_API_KEY`, `SECRET_KEY`, TourAPI Key 등의 비밀 값은 프론트엔드에 포함하지 않습니다.
+### 실행
 
----
-
-## ▶️ Run
-
-### Legacy Flask
-
-```bash
-python app.py
-```
-
-기본 개발 주소:
-
-```text
-http://localhost:5001
-```
-
-### Flask REST API
+REST API:
 
 ```bash
 cd backend
-python run.py
+PYTHONPATH=.. ../.venv/bin/python run.py
 ```
 
-기본 개발 주소:
-
-```text
-http://localhost:5002
-```
-
-Health Check:
-
-```text
-http://localhost:5002/api/v1/health
-```
-
-### React
+React 개발 서버:
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-기본 개발 주소:
+기존 Flask 호환 앱:
 
-```text
-http://localhost:5173
+```bash
+python app.py
 ```
 
-개발 환경에서는 Vite가 `/api` 요청을 Flask REST API로 proxy합니다.
-
----
-
-## 🧪 Testing
-
-Backend:
+## 테스트와 빌드
 
 ```bash
 cd backend
-PYTHONPATH=.. python -m pytest tests -q
-```
+PYTHONPATH=.. ../.venv/bin/python -m pytest tests -q
 
-현재 백엔드 테스트:
-
-```text
-28 passed
-```
-
-Frontend production build:
-
-```bash
-cd frontend
+cd ../frontend
 npm run build
-```
 
-Service Worker syntax:
-
-```bash
-node --check public/sw.js
-```
-
-Git diff validation:
-
-```bash
+cd ..
 git diff --check
 ```
 
----
+테스트는 외부 AI·관광 API를 무분별하게 호출하지 않도록 대부분 mock을 사용하며, 실제 운영 API 키는 테스트 로그에 출력하지 않습니다.
 
-## 🔒 Security
+## 보안 원칙
 
-LinkSuwon은 다음 원칙을 적용합니다.
-
-- API Key 및 Secret의 서버 측 관리
+- API 키와 Secret은 서버 환경변수로만 관리
+- `SECRET_KEY` 공개 기본값 금지 및 운영 환경 누락 시 fail-fast
 - Google credential 서버 검증
-- Flask Session 기반 인증
-- `HttpOnly` Session Cookie
-- `SameSite=Lax`
-- 운영 환경 `Secure` Cookie 지원
-- 상태 변경 인증 요청 Origin 검증
-- Records 사용자 소유권 검증
-- 업로드 확장자 및 MIME 타입 검증
-- 이미지 최대 10MB 제한
-- UUID 기반 업로드 파일명
+- HttpOnly·SameSite Session Cookie
+- 사용자별 여행 기록 소유권 검증
+- 업로드 MIME·확장자·용량 검증
+- UUID 기반 파일명으로 path traversal 방지
 - 사용자 입력 HTML 직접 렌더링 금지
-- 인증 및 사용자 데이터의 Service Worker 캐시 제외
+- 인증·기록·챗봇 응답의 Service Worker 캐시 제외
+- TourAPI 장애 시 검증되지 않은 최신 정보를 임의 생성하지 않음
 
----
+## 배포
 
-## 🔄 Migration
-
-LinkSuwon은 기존 Flask + Jinja 기반 서비스에서 시작했습니다.
-
-서비스 전체를 한 번에 교체하는 방식 대신, 기능 단위의 수직 마이그레이션 방식으로 React + Flask REST API 구조로 전환했습니다.
+배포 흐름은 다음과 같습니다.
 
 ```text
-Legacy Flask / Jinja
-        ↓
-Tourism API
-        ↓
-Tourism Detail
-        ↓
-Naver Map
-        ↓
-Traffic
-        ↓
-AI Chatbot
-        ↓
-Travel Records
-        ↓
-Authentication
-        ↓
-PWA
-        ↓
-React + Flask REST Architecture
+로컬 개발
+  → 테스트
+  → Git push
+  → GitHub Actions
+  → React production build
+  → Flask/Gunicorn 반영
+  → health check
 ```
 
-기존 기능을 유지하면서 각 기능을 독립적으로 검증하여 점진적으로 새로운 구조로 전환했습니다.
+운영 Nginx와 기존 서비스 인프라를 재사용하며, 일반 배포 과정에서 SQLite DB와 사용자 업로드 파일을 초기화하지 않도록 runtime 데이터를 코드와 분리할 수 있습니다.
 
----
+## License
 
-## 🚢 Deployment
-
-배포는 GitHub Actions를 기준으로 자동화합니다.
-
-```text
-Local Development
-        ↓
-Test
-        ↓
-Git Push
-        ↓
-GitHub Actions
-        ↓
-Production Build
-        ↓
-Oracle Cloud
-```
-
-일반 배포 과정에서는 사용자 SQLite 데이터나 업로드 파일을 초기화하거나 삭제하지 않습니다.
-
-운영 환경에서는 사용자 데이터를 애플리케이션 코드와 분리하여 관리할 수 있도록 다음 환경변수를 지원합니다.
-
-```env
-DATABASE_PATH=/path/to/runtime/linksuwon.db
-UPLOAD_FOLDER=/path/to/runtime/uploads
-UPLOAD_URL_PREFIX=/uploads
-```
-
----
-
-## 🎯 Project Goals
-
-LinkSuwon은 단순히 관광 정보를 나열하는 서비스가 아니라,
-
-**관광지를 찾고 → 이동하고 → AI에게 도움을 받고 → 여행을 기록하는 경험을 하나의 흐름으로 연결하는 것**
-
-을 목표로 합니다.
-
-```text
-Explore
-   ↓
-Navigate
-   ↓
-Ask AI
-   ↓
-Travel
-   ↓
-Record
-```
-
----
-
-## 📄 License
-
-This project is intended for portfolio, educational, and competition purposes.
+Portfolio, educational, and competition project.

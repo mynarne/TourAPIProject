@@ -6,6 +6,11 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
 
 # 환경 변수
 .env
@@ -35,6 +40,10 @@ __pycache__/
 *.db
 *.sqlite
 *.sqlite3
+*.db-wal
+*.db-shm
+*.sqlite-wal
+*.sqlite-shm
 **/uploads/
 
 # 예시 환경변수 파일은 저장소에 포함
@@ -46,3 +55,10 @@ __pycache__/
 *.md
 !/README.md
 docs/
+
+# Local reports and generated artifacts
+coverage.xml
+test-results/
+playwright-report/
+*.bak
+*.tmp

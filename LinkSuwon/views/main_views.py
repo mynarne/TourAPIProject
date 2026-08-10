@@ -15,8 +15,8 @@ def index():
     
     from LinkSuwon.config import Config
     missing_keys = []
-    if not Config.GEMINI_API_KEY:
-        missing_keys.append('GEMINI_API_KEY')
+    if not Config.NVIDIA_API_KEY:
+        missing_keys.append('NVIDIA_API_KEY')
     if not Config.TOUR_API_KEY:
         missing_keys.append('TOUR_API_KEY')
     
@@ -83,19 +83,24 @@ def get_weather():
                     condition = 'snowy'
                 
                 weather_cache = {
+                    'status': 'fresh',
                     'temp': temp_c,
                     'condition': condition,
                     'desc': weather_desc
                 }
             last_fetch_time = current_time
         except Exception as e:
-            print(f"❌ [Weather Fetch Error] {e}")
+            print('날씨 정보 조회에 실패했습니다.')
             last_fetch_time = current_time  # 실패 시에도 타임스탬프 갱신하여 10분 동안 무의미한 5초 차단 루프 방지
-            if not weather_cache:
+            if weather_cache:
+                weather_cache['status'] = 'stale'
+            else:
                 weather_cache = {
-                    'temp': '18',
-                    'condition': 'sunny',
-                    'desc': 'Sunny (Offline)'
+                    'status': 'unavailable',
+                    'temp': None,
+                    'condition': None,
+                    'desc': None,
+                    'fetched_at': current_time,
                 }
                 
     return jsonify(weather_cache)
@@ -106,5 +111,3 @@ from LinkSuwon.utils.exchange_crawler import get_exchange_rates
 def get_exchange():
     rates = get_exchange_rates()
     return jsonify(rates)
-
-

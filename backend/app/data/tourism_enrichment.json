@@ -1,0 +1,16 @@
+{
+  "festivals": [
+    {
+      "contentId": "enrichment-festival-suwonhwaseong-2026",
+      "normalizedTitle": "수원화성문화제",
+      "title": "제63회 수원화성문화제",
+      "eventStartDate": "20261004",
+      "eventEndDate": "20261011",
+      "address": "수원화성 일원",
+      "overview": "수원화성의 역사와 정조대왕의 이야기를 보고, 듣고, 체험하는 문화관광축제입니다.",
+      "source": "official_suwon",
+      "sourceUrl": "https://www.visitsuwon.or.kr/base/menu/baseView?menuLevel=2&menuNo=5"
+    }
+  ],
+  "images": []
+}

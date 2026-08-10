@@ -8,7 +8,7 @@ from app.services.traffic_service import TrafficService
 
 class TrafficApiTestCase(unittest.TestCase):
     def setUp(self):
-        self.app = create_app({'TESTING': True})
+        self.app = create_app({'TESTING': True, 'SECRET_KEY': 'traffic-test-secret'})
         self.client = self.app.test_client()
 
     def test_traffic_returns_localized_destinations_and_guides(self):

@@ -25,7 +25,7 @@ class Config:
     # API Keys
     TOUR_API_KEY = os.getenv('TOUR_API_KEY')
     NAVER_CLIENT_ID = os.getenv('NAVER_CLIENT_ID')
-    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+    NVIDIA_API_KEY = os.getenv('NVIDIA_API_KEY') or os.getenv('NVIDIA_OPENAI_KEY')
     GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 
     # Security & SSL settings
@@ -42,8 +42,8 @@ class Config:
             missing_keys.append('TOUR_API_KEY')
         if not cls.NAVER_CLIENT_ID:
             missing_keys.append('NAVER_CLIENT_ID')
-        if not cls.GEMINI_API_KEY:
-            missing_keys.append('GEMINI_API_KEY')
+        if not cls.NVIDIA_API_KEY:
+            missing_keys.append('NVIDIA_API_KEY')
             
         if missing_keys:
             print(f"⚠️  [WARNING] 누락된 환경변수가 있습니다: {', '.join(missing_keys)}")
