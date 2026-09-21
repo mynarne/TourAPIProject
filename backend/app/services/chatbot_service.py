@@ -12,7 +12,7 @@ from .traffic_service import TrafficService
 logger = logging.getLogger(__name__)
 
 MAX_MESSAGE_LENGTH = 1000
-MAX_TOOL_ROUNDS = 4
+MAX_TOOL_ROUNDS = 3
 
 LANGUAGE_NAMES = {
     'kor': 'Korean',
@@ -44,7 +44,7 @@ class ChatbotService:
             self.client = OpenAI(
                 base_url=Config.NVIDIA_BASE_URL,
                 api_key=self.api_key,
-                timeout=60.0,
+                timeout=45.0,
                 max_retries=0,
             ) if self.api_key else None
         else:
@@ -73,9 +73,9 @@ class ChatbotService:
                 completion = self.client.chat.completions.create(
                     model=self.model,
                     messages=messages,
-                    temperature=1,
-                    top_p=1,
-                    max_tokens=4096,
+                    temperature=0.6,
+                    top_p=0.9,
+                    max_tokens=2048,
                     stream=False,
                     tools=self.tools(),
                     tool_choice='auto',
@@ -113,9 +113,9 @@ class ChatbotService:
             final_completion = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                temperature=1,
-                top_p=1,
-                max_tokens=4096,
+                temperature=0.6,
+                top_p=0.9,
+                max_tokens=2048,
                 stream=False,
             )
             final_assistant = final_completion.choices[0].message
@@ -254,17 +254,25 @@ class ChatbotService:
         if text == 'None':
             text = ''
 
-        if any(text.startswith(prefix) for prefix in ['We ', 'The user:', 'User asks:', 'User asked:']):
+        # English reasoning prefix filter
+        reasoning_prefixes = ('We ', 'The user:', 'User asks:', 'User asked:', 'I ', 'First,', 'Let\'s', 'Potential', 'Plan:', 'Ok ', 'Morning:', 'Afternoon:', 'Evening:', 'Also ', 'Maybe ')
+        if any(text.startswith(prefix) for prefix in reasoning_prefixes):
             lines = text.splitlines()
             korean_lines = []
             started = False
             for line in lines:
-                if re.search(r'[가-힣]', line) or line.strip().startswith(('#', '-', '*', '1.', '2.', '3.', '4.', '5.', '|', '[COURSE_DATA:')):
+                stripped = line.strip()
+                # Do not trigger 'started' on English reasoning lines quoting user input
+                if any(stripped.startswith(prefix) for prefix in reasoning_prefixes):
+                    continue
+                if re.search(r'[가-힣]', line) or stripped.startswith(('#', '-', '*', '1.', '2.', '3.', '4.', '5.', '|', '[COURSE_DATA:')):
                     started = True
                 if started:
                     korean_lines.append(line)
             if korean_lines:
                 text = '\n'.join(korean_lines).strip()
+            else:
+                text = ''
 
         course = None
         match = re.search(r'(?:```(?:markdown|json)?\s*)?\[COURSE_DATA:\s*(\{.*?\})\]\s*(?:```)?\s*$', text, re.DOTALL)
