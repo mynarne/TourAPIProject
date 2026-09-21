@@ -12,7 +12,7 @@ from .traffic_service import TrafficService
 logger = logging.getLogger(__name__)
 
 MAX_MESSAGE_LENGTH = 1000
-MAX_TOOL_ROUNDS = 3
+MAX_TOOL_ROUNDS = 2
 
 LANGUAGE_NAMES = {
     'kor': 'Korean',
@@ -44,7 +44,7 @@ class ChatbotService:
             self.client = OpenAI(
                 base_url=Config.NVIDIA_BASE_URL,
                 api_key=self.api_key,
-                timeout=45.0,
+                timeout=75.0,
                 max_retries=0,
             ) if self.api_key else None
         else:
@@ -70,16 +70,20 @@ class ChatbotService:
 
         try:
             for _ in range(MAX_TOOL_ROUNDS):
-                completion = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=messages,
-                    temperature=0.6,
-                    top_p=0.9,
-                    max_tokens=2048,
-                    stream=False,
-                    tools=self.tools(),
-                    tool_choice='auto',
-                )
+                has_tool_results = any(msg.get('role') == 'tool' for msg in messages)
+                create_kwargs = {
+                    'model': self.model,
+                    'messages': messages,
+                    'temperature': 0.6,
+                    'top_p': 0.9,
+                    'max_tokens': 2048,
+                    'stream': False,
+                }
+                if not has_tool_results:
+                    create_kwargs['tools'] = self.tools()
+                    create_kwargs['tool_choice'] = 'auto'
+
+                completion = self.client.chat.completions.create(**create_kwargs)
                 assistant = completion.choices[0].message
                 tool_calls = getattr(assistant, 'tool_calls', None) or []
                 messages.append(self._assistant_message(assistant))
@@ -102,17 +106,65 @@ class ChatbotService:
                             if result.get('degraded'):
                                 degraded = True
                                 tool_status = result.get('toolStatus') or tool_status
-                            messages.append({'role': 'assistant', 'content': content})
+                            call_id = f'call_pseudo_{len(messages)}'
+                            messages.append({
+                                'role': 'assistant',
+                                'content': None,
+                                'tool_calls': [{
+                                    'id': call_id,
+                                    'type': 'function',
+                                    'function': {'name': tool_name, 'arguments': tool_args}
+                                }]
+                            })
                             messages.append({
                                 'role': 'tool',
-                                'tool_call_id': f'call_{len(messages)}',
+                                'tool_call_id': call_id,
                                 'content': json.dumps(result, ensure_ascii=False),
                             })
-                            continue
+                            messages.append({'role': 'user', 'content': '수집된 정보를 바탕으로 사용자의 질문에 맞춰 한국어로 친절하게 최종 마크다운 답변만 작성해 주세요.'})
+                            pseudo_completion = self.client.chat.completions.create(
+                                model=self.model,
+                                messages=messages,
+                                temperature=0.6,
+                                top_p=0.9,
+                                max_tokens=2048,
+                                stream=False,
+                            )
+                            pseudo_assistant = pseudo_completion.choices[0].message
+                            pseudo_content = (
+                                getattr(pseudo_assistant, 'content', None)
+                                or getattr(pseudo_assistant, 'reasoning_content', None)
+                                or getattr(pseudo_assistant, 'reasoning', None)
+                                or ''
+                            ).strip()
+                            response = self._normalize_response(pseudo_content)
+                            response['model'] = self.model
+                            response['degraded'] = degraded
+                            response['toolStatus'] = tool_status
+                            return response
                     except (json.JSONDecodeError, TypeError):
                         pass
 
                     response = self._normalize_response(content)
+                    if response['message'] == '답변을 생성하지 못했습니다.':
+                        messages.append({'role': 'user', 'content': '위 정보를 바탕으로 사용자의 질문에 한국어로 친절하고 상세하게 답변해 주세요.'})
+                        fallback_completion = self.client.chat.completions.create(
+                            model=self.model,
+                            messages=messages,
+                            temperature=0.6,
+                            top_p=0.9,
+                            max_tokens=2048,
+                            stream=False,
+                        )
+                        fallback_assistant = fallback_completion.choices[0].message
+                        fallback_content = (
+                            getattr(fallback_assistant, 'content', None)
+                            or getattr(fallback_assistant, 'reasoning_content', None)
+                            or getattr(fallback_assistant, 'reasoning', None)
+                            or ''
+                        ).strip()
+                        response = self._normalize_response(fallback_content)
+
                     response['model'] = self.model
                     response['degraded'] = degraded
                     response['toolStatus'] = tool_status
@@ -130,6 +182,7 @@ class ChatbotService:
                     })
 
             # 도구 호출 루프 종료 후 최종 답변 생성 (도구 없이 호출하여 답변 강제)
+            messages.append({'role': 'user', 'content': '수집된 정보를 바탕으로 사용자의 질문에 맞춰 한국어로 친절하고 가독성 좋은 마크다운 답변을 작성해 주세요.'})
             final_completion = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
@@ -146,6 +199,24 @@ class ChatbotService:
                 or ''
             ).strip()
             response = self._normalize_response(final_content)
+            if response['message'] == '답변을 생성하지 못했습니다.':
+                messages.append({'role': 'user', 'content': '사용자의 질문에 한국어로 직관적이고 완성도 높은 안내를 제공해 주세요.'})
+                last_completion = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=0.6,
+                    top_p=0.9,
+                    max_tokens=2048,
+                    stream=False,
+                )
+                last_assistant = last_completion.choices[0].message
+                last_content = (
+                    getattr(last_assistant, 'content', None)
+                    or getattr(last_assistant, 'reasoning_content', None)
+                    or getattr(last_assistant, 'reasoning', None)
+                    or ''
+                ).strip()
+                response = self._normalize_response(last_content)
             response['model'] = self.model
             response['degraded'] = degraded
             response['toolStatus'] = tool_status
@@ -205,6 +276,7 @@ class ChatbotService:
         ]
 
     def _run_tool(self, name, arguments, language):
+        name = str(name or '').split('<')[0].split('|')[0].strip()
         try:
             args = json.loads(arguments or '{}')
         except json.JSONDecodeError:
@@ -213,7 +285,11 @@ class ChatbotService:
         try:
             if name == 'search_suwon_spots':
                 query = str(args.get('query') or '').strip()[:100]
-                category = args.get('category', 'all')
+                category = str(args.get('category') or 'all').lower()
+                valid_categories = {'all', 'heritage', 'museum', 'market', 'nature', 'food', 'festival', 'stay', 'leisure', 'course'}
+                category_map = {'restaurant': 'food', 'restaurants': 'food', 'food_spot': 'food', 'attraction': 'all', 'attractions': 'all', 'place': 'all'}
+                if category not in valid_categories:
+                    category = category_map.get(category, 'all')
                 if not query:
                     return {'items': []}
                 data = self.tourism_service.get_spots(language=language, page=1, page_size=8, category=category, keyword=query)
@@ -221,7 +297,7 @@ class ChatbotService:
                 return self._mark_tourism_degraded(result)
 
             if name == 'get_suwon_spot_detail':
-                content_id = str(args.get('content_id') or '').strip()
+                content_id = str(args.get('content_id') or args.get('contentId') or '').strip()
                 detail = self.tourism_service.get_spot_detail(content_id, language=language)
                 return self._mark_tourism_degraded({'spot': self._compact_spot(detail, detail=True)})
 
@@ -278,25 +354,24 @@ class ChatbotService:
         if text.startswith('{') and text.endswith('}') and any(k in text for k in ('query', 'contentId', 'content_id', 'topic')):
             text = ''
 
-        # English reasoning prefix filter
-        reasoning_prefixes = ('We ', 'The user:', 'User asks:', 'User asked:', 'I ', 'First,', 'Let\'s', 'Potential', 'Plan:', 'Ok ', 'Morning:', 'Afternoon:', 'Evening:', 'Also ', 'Maybe ')
-        if any(text.startswith(prefix) for prefix in reasoning_prefixes):
-            lines = text.splitlines()
-            korean_lines = []
-            started = False
-            for line in lines:
-                stripped = line.strip()
-                # Do not trigger 'started' on English reasoning lines quoting user input
-                if any(stripped.startswith(prefix) for prefix in reasoning_prefixes):
-                    continue
+        reasoning_prefixes = ('We ', 'The user', 'User asks', 'User asked', 'I ', 'First,', 'Let\'s', 'Potential', 'Plan:', 'Ok,', 'Ok ', 'Morning:', 'Afternoon:', 'Evening:', 'Also ', 'Maybe ', 'To ', 'Based ')
+        lines = text.splitlines()
+        korean_lines = []
+        started = False
+        for line in lines:
+            stripped = line.strip()
+            if any(stripped.startswith(prefix) for prefix in reasoning_prefixes):
+                continue
+            if not started:
                 if re.search(r'[가-힣]', line) or stripped.startswith(('#', '-', '*', '1.', '2.', '3.', '4.', '5.', '|', '[COURSE_DATA:')):
                     started = True
-                if started:
-                    korean_lines.append(line)
-            if korean_lines:
-                text = '\n'.join(korean_lines).strip()
-            else:
-                text = ''
+            if started:
+                korean_lines.append(line)
+
+        if korean_lines:
+            text = '\n'.join(korean_lines).strip()
+        else:
+            text = ''
 
         course = None
         match = re.search(r'(?:```(?:markdown|json)?\s*)?\[COURSE_DATA:\s*(\{.*?\})\]\s*(?:```)?\s*$', text, re.DOTALL)
@@ -343,6 +418,7 @@ class ChatbotService:
 - 교통 질문(공항/서울 ➡️ 수원 이동, T-money, WOWPASS, NAMANE, 1회용 카드 등)은 get_suwon_transport_guide 도구를 우선 호출한다.
 - 도구 결과에 없는 가격, 운영시간, 소요시간을 거짓으로 지어내지 말고, 불확실하면 네이버 지도 등 공식 확인 방법을 안내한다.
 - 도구 결과에 `degraded` 또는 `unavailable` 상태가 포함되면 최신 관광정보를 확인할 수 없다고 명확히 알리고, 검증되지 않은 축제·운영시간·요금·교통 상태를 추측하지 않는다.
+- 생각(Reasoning) 과정은 1~2줄로 최소화하고 도구 결과 수집 후 즉시 한국어 마크다운 답변을 제공한다.
 - 답변은 반드시 사용자가 요청한 언어({language_name})로 작성한다.
 - 가독성이 좋은 마크다운(Markdown) 포맷으로 작성한다.
 - 여행 코스나 일정을 추천할 때는 답변 맨 마지막 줄에 [COURSE_DATA: {{"title":"...", "places":["..."]}}] 형태의 메타데이터를 추가한다.
