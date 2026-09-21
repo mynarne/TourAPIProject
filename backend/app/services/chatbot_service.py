@@ -92,6 +92,26 @@ class ChatbotService:
                 ).strip()
 
                 if not tool_calls:
+                    # Catch pseudo JSON tool calls written into content by gpt-oss-20b
+                    try:
+                        raw_json = json.loads(content)
+                        if isinstance(raw_json, dict) and any(k in raw_json for k in ('query', 'content_id', 'contentId', 'topic')):
+                            tool_name = 'search_suwon_spots' if 'query' in raw_json else ('get_suwon_spot_detail' if ('content_id' in raw_json or 'contentId' in raw_json) else 'get_suwon_transport_guide')
+                            tool_args = json.dumps(raw_json)
+                            result = self._run_tool(tool_name, tool_args, language)
+                            if result.get('degraded'):
+                                degraded = True
+                                tool_status = result.get('toolStatus') or tool_status
+                            messages.append({'role': 'assistant', 'content': content})
+                            messages.append({
+                                'role': 'tool',
+                                'tool_call_id': f'call_{len(messages)}',
+                                'content': json.dumps(result, ensure_ascii=False),
+                            })
+                            continue
+                    except (json.JSONDecodeError, TypeError):
+                        pass
+
                     response = self._normalize_response(content)
                     response['model'] = self.model
                     response['degraded'] = degraded
@@ -252,6 +272,10 @@ class ChatbotService:
     def _normalize_response(content):
         text = str(content or '').strip()
         if text == 'None':
+            text = ''
+
+        # Filter raw pseudo tool call JSON string if leaked
+        if text.startswith('{') and text.endswith('}') and any(k in text for k in ('query', 'contentId', 'content_id', 'topic')):
             text = ''
 
         # English reasoning prefix filter
