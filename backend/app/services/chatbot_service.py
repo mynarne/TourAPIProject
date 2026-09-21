@@ -44,7 +44,7 @@ class ChatbotService:
             self.client = OpenAI(
                 base_url=Config.NVIDIA_BASE_URL,
                 api_key=self.api_key,
-                timeout=30.0,
+                timeout=60.0,
                 max_retries=0,
             ) if self.api_key else None
         else:
@@ -84,8 +84,14 @@ class ChatbotService:
                 tool_calls = getattr(assistant, 'tool_calls', None) or []
                 messages.append(self._assistant_message(assistant))
 
+                content = (
+                    getattr(assistant, 'content', None)
+                    or getattr(assistant, 'reasoning_content', None)
+                    or getattr(assistant, 'reasoning', None)
+                    or ''
+                ).strip()
+
                 if not tool_calls:
-                    content = getattr(assistant, 'content', None) or ''
                     response = self._normalize_response(content)
                     response['model'] = self.model
                     response['degraded'] = degraded
@@ -102,13 +108,34 @@ class ChatbotService:
                         'tool_call_id': tool_call.id,
                         'content': json.dumps(result, ensure_ascii=False),
                     })
+
+            # 도구 호출 루프 종료 후 최종 답변 생성 (도구 없이 호출하여 답변 강제)
+            final_completion = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=1,
+                top_p=1,
+                max_tokens=4096,
+                stream=False,
+            )
+            final_assistant = final_completion.choices[0].message
+            final_content = (
+                getattr(final_assistant, 'content', None)
+                or getattr(final_assistant, 'reasoning_content', None)
+                or getattr(final_assistant, 'reasoning', None)
+                or ''
+            ).strip()
+            response = self._normalize_response(final_content)
+            response['model'] = self.model
+            response['degraded'] = degraded
+            response['toolStatus'] = tool_status
+            return response
         except ChatbotConfigurationError:
             raise
         except Exception as error:
             logger.exception('NVIDIA GPT-OSS 챗봇 호출 실패')
             raise ChatbotProviderError('챗봇 응답 생성에 실패했습니다.') from error
 
-        raise ChatbotProviderError('챗봇 도구 호출이 제한 횟수를 초과했습니다.')
 
     @staticmethod
     def tools():
@@ -223,7 +250,22 @@ class ChatbotService:
 
     @staticmethod
     def _normalize_response(content):
-        text = str(content).strip()
+        text = str(content or '').strip()
+        if text == 'None':
+            text = ''
+
+        if any(text.startswith(prefix) for prefix in ['We ', 'The user:', 'User asks:', 'User asked:']):
+            lines = text.splitlines()
+            korean_lines = []
+            started = False
+            for line in lines:
+                if re.search(r'[가-힣]', line) or line.strip().startswith(('#', '-', '*', '1.', '2.', '3.', '4.', '5.', '|', '[COURSE_DATA:')):
+                    started = True
+                if started:
+                    korean_lines.append(line)
+            if korean_lines:
+                text = '\n'.join(korean_lines).strip()
+
         course = None
         match = re.search(r'(?:```(?:markdown|json)?\s*)?\[COURSE_DATA:\s*(\{.*?\})\]\s*(?:```)?\s*$', text, re.DOTALL)
         if match:
